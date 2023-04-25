@@ -4,3 +4,4 @@ numpy
 utils
 pandas
 sklearn
+beautifulsoup4
