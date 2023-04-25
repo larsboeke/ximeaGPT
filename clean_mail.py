@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import re
 
 def lade_html_datei_als_string(dateipfad):
     with open(dateipfad, 'r', encoding='utf-8') as datei:
@@ -14,5 +15,12 @@ def extrahiere_text_aus_html(html_inhalt):
 html_dateipfad = "example_mail.html"
 html_inhalt = lade_html_datei_als_string(html_dateipfad)
 text = extrahiere_text_aus_html(html_inhalt)
+
+def remove_from_to_subject(email_text):
+    pattern = r"From:.*?Subject:"
+    cleaned_email_text = re.sub(pattern, "", email_text, flags=re.DOTALL)
+    return cleaned_email_text.strip()
+
+text = remove_from_to_subject(text)
 
 print(text)
