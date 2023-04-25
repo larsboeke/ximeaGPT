@@ -1,0 +1,7 @@
+langchain
+openai
+numpy
+utils
+pandas
+sklearn
+csv
