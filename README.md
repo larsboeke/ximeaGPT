@@ -1,8 +1,8 @@
-## Email Embedding
+# Email Embedding
 
 This document describes the process of converting emails into embeddings.
 
-### Steps
+## Steps
 
 1. **Parsing HTML Files:** We start by parsing the HTML files into a readable text format without any HTML context. This is done to make the email content easily readable and understandable for the system.
 
