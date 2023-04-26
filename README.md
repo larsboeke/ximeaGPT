@@ -1,6 +1,6 @@
 # Email Embedding
 
-This document describes the process of converting emails into embeddings.
+This branch describes the process of converting emails into embeddings.
 
 ## Steps
 
