@@ -1,4 +1,4 @@
-from clean_mail import clean_text
+from clean_text import clean_text
 import csv
 csv.field_size_limit(2147483647)
 
@@ -12,4 +12,3 @@ def clean_emails(input_file_path, output_file_path):
             cleaned_text = clean_text(description)
             writer.writerow({'description': cleaned_text})
 
-clean_emails("emails-case-36517.csv","solution.csv")
