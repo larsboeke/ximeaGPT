@@ -1,18 +1,9 @@
 from bs4 import BeautifulSoup
 import re
 
-def lade_html_datei_als_string(dateipfad):
-    with open(dateipfad, 'r', encoding='utf-8') as datei:
-        html_inhalt = datei.read()
-    return html_inhalt
-
-def extrahiere_text_aus_html(html_inhalt):
-    soup = BeautifulSoup(html_inhalt, 'html.parser')
-    reiner_text = soup.get_text()
-    return reiner_text
-
 def remove_html(text):
-    text = extrahiere_text_aus_html(text)
+    soup = BeautifulSoup(text, 'html.parser')
+    text = soup.get_text()
     return text
 
 def remove_from_to_subject(text):
@@ -43,10 +34,6 @@ def remove_text_between_keywords(text):
 
 def clean_text(text):
     text = remove_html(text)
-    #print("Original ", text)
-    #print("Laenge: ", len(text))
     text = remove_text_between_keywords(text)
     text = remove_from_to_subject(text)
-    #print("\ngekürzter Text ",text)
-    #print("Laenge gekürzt: ", len(text))
     return text
