@@ -15,6 +15,7 @@ os.environ["PINECONE_API_KEY"] = "d589266c-40d5-4a99-a813-8166f90f11a3"
 def pdf_to_chunks(path, file_name):
     loader = PyPDFLoader(path)
 
+    
     #split into pages
     pages = loader.load_and_split()
 
