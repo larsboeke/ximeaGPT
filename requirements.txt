@@ -5,3 +5,4 @@ utils
 pandas
 sklearn
 beautifulsoup4
+mysql

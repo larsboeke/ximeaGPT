@@ -32,8 +32,13 @@ def remove_text_between_keywords(text):
         result = result[:index]
     return result
 
-def clean_text(text):
+def clean_text(row):
+    text = row.Description
+    date = row.CreatedOn
+    communication_partner = row.Sender
+    source = "email"
     text = remove_html(text)
     text = remove_text_between_keywords(text)
     text = remove_from_to_subject(text)
-    return text
+    return text, date, communication_partner, source
+
