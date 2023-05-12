@@ -9,7 +9,7 @@ def get_entries_with_description(earliest_fetch_date):
 
     # name der database muss noch geändert werden
     # just fetch after specific date:
-    cursor.execute("SELECT TOP 100 * FROM [AI:Lean].[dbo].[CrmEmails] WHERE CreatedOn >= ?", earliest_fetch_date)
+    cursor.execute("SELECT [description], [createdon], [emailsender] FROM [AI:Lean].[dbo].[CrmEmails] WHERE [createdon] >= ? ORDER BY [createdon]", earliest_fetch_date)
 
     # Fetch all rows
     emails = cursor.fetchall()

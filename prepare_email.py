@@ -7,7 +7,8 @@ def prepare_email(earliest_fetch_date, index):
 
     # Get email from SQL DB
     email = get_email_from_db.get_entries_with_description(earliest_fetch_date=earliest_fetch_date)[index]
-
+    print(email)
+    print(type(email))
     """ Example of all_emails
     Description	    CreatedOn	            Sender
     "exampletxt1"	2022-04-30 10:30:00.00	aitest@ximea.de
