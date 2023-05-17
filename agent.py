@@ -9,7 +9,12 @@ import pymongo
 import os
 import pyodbc
 
-OPEN_API_KEY = os.getenv("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")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
+PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
+PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
+GPT_MODEL = os.environ.get("GPT_MODEL")
 
 #query all conversational data Tool Class
 class getContextTool(BaseTool):
@@ -72,9 +77,9 @@ class queryPDB(BaseTool):
 
 #initialize LLM
 llm = ChatOpenAI(
-    openai_api_key=OPEN_API_KEY,
+    openai_api_key=OPENAI_API_KEY,
     temperature=0,
-    model_name='gpt-3.5-turbo'
+    model_name=GPT_MODEL
 )
 
 #initialize conversational momory
@@ -103,13 +108,13 @@ agent = initialize_agent(
 )
 
 def getText(query, namespace):
-    index = pinecone.Index("ailean")
+    index = pinecone.Index(PINECONE_INDEX_NAME) #
     #initialize mongoDB
     client = pymongo.MongoClient("adress")
     db = client["mydatabase"]                   #Ändern
     col = db["collection"]
 
-    query_embedding = openai.Embedding.create(input=query, engine='text-embedding-ada-002')['data'][0]['embedding']
+    query_embedding = openai.Embedding.create(input=query, engine=EMBEDDING_MODEL)['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
     ids = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
     validIds = []

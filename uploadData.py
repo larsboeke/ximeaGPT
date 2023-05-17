@@ -2,46 +2,62 @@ import pymongo
 import pinecone
 import os
 import openai
+import pdfChunker
 
-os.environ["PINECONE_API_KEY"] = "d589266c-40d5-4a99-a813-8166f90f11a3"
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
+PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
+PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
+
 
 
 def createEmbedding(chunk):#JSON als Input
-    chunkText = chunk['text']
-    chunkEmbedding = openai.Embedding.create(input = chunkText, model='text-embedding-ada-002')['data'][0]['embedding']
+    chunkText = chunk['content']
+    chunkEmbedding = openai.Embedding.create(input = chunkText, model=EMBEDDING_MODEL)['data'][0]['embedding']
 
     return chunkEmbedding
 
-def uploadToMongo(chunk):
+
+def initMonogo():
     client = pymongo.MongoClient("adress")
     db = client["mydatabase"]                   #Ändern
     col = db["collection"]
-
-    #insert_one retruns ID
-    id = col.insert_one(chunk)
-    return id
-
-def uploadToPinecone(id, embedding, namespace):
+    return col
+        
+def initPinecone():
+    #init pinecone
     pinecone.init(
-        api_key="64dd442b-648a-4350-984e-60607443d969",
-        environment="us-west1-gcp"
+        api_key=PINECONE_API_KEY,
+        environment=PINECONE_ENVIRONMENT
     )
-    index = pinecone.Index("ailean")
-    index.upsert([(id, embedding)], namespace=namespace)
+    index = pinecone.Index(PINECONE_INDEX_NAME)
+    return index
 
-
-def uploadChunk(chunk):
+def uploadChunk(chunk, index, col):
 
     chunkEmbedding = createEmbedding(chunk)
-    id = uploadToMongo(chunk)
+    id = col.insert_one(chunk)
         #Emails and Tickets get uploaded to pastConversations Namespace
     if (chunk['metadata']['type'] == 'email' or 'ticket'):
-        uploadToPinecone(id, chunkEmbedding, 'pastConversations')
+        index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
     elif (chunk['metadata']['type'] == 'manual'):
-        uploadToPinecone(id, chunkEmbedding, 'manuals')
+        index.upsert([(id, chunkEmbedding)], namespace='maunals')
         
 
+def uploadPDF(path):
+    chunks = pdfChunker.chunkPDF(path)
+    col = initMonogo()
+    index = initPinecone()
 
+    for chunk in chunks:
+        uploadChunk(chunk, index, col)
+    
 
+def uploadMail():
+    #chunks = mailChunker.chunkMail(path)
+    col = initMonogo()
+    index = initPinecone()
+    pass

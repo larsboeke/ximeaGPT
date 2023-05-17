@@ -1,11 +1,7 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.document_loaders import PyPDFLoader
-import os
 import tiktoken
-import uploadData
 
-os.environ["OPENAI_API_KEY"] = "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"
-os.environ["PINECONE_API_KEY"] = "d589266c-40d5-4a99-a813-8166f90f11a3"
 
 def pdf_to_chunks(path):
     loader = PyPDFLoader(path)
@@ -38,14 +34,25 @@ def tiktoken_len(text):
     )
     return len(tokens)
 
+def pdfChunkToJson(chunks):
+    listOfJson = []
+
+    for chunk in chunks:
+        jsonChunk = {"content": chunk.page_content,
+                     "type": "PDF",
+                     "source": chunk.metadata["source"] + " page number: " + str(chunk.metadata["page"])}
+        # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}
+        listOfJson.append(jsonChunk)
+
+    return listOfJson
 
 
 
 #main
 def chunkPDF(path):
     chunks = pdf_to_chunks(path)
+    jsonChunks = pdfChunkToJson(chunks)
 #document = {"key": "mykey", "value": "myvalue"}
-    for chunk in chunks:
-        uploadData.uploadChunk(chunk)
+    return jsonChunks
 
 

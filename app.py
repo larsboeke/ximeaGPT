@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 import os
-import pdfChunker
+import uploadData
 from flask import request
 from werkzeug.utils import secure_filename
 import openai
@@ -64,7 +64,7 @@ def save_pdf_file(file_name, file):
 
     path = upload_folder + "/" + file_name
     file.save(os.path.join(upload_folder, file_name))
-    pdfChunker.chunkPDF(path)
+    uploadData.uploadPDF(path)
     return f"File '{file_name}' uploaded successfully."
 
 
