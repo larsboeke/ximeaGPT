@@ -1,5 +1,5 @@
-import clean_text
-import get_email_from_db
+from important_methods import get_email_from_db, clean_text
+
 
 def prepare_all_emails():
     # Get emails from SQL DB

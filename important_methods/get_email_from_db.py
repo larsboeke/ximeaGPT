@@ -7,7 +7,6 @@ def get_entries_with_description(earliest_fetch_date):
 
     # Execute the SQL query
 
-    # name der database muss noch geändert werden
     # just fetch after specific date:
     cursor.execute("SELECT [description], [createdon], [emailsender] FROM [AI:Lean].[dbo].[CrmEmails] WHERE [createdon] >= ? ORDER BY [createdon]", earliest_fetch_date)
 
@@ -20,3 +19,5 @@ def get_entries_with_description(earliest_fetch_date):
 
     # Return the rows
     return emails
+
+get_entries_with_description("2023-05-04 10:38:14.000")
