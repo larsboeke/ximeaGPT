@@ -6,3 +6,4 @@ pandas
 sklearn
 beautifulsoup4
 pymssql
+tiktoken

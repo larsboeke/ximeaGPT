@@ -9,12 +9,12 @@ from clean_email import get_newest_message
 # Output: a list of this format: [(activityid, description)(activityid, description)...]
 def get_activities_from_specific_case(caseid):
     connection, cursor = sql_connection.create_connection()
-    query = "SELECT [activityid], [description] FROM [AI:Lean].[dbo].[CrmEmails] " \
+    query = "SELECT [activityid], [description], [regardingobjectid], [createdon] FROM [AI:Lean].[dbo].[CrmEmails] " \
             "WHERE [regardingobjectid] = %s ORDER BY [createdon] ASC"
     cursor.execute(query, (caseid,))
-    results = cursor.fetchall()
+    text_w_metadata = cursor.fetchall()
     connection.close()
-    return results
+    return text_w_metadata
 
 #result  = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #activity, description = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
@@ -50,11 +50,18 @@ def get_full_message_from_one_case(caseid):
 
     full_message = ''.join(cleaned_history)
 
+    metadata = [act_desc_tuple[0][0], [t[0] for t in act_desc_tuple], [t[3] for t in act_desc_tuple]]
+    metadata = {"CaseID": act_desc_tuple[0][0],
+                     "ActivityID": [t[0] for t in act_desc_tuple],
+                     "DocumentDate": [t[3] for t in act_desc_tuple]
+                     }
+
+    print(metadata)
     return full_message
 
 
 results = get_full_message_from_one_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
-print(results)
+#print(results)
 
 
 

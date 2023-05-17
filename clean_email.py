@@ -19,6 +19,7 @@ def get_newest_message_from_cleaned_text(text):
     for keyword in end_keywords:
         if keyword in text:
             text = text.split(keyword)[0]
+    text += "\n\n\n"
     return text
 
 # input is unclean html text with signature

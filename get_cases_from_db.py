@@ -21,15 +21,3 @@ def get_new_cases(days_back):
     return results
 # eg 13 days minus today
 # print(get_new_cases(13))
-
-
-
-def create_case_history(caseid):
-
-    history_list = create_uncleaned_history(caseid)
-    history_list = clean_uncleaned_history(history_list)
-    history = ''.join(history_list)
-
-    return history
-
-print(create_case_history("443028c8-a026-eb11-96e8-00155d0b2a0b"))
