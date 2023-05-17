@@ -1,12 +1,11 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
-import base64
 import os
-import pineconeUtilities
-import aiResponse
+import pdfChunker
 from flask import request
 from werkzeug.utils import secure_filename
 import openai
+import agent
  
 openai.api_key = os.getenv("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")
 
@@ -18,9 +17,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def index():
     return render_template('index.html')
 
-
 @app.route('/upload', methods=['POST'])
-#pdf document upload
 def upload():
     if 'file' not in request.files:
         return "No file part", 400
@@ -36,7 +33,7 @@ def upload():
 #react to client message
 def generate_backend_message(client_msg):
     #ai_response = ai.create_ai_response(client_msg)
-    generated_message = aiResponse.generateResponse(client_msg)
+    generated_message = agent.agent(client_msg)
 
     return generated_message
 
@@ -45,7 +42,7 @@ def generate_backend_message(client_msg):
 def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
 
-    backend_msg = aiResponse.getResponse(client_msg)
+    backend_msg = agent.agent(client_msg)
     emit('backend_message', backend_msg, broadcast=True)
 
 #pdfupload
@@ -67,7 +64,7 @@ def save_pdf_file(file_name, file):
 
     path = upload_folder + "/" + file_name
     file.save(os.path.join(upload_folder, file_name))
-    pineconeUtilities.pdf_to_pinecone(path, file_name)
+    pdfChunker.chunkPDF(path)
     return f"File '{file_name}' uploaded successfully."
 
 
