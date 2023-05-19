@@ -14,7 +14,8 @@ def remove_last_greeting(text):
     for keyword in end_keywords:
         if keyword in text:
             text = text.split(keyword)[0]
-    text += "\n\n\n"
+    # TODO: 3 Leerzeichen rauslöschen???
+    #text += "\n\n\n"
     return text
 
 def remove_greeting_to_subject(text):

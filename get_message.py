@@ -69,7 +69,6 @@ def get_full_message_from_one_case(caseid):
     uncleaned_history = create_uncleaned_history(act_desc_tuple)
     cleaned_history = clean_uncleaned_history(uncleaned_history)
     unique_history = unify_email_list(cleaned_history)
-    # TODO: Connect unique email in the correct way
     full_message = ''.join(unique_history)
 
     # get correct formatted dates for each Activity
