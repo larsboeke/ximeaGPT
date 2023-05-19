@@ -20,4 +20,4 @@ def get_new_cases(days_back):
     connection.close()
     return results
 # eg 13 days minus today
-# print(get_new_cases(13))
+#print(get_new_cases(13))

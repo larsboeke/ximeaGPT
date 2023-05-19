@@ -1,6 +1,6 @@
 import sql_connection
-from clean_email import get_newest_message
-
+from clean_email import clean_message
+import re
 #get_cases_from_db.get_new_cases()
 #results = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(results[0][0])
@@ -20,8 +20,8 @@ def get_activities_from_specific_case(caseid):
 #activity, description = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(description)
 
-def create_uncleaned_history(act_desc_tuple):
-    descriptions = [t[1] for t in act_desc_tuple]
+def create_uncleaned_history(text_w_metadata):
+    descriptions = [t[1] for t in text_w_metadata]
 
     email_list = []
     for description in descriptions:
@@ -36,31 +36,58 @@ def clean_uncleaned_history(uncleaned_history):
 
     cleaned_history = []
     for message in uncleaned_history:
-        cleaned_history.append(get_newest_message(message))
+        cleaned_history.append(clean_message(message))
+    #print(cleaned_history)
     return cleaned_history
+
+
+def unify_email_list(cleaned_history):
+    unified_emails = []
+    for i in range(len(cleaned_history)):
+        if i == 0:
+            unified_emails.append(cleaned_history[0])
+        elif i > 0:
+            prev_email = unified_emails[i-1]
+            prev_email_splitted = prev_email[:50]
+            """print("Prev Email:" + prev_email)
+            pattern = r"{}.*?Subject:".format(re.escape(prev_email))
+            cleaned_email = re.sub(pattern, "", cleaned_history[i], flags=re.DOTALL)
+            cleaned_email.strip()
+            unified_emails.append(cleaned_email)"""
+            cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
+            unified_emails.append(cleaned_email)
+            print("Prev Email:" + prev_email_splitted)
+    return unified_emails
+
 
 #uncleaned = create_uncleaned_history("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(uncleaned[0])
 #cleaned = clean_uncleaned_history(uncleaned)
-
+import datetime
 def get_full_message_from_one_case(caseid):
     act_desc_tuple = get_activities_from_specific_case(caseid)
     uncleaned_history = create_uncleaned_history(act_desc_tuple)
     cleaned_history = clean_uncleaned_history(uncleaned_history)
+    unique_history = unify_email_list(cleaned_history)
+    # TODO: Connect unique email in the correct way
+    full_message = ''.join(unique_history)
 
-    full_message = ''.join(cleaned_history)
+    # get correct formatted dates for each Activity
+    dates = [t[3] for t in act_desc_tuple]
+    formatted_dates = []
+    for dt_obj in dates:
+        formatted_dt = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
+        formatted_dates.append(formatted_dt)
 
-    metadata = [act_desc_tuple[0][0], [t[0] for t in act_desc_tuple], [t[3] for t in act_desc_tuple]]
-    metadata = {"CaseID": act_desc_tuple[0][0],
-                     "ActivityID": [t[0] for t in act_desc_tuple],
-                     "DocumentDate": [t[3] for t in act_desc_tuple]
+    metadata = {"CaseID": str(act_desc_tuple[0][2]),
+                     "ActivityID": [str(t[0]) for t in act_desc_tuple],
+                     "DocumentDate": formatted_dates
                      }
 
-    print(metadata)
-    return full_message
+    return full_message, metadata
 
 
-results = get_full_message_from_one_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
+#results = get_full_message_from_one_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(results)
 
 
