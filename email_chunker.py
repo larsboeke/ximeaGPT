@@ -1,10 +1,10 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import PyPDFLoader
+from get_message import get_full_message_from_one_case
 import tiktoken
 
 
 # Input: Case history in String format
-def email_to_chunks(case, metadata):
+def email_to_chunks(case):
 
     # initialize text splitter
     text_splitter = RecursiveCharacterTextSplitter(
@@ -18,7 +18,7 @@ def email_to_chunks(case, metadata):
     chunks = text_splitter.split_text(case)
 
     print("Case split into chunks")
-    return chunks, metadata
+    return chunks
 
 def tiktoken_len(text):
     tokenizer = tiktoken.get_encoding('cl100k_base') # maybe woanders die varaible erstellen
@@ -45,8 +45,9 @@ def email_chunk_to_json(chunks, metadata):
 
 #main
 def chunk_email(case):
-    chunks = email_to_chunks(case)
-    jsonChunks = email_chunk_to_json(chunks)
+    messages, metadata = get_full_message_from_one_case(case)
+    chunks = email_to_chunks(messages)
+    jsonChunks = email_chunk_to_json(chunks, metadata)
     #document = {"key": "mykey", "value": "myvalue"}
     return jsonChunks
 
