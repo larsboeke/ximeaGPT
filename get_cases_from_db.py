@@ -1,5 +1,4 @@
 import sql_connection
-from get_message import create_uncleaned_history, clean_uncleaned_history
 def get_all_cases():
     connection, cursor = sql_connection.create_connection()
     query = "SELECT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] ORDER BY [createdon] ASC"

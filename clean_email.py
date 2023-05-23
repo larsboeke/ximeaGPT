@@ -6,7 +6,7 @@ def remove_html(text):
     text = soup.get_text()
     return text
 
-# Old method to remove everything after latest message
+# method to remove last greeting
 def remove_last_greeting(text):
     end_keywords = ["Best regards", "best regards", "Sincerely", "Kind regards", "Regards", "Best wishes",
                     "Yours faithfully", "Yours sincerely", "Warm regards", "All the best",
@@ -19,8 +19,6 @@ def remove_last_greeting(text):
     for keyword in end_keywords:
         if keyword in text:
             text = text.split(keyword)[0]
-    # TODO: 3 Leerzeichen rauslöschen???
-    #text += "\n\n\n"
     return text
 
 def remove_greeting_to_subject(text):

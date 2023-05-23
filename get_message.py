@@ -1,6 +1,6 @@
 import sql_connection
 from clean_email import clean_message
-import re
+
 #get_cases_from_db.get_new_cases()
 #results = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(results[0][0])
@@ -37,7 +37,6 @@ def clean_uncleaned_history(uncleaned_history):
     cleaned_history = []
     for message in uncleaned_history:
         cleaned_history.append(clean_message(message))
-    #print(cleaned_history)
     return cleaned_history
 
 
@@ -50,19 +49,12 @@ def unify_email_list(cleaned_history):
         elif i > 0:
             prev_email = unified_emails[i-1]
             prev_email_splitted = prev_email[:50]
-            #print("History:" + cleaned_history[i])
 
-            """print("Prev Email:" + prev_email)
-            pattern = r"{}.*?Subject:".format(re.escape(prev_email))
-            cleaned_email = re.sub(pattern, "", cleaned_history[i], flags=re.DOTALL)
-            cleaned_email.strip()
-            unified_emails.append(cleaned_email)"""
             if prev_email_splitted != "":
                 cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
                 unified_emails.append(cleaned_email)
             else:
                 unified_emails.append("Previous not found. Error 187! " + cleaned_history[i])
-            #print("Prev Email:" + prev_email_splitted)
     return unified_emails
 
 """def unify_email_list(cleaned_history):
@@ -92,7 +84,7 @@ def unify_email_list(cleaned_history):
 #uncleaned = create_uncleaned_history("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(uncleaned[0])
 #cleaned = clean_uncleaned_history(uncleaned)
-import datetime
+
 def get_full_message_from_one_case(caseid):
     act_desc_tuple = get_activities_from_specific_case(caseid)
     uncleaned_history = create_uncleaned_history(act_desc_tuple)
