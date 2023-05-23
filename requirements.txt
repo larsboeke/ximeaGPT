@@ -7,3 +7,5 @@ sklearn
 beautifulsoup4
 pymssql
 tiktoken
+pymongo
+pyinstaller

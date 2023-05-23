@@ -4,14 +4,14 @@ from email_chunker import chunk_email
 
 # SOME EXAMPLES:
 
-# Get all email cases
+"""# Get all email cases
 get_all_cases()
 
 # Get all email cases, newer than x days
 cases = get_new_cases(13)
 
 # Get full message of example case "443028c8-a026-eb11-96e8-00155d0b2a0b"
-case = get_full_message_from_one_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
+case = get_full_message_from_one_case("443028c8-a026-eb11-96e8-00155d0b2a0b")"""
 
 result = chunk_email("443028c8-a026-eb11-96e8-00155d0b2a0b")
 print(result)

@@ -17,7 +17,7 @@ def email_to_chunks(case):
     # split text into chunks
     chunks = text_splitter.split_text(case)
 
-    print("Case split into chunks")
+    #print("Case split into chunks")
     return chunks
 
 def tiktoken_len(text):
