@@ -8,9 +8,14 @@ def remove_html(text):
 
 # Old method to remove everything after latest message
 def remove_last_greeting(text):
-    end_keywords = ["Best regards", "Sincerely", "Kind regards", "Regards", "Best wishes", "Yours faithfully",
-                      "Yours sincerely", "Warm regards", "All the best", "Cheers", "Take care",
-                      "Have a nice day", "With appreciation", "Cordially"]
+    end_keywords = ["Best regards", "best regards", "Sincerely", "Kind regards", "Regards", "Best wishes",
+                    "Yours faithfully", "Yours sincerely", "Warm regards", "All the best",
+                    "Cheers", "Take care", "Have a nice day", "With appreciation", "Cordially",
+                    "Viele Grüße", "Mit freundlichen Grüßen", "Herzliche Grüße", "Liebe Grüße",
+                    "Alles Gute", "In freundschaftlicher Verbundenheit", "Hochachtungsvoll",
+                    "Beste Wünsche", "Auf Wiedersehen", "Bis bald", "Pass auf dich auf",
+                    "Schönen Tag noch", "Mit Dank und besten Grüßen", "Herzlichst", "Liebevoll",
+                    "Mit freundlichem Gruß", "Gruß", "Beste Grüße", "LG", "MfG", "Thanks again and best regards"]
     for keyword in end_keywords:
         if keyword in text:
             text = text.split(keyword)[0]

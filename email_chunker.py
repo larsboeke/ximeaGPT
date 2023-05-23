@@ -4,7 +4,7 @@ import tiktoken
 
 
 # Input: Case history in String format
-def email_to_chunks(case):
+def email_to_chunks(case, metadata):
 
     # initialize text splitter
     text_splitter = RecursiveCharacterTextSplitter(
@@ -18,7 +18,7 @@ def email_to_chunks(case):
     chunks = text_splitter.split_text(case)
 
     print("Case split into chunks")
-    return chunks
+    return chunks, metadata
 
 def tiktoken_len(text):
     tokenizer = tiktoken.get_encoding('cl100k_base') # maybe woanders die varaible erstellen
@@ -28,13 +28,13 @@ def tiktoken_len(text):
     )
     return len(tokens)
 
-def email_chunk_to_json(chunks):
+def email_chunk_to_json(chunks, metadata):
     listOfJson = []
 
     for chunk in chunks:
         jsonChunk = {"content": chunk,
                      "type": "EMail",
-                     "source": "tobechanged" #chunk.metadata["source"] + " page number: " + str(chunk.metadata["page"])
+                     "source": metadata
                      }
         # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}
         listOfJson.append(jsonChunk)

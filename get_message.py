@@ -43,22 +43,51 @@ def clean_uncleaned_history(uncleaned_history):
 
 def unify_email_list(cleaned_history):
     unified_emails = []
+
     for i in range(len(cleaned_history)):
         if i == 0:
             unified_emails.append(cleaned_history[0])
         elif i > 0:
             prev_email = unified_emails[i-1]
             prev_email_splitted = prev_email[:50]
+            #print("History:" + cleaned_history[i])
+
             """print("Prev Email:" + prev_email)
             pattern = r"{}.*?Subject:".format(re.escape(prev_email))
             cleaned_email = re.sub(pattern, "", cleaned_history[i], flags=re.DOTALL)
             cleaned_email.strip()
             unified_emails.append(cleaned_email)"""
-            cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
-            unified_emails.append(cleaned_email)
-            print("Prev Email:" + prev_email_splitted)
+            if prev_email_splitted != "":
+                cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
+                unified_emails.append(cleaned_email)
+            else:
+                unified_emails.append("Previous not found. Error 187! " + cleaned_history[i])
+            #print("Prev Email:" + prev_email_splitted)
     return unified_emails
 
+"""def unify_email_list(cleaned_history):
+    unified_emails = []
+
+    for i in range(len(cleaned_history)):
+        if cleaned_history[0] == cleaned_history[1] and i==0:
+            unified_emails.append(cleaned_history[0])
+        elif cleaned_history[0] == cleaned_history[1] and i==1:
+            unified_emails.append("Previous not found. Error 187! ")
+        elif i == 0:
+            unified_emails.append(cleaned_history[0])
+
+        elif i > 0:
+            prev_email = unified_emails[i-1]
+            prev_email_splitted = prev_email[:50]
+            #print("History:" + cleaned_history[i])
+
+            if prev_email_splitted != "":
+                cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
+                unified_emails.append(cleaned_email)
+            else:
+                unified_emails.append("Previous not found. Error 187! " + cleaned_history[i])
+            #print("Prev Email:" + prev_email_splitted)
+    return unified_emails"""
 
 #uncleaned = create_uncleaned_history("443028c8-a026-eb11-96e8-00155d0b2a0b")
 #print(uncleaned[0])
