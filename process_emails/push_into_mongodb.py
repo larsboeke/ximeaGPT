@@ -14,13 +14,13 @@ db = client['XIMEAGPT']
 
 collection = db['prototype']
 
-collection.delete_many({})
+#collection.delete_many({})
 
-"""i = 0
+i = 0
 anzahl_cases = len(get_all_cases())
 
 for case in get_all_cases():
     i += 1
     print(i , "/" , anzahl_cases)
     db_instance = chunk_email(case)
-    collection.insert_many(db_instance)"""
+    collection.insert_many(db_instance)
