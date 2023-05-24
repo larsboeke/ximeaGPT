@@ -5,7 +5,8 @@ import openai
 from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from process_emails import email_chunker
-
+from process_tickets.TicketChunker import TicketChunker
+from process_tickets.Ticket import Ticket
 
 load_dotenv()
 
@@ -85,3 +86,18 @@ def uploadMail(case):
     print("uploaded case: " + str(case))
 
 
+
+def uploadTicket(TicketID):
+    ticket = Ticket(TicketID)
+    ticket.set_WholeTicket()
+    ticket.set_metadata()
+    ticket.set_fullTicketText()
+    chunker = TicketChunker()
+    chunks = chunker.chunkTicket(ticket)
+    col = initMongo()
+    index = initPinecone()
+
+    for chunk in chunks:
+        uploadChunk(chunk, index, col)
+
+    print("uploaded ticket: " + str(TicketID))

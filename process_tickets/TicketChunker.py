@@ -2,8 +2,8 @@ import tiktoken
 from langchain.text_splitter import TokenTextSplitter
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from Ticket import Ticket
-from Chunk import Chunk
+from .Ticket import Ticket
+from .Chunk import Chunk
 
 
 
