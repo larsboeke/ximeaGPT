@@ -37,14 +37,17 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def uploadChunk(chunk, index, col):
-
+def uploadChunk(chunk, col):
+    print(chunk)
     chunkEmbedding = createEmbedding(chunk)
+    print(chunkEmbedding)
     id_ = col.insert_one(chunk)
-    id = id_.inserted_id
+    id = str(id_.inserted_id)
     print(id)
+    
+    index = initPinecone()
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['type'] == 'email' or 'ticket'):
+    if (chunk['type'] == 'email' or chunk['type'] == 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
@@ -55,10 +58,10 @@ def uploadChunk(chunk, index, col):
 def uploadPDF(path):
     chunks = pdfChunker.chunkPDF(path)
     col = initMongo()
-    index = initPinecone()
+    #index = initPinecone()
 
     for chunk in chunks:
-        uploadChunk(chunk, index, col)
+        uploadChunk(chunk, col)
     
 
 def uploadMail():
@@ -68,3 +71,4 @@ def uploadMail():
     pass
 
 
+uploadPDF("/home/lorenzboke/ximeagpt/ximu_technical_manual.pdf")
