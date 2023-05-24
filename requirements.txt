@@ -1,0 +1,12 @@
+langchain
+openai
+numpy
+utils
+pandas
+sklearn
+beautifulsoup4
+pymssql
+tiktoken
+pymongo
+python-dotenv
+requests
