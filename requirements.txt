@@ -10,3 +10,4 @@ tiktoken
 pymongo
 python-dotenv
 requests
+pypdf

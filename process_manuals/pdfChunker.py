@@ -80,7 +80,7 @@ def pdf_chunk_to_json(chunks, path):
     for chunk in chunks:
         jsonChunk = {"content": chunk.page_content,
                      "metadata": {
-                         "type": "PDF",
+                         "type": "manuals",
                          "source": path,
                          "page number": chunk.metadata["page"]
                      }
@@ -98,7 +98,7 @@ def url_chunk_to_json(chunks, url):
         jsonChunk = {"content": chunks,
                      "metadaten": {
                          "source": url,
-                         "type": "URL",
+                         "type": "manuals",
                      }
                      }
         # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}

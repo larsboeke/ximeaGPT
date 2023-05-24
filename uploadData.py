@@ -2,9 +2,10 @@ import pymongo
 import pinecone
 import os
 import openai
-import pdfChunker
+from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from process_emails import email_chunker
+
 
 load_dotenv()
 
@@ -19,14 +20,14 @@ EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 def createEmbedding(chunk):#JSON als Input
     chunkText = chunk['content']
     chunkEmbedding = openai.Embedding.create(input = chunkText, model=EMBEDDING_MODEL)['data'][0]['embedding']
-    print("created chunk embeddings")
+
     return chunkEmbedding
 
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype"]
+    col = db["test"]
     return col
         
 def initPinecone():
@@ -42,34 +43,37 @@ def uploadChunk(chunk, index, col):
     chunkEmbedding = createEmbedding(chunk)
     id_ = col.insert_one(chunk)
     id = str(id_.inserted_id)
-    print(id)
-    
-    index = initPinecone()
+
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['metadata']['type'] == 'email' or chunk['type'] == 'ticket'):
+    if (chunk['metadata']['type'] == 'email' or chunk['metadata']['type'] == 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
-    elif (chunk['metadata']['type'] == 'PDF' or 'URL'):
+    elif (chunk['metadata']['type'] == 'manuals'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
         
 
 def uploadPDF(path):
-    chunks = pdfChunker.chunkPDF(path)
     col = initMongo()
     index = initPinecone()
+    chunks = pdfChunker.chunkPDF(path)
 
     for chunk in chunks:
         uploadChunk(chunk, index, col)
+
+    print("uploaded " + path)
 
 
 def uploadURL(url):
-    chunks = pdfChunker.chunkURL(url)
-    col = initMonogo()
+    col = initMongo()
     index = initPinecone()
+
+    chunks = pdfChunker.chunkURL(url)
 
     for chunk in chunks:
         uploadChunk(chunk, index, col)
+
+    print("uploaded " + url)
 
 def uploadMail(case):
     col = initMongo()
@@ -77,5 +81,7 @@ def uploadMail(case):
     chunks = email_chunker.chunk_email(case)
     for chunk in chunks:
         uploadChunk(chunk, index, col)
+
+    print("uploaded case: " + case)
 
 
