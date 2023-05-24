@@ -41,42 +41,42 @@ class queryManuals(BaseTool):
 
     def _run(self, query: str):
         #queries in "manuals" namespace
-        context = getText(query, "manuals")
+        context = getText(query, "maunals")
 
         return context
 
     def _arun(self, query: str):
         return NotImplementedError("This tool does not support async.")
 
-class queryPDB(BaseTool):
-    name = "query Product Database"
-    description = "Use this tool if you want to query the product database to recive structured. Use a SQL Query as an Input. The Database has the following structure: " #anpassen
+# class queryPDB(BaseTool):
+#     name = "query Product Database"
+#     description = "Use this tool if you want to query the product database to recive structured. Use a SQL Query as an Input. The Database has the following structure: " #anpassen
 
-    def _run(self, query: str):
-        server='server name'
-        database='database name'
-        username='username'
-        password='password'
+#     def _run(self, query: str):
+#         server='server name'
+#         database='database name'
+#         username='username'
+#         password='password'
 
-        conn_str = (
-            f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-            f'SERVER={server}'
-            f'DATABASE={database}'
-            f'UID={username}'
-            f'PWD={password}'
-        )
+#         conn_str = (
+#             f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+#             f'SERVER={server}'
+#             f'DATABASE={database}'
+#             f'UID={username}'
+#             f'PWD={password}'
+#         )
 
-        conn = pyodbc.connect(conn_str)
-        cursor = conn.cursor()
+#         conn = pyodbc.connect(conn_str)
+#         cursor = conn.cursor()
 
-        cursor.execute(query)
+#         cursor.execute(query)
 
-        rows = cursor.fetchall()
+#         rows = cursor.fetchall()
 
-        conn.close()
+#         conn.close()
 
-    def _arun(self, query: str):
-        return NotImplementedError("This tool does not support async.")
+#     def _arun(self, query: str):
+#         return NotImplementedError("This tool does not support async.")
 
 
 #initialize LLM
@@ -96,8 +96,7 @@ conversational_memory = ConversationBufferWindowMemory(
 #List of Tools
 tools = [
     getContextTool(),
-    queryManuals(),
-    queryPDB(),
+    queryManuals(),  #queryPDB()
     ]
 
 #initialize agent
@@ -114,8 +113,10 @@ agent = initialize_agent(
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype"]
-    return col
+    col = db["test"]
+    return col, db
+
+
         
 def initPinecone():
     #init pinecone
@@ -129,29 +130,27 @@ def initPinecone():
 def getText(query, namespace):
     index = initPinecone() #
     #initialize mongoDB
-    col = initMongo()
-
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]                   
+    col = db["test"]
     query_embedding = openai.Embedding.create(input=query, engine=EMBEDDING_MODEL)['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
-    ids = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
-    validIds = []
-    print(ids)
-    try:
-        for id in ids:
-            if id['score'] > 0:  #parameter anpassen
-                validIds.append(id)
-    except:
-        print("Pinecone query failed")
+    pinecone_results = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
+    #validIds = []
+        # try:
+    #     for id in ids:
+    #         if id['score'] > float(0):  #parameter anpassen
+    #             validIds.append(id)
+    # except:
+    #     print("Pinecone query failed")
 
 
     #get matches from mongoDB for IDs
     matches = []
-    for id in validIds:
-        idToFind = ObjectId(id)
-        match = col.find_one({'_id' : idToFind})
-        if match:
-            matches.append(match)
-        else:
-            print("No match found for ID: " + id)
+    for id in pinecone_results['matches']:
+        idToFind = ObjectId(id['id'])
+        match = col.find_one({'_id' : idToFind})['content']     
+        matches.append(match)
+       
 
     return matches

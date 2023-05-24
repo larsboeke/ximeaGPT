@@ -1,6 +1,6 @@
 from .sql_connection import create_connection
 def get_all_cases():
-    connection, cursor = sql_connection.create_connection()
+    connection, cursor = create_connection()
     query = "SELECT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] ORDER BY [createdon] ASC"
     cursor.execute(query)
     results = cursor.fetchall()

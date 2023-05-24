@@ -96,7 +96,7 @@ def url_chunk_to_json(chunks, url):
 
     for chunk in chunks:
         jsonChunk = {"content": chunks,
-                     "metadaten": {
+                     "metadata": {
                          "source": url,
                          "type": "manuals",
                      }

@@ -5,8 +5,10 @@ import openai
 from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from process_emails import email_chunker
+from time import sleep
 from process_tickets.TicketChunker import TicketChunker
 from process_tickets.Ticket import Ticket
+
 
 load_dotenv()
 
@@ -41,7 +43,16 @@ def initPinecone():
     return index
 
 def uploadChunk(chunk, index, col):
-    chunkEmbedding = createEmbedding(chunk)
+    try:
+        chunkEmbedding = createEmbedding(chunk)
+    except Exception as e:
+        print(type(e).__name__)
+        print("Could not create embedding, waiting 5 seconds")
+        sleep(5)
+        chunkEmbedding = createEmbedding(chunk)
+
+    
+
     id_ = col.insert_one(chunk)
     id = str(id_.inserted_id)
 
@@ -84,7 +95,6 @@ def uploadMail(case):
         uploadChunk(chunk, index, col)
 
     print("uploaded case: " + str(case))
-
 
 
 def uploadTicket(TicketID):
