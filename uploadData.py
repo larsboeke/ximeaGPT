@@ -6,6 +6,8 @@ from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from process_emails import email_chunker
 from time import sleep
+from process_tickets.TicketChunker import TicketChunker
+from process_tickets.Ticket import Ticket
 
 
 load_dotenv()
@@ -61,7 +63,7 @@ def uploadChunk(chunk, index, col):
         #manuals get uploaded to manuals namespace
     elif (chunk['metadata']['type'] == 'manuals'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
-        
+
 
 def uploadPDF(path):
     col = initMongo()
@@ -95,3 +97,17 @@ def uploadMail(case):
     print("uploaded case: " + str(case))
 
 
+def uploadTicket(TicketID):
+    ticket = Ticket(TicketID)
+    ticket.set_WholeTicket()
+    ticket.set_metadata()
+    ticket.set_fullTicketText()
+    chunker = TicketChunker()
+    chunks = chunker.chunkTicket(ticket)
+    col = initMongo()
+    index = initPinecone()
+
+    for chunk in chunks:
+        uploadChunk(chunk, index, col)
+
+    print("uploaded ticket: " + str(TicketID))
