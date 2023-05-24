@@ -9,3 +9,4 @@ pymssql
 tiktoken
 pymongo
 python-dotenv
+requests
