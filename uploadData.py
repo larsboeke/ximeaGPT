@@ -51,7 +51,7 @@ def uploadChunk(chunk, index, col):
         #manuals get uploaded to manuals namespace
     elif (chunk['metadata']['type'] == 'manuals'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
-        
+
 
 def uploadPDF(path):
     col = initMongo()
@@ -82,6 +82,6 @@ def uploadMail(case):
     for chunk in chunks:
         uploadChunk(chunk, index, col)
 
-    print("uploaded case: " + case)
+    print("uploaded case: " + str(case))
 
 
