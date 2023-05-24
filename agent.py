@@ -1,13 +1,16 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.tools import BaseTool
-from langchain.agents import initialize_agent
+from langchain.agents import initialize_agent, AgentType
 from bson.objectid import ObjectId
 import openai
 import pinecone
 import pymongo
 import os
 import pyodbc
+from dotenv import load_dotenv
+
+load_dotenv()
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
@@ -98,7 +101,7 @@ tools = [
 
 #initialize agent
 agent = initialize_agent(
-    agent='Chat Agent',
+    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
     tools=tools,
     llm=llm,
     verbose=True, #for testing purposes
