@@ -40,8 +40,9 @@ def generate_backend_message(client_msg):
 def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
 
+    id = request.sid
     backend_msg = agent.agent(client_msg)
-    emit('backend_message', backend_msg, room=request.sid)
+    emit('backend_message', backend_msg, room=id)
 
 #pdfupload
 @socketio.on('pdf_upload')
