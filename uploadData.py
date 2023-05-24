@@ -20,9 +20,9 @@ def createEmbedding(chunk):#JSON als Input
 
 
 def initMonogo():
-    client = pymongo.MongoClient("adress")
-    db = client["mydatabase"]                   #Ändern
-    col = db["collection"]
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]
+    col = db["test"]
     return col
         
 def initPinecone():
@@ -43,7 +43,7 @@ def uploadChunk(chunk, index, col):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
-    elif (chunk['metadata']['type'] == 'manual'):
+    elif (chunk['metadata']['type'] == 'PDF' or 'URL'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
         
 
@@ -54,7 +54,15 @@ def uploadPDF(path):
 
     for chunk in chunks:
         uploadChunk(chunk, index, col)
-    
+
+
+def uploadURL(url):
+    chunks = pdfChunker.chunkURL(url)
+    col = initMonogo()
+    index = initPinecone()
+
+    for chunk in chunks:
+        uploadChunk(chunk, index, col)
 
 def uploadMail():
     #chunks = mailChunker.chunkMail(path)

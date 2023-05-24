@@ -9,6 +9,7 @@ import pymongo
 import os
 import pyodbc
 
+
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
@@ -26,7 +27,7 @@ class getContextTool(BaseTool):
         context = getText(query, "pastConversations")
 
         return context
-    
+
     def _arun(self, query: str):
         return NotImplementedError("This tool does not support async.")
 
@@ -40,10 +41,10 @@ class queryManuals(BaseTool):
         context = getText(query, "manuals")
 
         return context
-    
+
     def _arun(self, query: str):
         return NotImplementedError("This tool does not support async.")
-    
+
 class queryPDB(BaseTool):
     name = "query Product Database"
     description = "Use this tool if you want to query the product database to recive structured. Use a SQL Query as an Input. The Database has the following structure: " #anpassen
@@ -127,7 +128,7 @@ def getText(query, namespace):
     for id in validIds:
         idToFind = ObjectId(id)
         match = col.find_one({'_id' : idToFind})
-        if match:    
+        if match:
             matches.append(match)
         else:
             print("No match found for ID: " + id)
