@@ -38,31 +38,29 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def uploadChunk(chunk, col):
-    print(chunk)
+def uploadChunk(chunk, index, col):
     chunkEmbedding = createEmbedding(chunk)
-    print(chunkEmbedding)
     id_ = col.insert_one(chunk)
     id = str(id_.inserted_id)
     print(id)
     
     index = initPinecone()
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['type'] == 'email' or chunk['type'] == 'ticket'):
+    if (chunk['metadata']['type'] == 'email' or chunk['type'] == 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
-    elif (chunk['type'] == 'manual'):
+    elif (chunk['metadata']['type'] == 'manual'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
         
 
 def uploadPDF(path):
     chunks = pdfChunker.chunkPDF(path)
     col = initMongo()
-    #index = initPinecone()
+    index = initPinecone()
 
     for chunk in chunks:
-        uploadChunk(chunk, col)
+        uploadChunk(chunk, index, col)
     
 
 def uploadMail(case):
@@ -71,3 +69,5 @@ def uploadMail(case):
     chunks = email_chunker.chunk_email(case)
     for chunk in chunks:
         uploadChunk(chunk, index, col)
+
+
