@@ -1,13 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 import os
 import uploadData
-from flask import request
 from werkzeug.utils import secure_filename
-import openai
 import agent
- 
-openai.api_key = os.getenv("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")
+import uploadData
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -81,17 +78,16 @@ def upload():
 #react to client message
 def generate_backend_message(client_msg):
     #ai_response = ai.create_ai_response(client_msg)
-    generated_message = agent.agent(client_msg)
-
+    generated_message = agent.agent(client_msg)['output']
+    print(generated_message)
     return generated_message
 
 #resive client messages and send response
 @socketio.on('client_message')
 def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
-
-    backend_msg = agent.agent(client_msg)
-    emit('backend_message', backend_msg, broadcast=True)
+    backend_msg = generate_backend_message(client_msg)
+    emit('backend_message', backend_msg, broadcast=False)
 
 def upload_pdf(pdf_list):
     for pdf in pdf_list:
@@ -102,8 +98,7 @@ def upload_url(url_list):
         uploadData.uploadURL(url)
 
 if __name__ == '__main__':
-    upload_pdf(pdf_list)
-    print("pdf done")
-    upload_url(url_list)
-    print("url done")
-    #socketio.run(app, host='0.0.0.0', port=5000)
+    socketio.run(app, host='0.0.0.0', port=5000)
+ 
+
+

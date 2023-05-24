@@ -1,13 +1,16 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.tools import BaseTool
-from langchain.agents import initialize_agent
+from langchain.agents import initialize_agent, AgentType
 from bson.objectid import ObjectId
 import openai
 import pinecone
 import pymongo
 import os
 import pyodbc
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -99,7 +102,7 @@ tools = [
 
 #initialize agent
 agent = initialize_agent(
-    agent='Chat Agent',
+    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
     tools=tools,
     llm=llm,
     verbose=True, #for testing purposes
@@ -108,20 +111,38 @@ agent = initialize_agent(
     memory=conversational_memory
 )
 
+def initMongo():
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]                   
+    col = db["prototype"]
+    return col
+        
+def initPinecone():
+    #init pinecone
+    pinecone.init(
+        api_key=PINECONE_API_KEY,
+        environment=PINECONE_ENVIRONMENT
+    )
+    index = pinecone.Index(PINECONE_INDEX_NAME)
+    return index
+
 def getText(query, namespace):
-    index = pinecone.Index(PINECONE_INDEX_NAME) #
+    index = initPinecone() #
     #initialize mongoDB
-    client = pymongo.MongoClient("adress")
-    db = client["mydatabase"]                   #Ändern
-    col = db["collection"]
+    col = initMongo()
 
     query_embedding = openai.Embedding.create(input=query, engine=EMBEDDING_MODEL)['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
     ids = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
     validIds = []
-    for id in ids:
-        if id['score'] > 0:  #parameter anpassen
-            validIds.append(id)
+    print(ids)
+    try:
+        for id in ids:
+            if id['score'] > 0:  #parameter anpassen
+                validIds.append(id)
+    except:
+        print("Pinecone query failed")
+
 
     #get matches from mongoDB for IDs
     matches = []
