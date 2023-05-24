@@ -1,10 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 import os
 import uploadData
-from flask import request
 from werkzeug.utils import secure_filename
-import openai
+
 import agent
 
 app = Flask(__name__)
@@ -31,18 +30,16 @@ def upload():
 #react to client message
 def generate_backend_message(client_msg):
     #ai_response = ai.create_ai_response(client_msg)
-    generated_message = agent.agent(client_msg)
-
-    return generated_message
+    generated_message = agent.agent(client_msg)['output']
+    print(generated_message)
+    return generated_message, 400
 
 #resive client messages and send response
 @socketio.on('client_message')
 def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
-
-    id = request.sid
-    backend_msg = agent.agent(client_msg)
-    emit('backend_message', backend_msg, room=id)
+    backend_msg = generate_backend_message(client_msg)
+    emit('backend_message', backend_msg, broadcast=False)
 
 #pdfupload
 @socketio.on('pdf_upload')

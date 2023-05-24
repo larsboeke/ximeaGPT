@@ -110,20 +110,38 @@ agent = initialize_agent(
     memory=conversational_memory
 )
 
+def initMongo():
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]                   
+    col = db["prototype"]
+    return col
+        
+def initPinecone():
+    #init pinecone
+    pinecone.init(
+        api_key=PINECONE_API_KEY,
+        environment=PINECONE_ENVIRONMENT
+    )
+    index = pinecone.Index(PINECONE_INDEX_NAME)
+    return index
+
 def getText(query, namespace):
-    index = pinecone.Index(PINECONE_INDEX_NAME) #
+    index = initPinecone() #
     #initialize mongoDB
-    client = pymongo.MongoClient("adress")
-    db = client["mydatabase"]                   #Ändern
-    col = db["collection"]
+    col = initMongo()
 
     query_embedding = openai.Embedding.create(input=query, engine=EMBEDDING_MODEL)['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
     ids = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
     validIds = []
-    for id in ids:
-        if id['score'] > 0:  #parameter anpassen
-            validIds.append(id)
+    print(ids)
+    try:
+        for id in ids:
+            if id['score'] > 0:  #parameter anpassen
+                validIds.append(id)
+    except:
+        print("Pinecone query failed")
+
 
     #get matches from mongoDB for IDs
     matches = []
