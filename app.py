@@ -6,8 +6,6 @@ from flask import request
 from werkzeug.utils import secure_filename
 import openai
 import agent
- 
-openai.api_key = os.getenv("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")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -43,7 +41,7 @@ def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
 
     backend_msg = agent.agent(client_msg)
-    emit('backend_message', backend_msg, broadcast=True)
+    emit('backend_message', backend_msg, room=request.sid)
 
 #pdfupload
 @socketio.on('pdf_upload')
