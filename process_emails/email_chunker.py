@@ -1,5 +1,5 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from get_message import get_full_message_from_one_case
+from .get_message import get_full_message_from_one_case
 import tiktoken
 
 
@@ -33,7 +33,7 @@ def email_chunk_to_json(chunks, metadata):
 
     for chunk in chunks:
         jsonChunk = {"content": chunk,
-                     "type": "EMail",
+                     "type": "email",
                      "source": metadata
                      }
         # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}

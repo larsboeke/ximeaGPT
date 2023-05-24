@@ -1,5 +1,5 @@
-import sql_connection
-from clean_email import clean_message
+from . import sql_connection
+from .clean_email import clean_message
 
 #get_cases_from_db.get_new_cases()
 #results = get_activities_from_specific_case("443028c8-a026-eb11-96e8-00155d0b2a0b")
