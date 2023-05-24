@@ -62,12 +62,8 @@ def uploadPDF(path):
     
 
 def uploadMail(case):
-    # chunks = process_emails.email_chunker.chunk_email(cases)
-    # chunks = mailChunker.chunkMail(path)
     col = initMongo()
     index = initPinecone()
-    db_instance = email_chunker.chunk_email(case)
-    for chunk in db_instance:
-        print(chunk)
+    chunks = email_chunker.chunk_email(case)
+    for chunk in chunks:
         uploadChunk(chunk, index, col)
-        print("chunk uploaded")

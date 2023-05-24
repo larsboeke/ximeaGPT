@@ -8,3 +8,4 @@ beautifulsoup4
 pymssql
 tiktoken
 pymongo
+python-dotenv
