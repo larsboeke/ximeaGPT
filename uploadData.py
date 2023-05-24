@@ -3,6 +3,9 @@ import pinecone
 import os
 import openai
 import pdfChunker
+from dotenv import load_dotenv
+
+load_dotenv()
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
@@ -21,7 +24,7 @@ def createEmbedding(chunk):#JSON als Input
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   #Ändern
+    db = client["XIMEAGPT"]                   
     col = db["prototype"]
     return col
         
