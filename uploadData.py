@@ -4,8 +4,10 @@ import os
 import openai
 import pdfChunker
 from dotenv import load_dotenv
+from process_emails import email_chunker
 
 load_dotenv()
+
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
@@ -42,7 +44,7 @@ def uploadChunk(chunk, index, col):
     chunkEmbedding = createEmbedding(chunk)
     id = col.insert_one(chunk)
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['metadata']['type'] == 'email' or 'ticket'):
+    if (chunk['type'] == 'email' or 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
@@ -59,8 +61,13 @@ def uploadPDF(path):
         uploadChunk(chunk, index, col)
     
 
-def uploadMail():
-    #chunks = mailChunker.chunkMail(path)
+def uploadMail(case):
+    # chunks = process_emails.email_chunker.chunk_email(cases)
+    # chunks = mailChunker.chunkMail(path)
     col = initMongo()
     index = initPinecone()
-    pass
+    db_instance = email_chunker.chunk_email(case)
+    for chunk in db_instance:
+        print(chunk)
+        uploadChunk(chunk, index, col)
+        print("chunk uploaded")
