@@ -44,7 +44,7 @@ def uploadChunk(chunk, index, col):
     chunkEmbedding = createEmbedding(chunk)
     id = col.insert_one(chunk)
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['type'] == 'email' or 'ticket'):
+    if (chunk['metadata']['type'] == 'email' or 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace

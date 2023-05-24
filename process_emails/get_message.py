@@ -99,9 +99,10 @@ def get_full_message_from_one_case(caseid):
         formatted_dt = dt_obj.strftime("%Y-%m-%d %H:%M:%S")
         formatted_dates.append(formatted_dt)
 
-    metadata = {"CaseID": str(act_desc_tuple[0][2]),
-                     "ActivityID": [str(t[0]) for t in act_desc_tuple],
-                     "DocumentDate": formatted_dates
+    metadata = {"type": "email",
+                     "case_id": str(act_desc_tuple[0][2]),
+                     "activity_id": [str(t[0]) for t in act_desc_tuple],
+                     "document_date": formatted_dates
                      }
 
     return full_message, metadata

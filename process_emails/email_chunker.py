@@ -33,10 +33,14 @@ def email_chunk_to_json(chunks, metadata):
 
     for chunk in chunks:
         jsonChunk = {"content": chunk,
-                     "type": "email",
-                     "source": metadata
+                     "metadata": metadata
                      }
-        # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}
+        # metadata example:
+        # type": "email",
+        # "case_id": str(act_desc_tuple[0][2]),
+        # "activity_id": [str(t[0]) for t in act_desc_tuple],
+        # "document_date": formatted_dates
+
         listOfJson.append(jsonChunk)
 
     return listOfJson
