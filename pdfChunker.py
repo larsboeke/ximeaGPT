@@ -39,7 +39,7 @@ def pdfChunkToJson(chunks):
 
     for chunk in chunks:
         jsonChunk = {"content": chunk.page_content,
-                     "type": "PDF",
+                     "type": "manual",
                      "source": chunk.metadata["source"] + " page number: " + str(chunk.metadata["page"])}
         # {"content" : xxx, "metadaten" : "source" : xxx, "sourceID" : xxx,  "type": xxx, "page number"}
         listOfJson.append(jsonChunk)

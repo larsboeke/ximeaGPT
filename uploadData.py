@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
 PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
@@ -18,7 +18,7 @@ EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 def createEmbedding(chunk):#JSON als Input
     chunkText = chunk['content']
     chunkEmbedding = openai.Embedding.create(input = chunkText, model=EMBEDDING_MODEL)['data'][0]['embedding']
-
+    print("created chunk embeddings")
     return chunkEmbedding
 
 
@@ -40,13 +40,15 @@ def initPinecone():
 def uploadChunk(chunk, index, col):
 
     chunkEmbedding = createEmbedding(chunk)
-    id = col.insert_one(chunk)
+    id_ = col.insert_one(chunk)
+    id = id_.inserted_id
+    print(id)
         #Emails and Tickets get uploaded to pastConversations Namespace
-    if (chunk['metadata']['type'] == 'email' or 'ticket'):
+    if (chunk['type'] == 'email' or 'ticket'):
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
         #manuals get uploaded to manuals namespace
-    elif (chunk['metadata']['type'] == 'manual'):
+    elif (chunk['type'] == 'manual'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
         
 
@@ -64,3 +66,5 @@ def uploadMail():
     col = initMongo()
     index = initPinecone()
     pass
+
+

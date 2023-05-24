@@ -3,8 +3,8 @@ from flask_socketio import SocketIO, emit
 import os
 import uploadData
 from werkzeug.utils import secure_filename
-
 import agent
+import uploadData
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -32,7 +32,7 @@ def generate_backend_message(client_msg):
     #ai_response = ai.create_ai_response(client_msg)
     generated_message = agent.agent(client_msg)['output']
     print(generated_message)
-    return generated_message, 400
+    return generated_message
 
 #resive client messages and send response
 @socketio.on('client_message')
@@ -68,3 +68,6 @@ def save_pdf_file(file_name, file):
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000)
+ 
+
+
