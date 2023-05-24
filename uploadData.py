@@ -4,6 +4,7 @@ import os
 import openai
 import pdfChunker
 from dotenv import load_dotenv
+from process_emails import email_chunker
 
 load_dotenv()
 
@@ -61,10 +62,9 @@ def uploadPDF(path):
         uploadChunk(chunk, index, col)
     
 
-def uploadMail():
-    #chunks = mailChunker.chunkMail(path)
+def uploadMail(case):
     col = initMongo()
     index = initPinecone()
-    pass
-
-
+    chunks = email_chunker.chunk_email(case)
+    for chunk in chunks:
+        uploadChunk(chunk, index, col)
