@@ -6,8 +6,6 @@ def get_all_cases():
     results = cursor.fetchall()
     connection.close()
     return results
-# eg print all
-# print(get_all_cases())
 
 # important later after initial commit
 def get_new_cases(days_back):
@@ -18,5 +16,4 @@ def get_new_cases(days_back):
     results = cursor.fetchall()
     connection.close()
     return results
-# eg 13 days minus today
-#print(get_new_cases(13))
+

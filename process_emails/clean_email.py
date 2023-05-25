@@ -30,13 +30,15 @@ def remove_greeting_to_subject(text):
                  r"Cordially.*?Subject:"]
     for pattern in patterns:
         text = re.sub(pattern, "", text, flags=re.DOTALL)
-    return text.strip()
+        text = text.strip()
+    return text
 
 
 def remove_from_to_subject(text):
     pattern = r"From:.*?Subject:"
-    cleaned_text = re.sub(pattern, "", text, flags=re.DOTALL)
-    return cleaned_text.strip()
+    text = re.sub(pattern, "", text, flags=re.DOTALL)
+    text.strip()
+    return text
 
 
 # input is unclean html text with signature

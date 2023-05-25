@@ -7,7 +7,7 @@ import openai
 import pinecone
 import pymongo
 import os
-import pyodbc
+#import pyodbc
 from dotenv import load_dotenv
 
 load_dotenv()

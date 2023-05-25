@@ -11,3 +11,7 @@ pymongo
 python-dotenv
 requests
 pypdf
+pinecone-client
+flask
+flask_socketio
+werkzeug

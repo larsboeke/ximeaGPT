@@ -5,28 +5,19 @@ from process_tickets.resolved_ids import ticket_ids
 
 
 # Upload Emails
-
 anzahl_cases = len(get_all_cases())
 for case in get_all_cases():
-   
     uploadData.uploadMail(case)
 
 # Upload URLs
 for url in manuals.url_list:
     uploadData.uploadURL(url)
 
-
 # Upload PDFs
 for pdf in manuals.pdf_list:
     uploadData.uploadPDF(pdf)
-   
-
-
-
-
 
 # Upload Tickets
-
 for id in ticket_ids:
     uploadData.uploadTicket(id)
 
