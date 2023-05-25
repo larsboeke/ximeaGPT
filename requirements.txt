@@ -3,7 +3,7 @@ openai
 numpy
 utils
 pandas
-sklearn
+scikit-learn
 beautifulsoup4
 pymssql
 tiktoken
