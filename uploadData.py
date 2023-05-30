@@ -9,9 +9,8 @@ from time import sleep
 from process_tickets.TicketChunker import TicketChunker
 from process_tickets.Ticket import Ticket
 
-
+# Load environment and set variables
 load_dotenv()
-
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
@@ -19,20 +18,21 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 
 
-
+# Method to create embeddings using OpenAI API
 def createEmbedding(chunk):#JSON als Input
     chunkText = chunk['content']
     chunkEmbedding = openai.Embedding.create(input = chunkText, model=EMBEDDING_MODEL)['data'][0]['embedding']
 
     return chunkEmbedding
 
-
 def initMongo():
+    # Initialise the non structured database MongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   
+    db = client["XIMEAGPT"]
     col = db["test"]
     return col
-        
+
+# Initiialise Pinecone to upload embeddings
 def initPinecone():
     #init pinecone
     pinecone.init(
@@ -42,6 +42,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
+# Upload created chunks to MongoDB and Pinecone
 def uploadChunk(chunk, index, col):
     try:
         chunkEmbedding = createEmbedding(chunk)
@@ -51,7 +52,6 @@ def uploadChunk(chunk, index, col):
         sleep(5)
         chunkEmbedding = createEmbedding(chunk)
 
-    
 
     id_ = col.insert_one(chunk)
     id = str(id_.inserted_id)
@@ -64,7 +64,7 @@ def uploadChunk(chunk, index, col):
     elif (chunk['metadata']['type'] == 'manuals'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
 
-
+# Upload PDFs from given path
 def uploadPDF(path):
     col = initMongo()
     index = initPinecone()
@@ -75,7 +75,7 @@ def uploadPDF(path):
 
     print("uploaded " + path)
 
-
+# Upload Pagecontent from given URLs
 def uploadURL(url):
     col = initMongo()
     index = initPinecone()
@@ -87,6 +87,7 @@ def uploadURL(url):
 
     print("uploaded " + url)
 
+# Upload mails from SQL database
 def uploadMail(case):
     col = initMongo()
     index = initPinecone()
@@ -96,7 +97,7 @@ def uploadMail(case):
 
     print("uploaded case: " + str(case))
 
-
+# Upload tickets from Deskpro API
 def uploadTicket(TicketID):
     ticket = Ticket(TicketID)
     ticket.set_WholeTicket()

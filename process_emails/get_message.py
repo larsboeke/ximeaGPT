@@ -2,7 +2,7 @@ from . import sql_connection
 from .clean_email import clean_message
 
 # Input: specific caseid
-# Output: a list of this format: [(activityid, description)(activityid, description)...]
+# Output: a list of this format: [(activityid, description, caseid, date)(activityid, description, caseid, date)...]
 def get_activities_from_specific_case(caseid):
     connection, cursor = sql_connection.create_connection()
     query = "SELECT [activityid], [description], [regardingobjectid], [createdon] FROM [AI:Lean].[dbo].[CrmEmails] " \
@@ -12,6 +12,7 @@ def get_activities_from_specific_case(caseid):
     connection.close()
     return text_w_metadata
 
+# Extract email contents from tuple and create list out of it
 def create_uncleaned_history(text_w_metadata):
     descriptions = [t[1] for t in text_w_metadata]
 
@@ -20,6 +21,7 @@ def create_uncleaned_history(text_w_metadata):
         email_list.append(description)
     return email_list
 
+# Clean each email content in list (eg remove html. signatures, greetings, etc...)
 def clean_uncleaned_history(uncleaned_history):
 
     cleaned_history = []

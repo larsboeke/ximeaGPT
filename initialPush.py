@@ -20,5 +20,3 @@ for pdf in manuals.pdf_list:
 # Upload Tickets
 for id in ticket_ids:
     uploadData.uploadTicket(id)
-
-#
