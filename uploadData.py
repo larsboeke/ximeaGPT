@@ -44,14 +44,20 @@ def initPinecone():
 
 # Upload created chunks to MongoDB and Pinecone
 def uploadChunk(chunk, index, col):
-    try:
-        chunkEmbedding = createEmbedding(chunk)
-    except Exception as e:
-        print(type(e).__name__)
-        print("Could not create embedding, waiting 5 seconds")
-        sleep(5)
-        chunkEmbedding = createEmbedding(chunk)
-
+    # Try Create embedding x times (due to APIERROR)
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            chunkEmbedding = createEmbedding(chunk)
+            # If the function is successful, we end the loop
+            break
+        except Exception as e:
+            print(type(e).__name__)
+            print("Could not create embedding, waiting 5 seconds")
+            sleep(5)
+            if attempt == max_attempts - 1:
+                # If it was the last try, we throw the exception again
+                raise e
 
     id_ = col.insert_one(chunk)
     id = str(id_.inserted_id)
@@ -64,51 +70,85 @@ def uploadChunk(chunk, index, col):
     elif (chunk['metadata']['type'] == 'manuals'):
         index.upsert([(id, chunkEmbedding)], namespace='maunals')
 
+
+def is_file_uploaded(source, file_type):
+    col = initMongo()
+    type_to_key_map = {
+        'email': 'case_id',
+        # TODO: ticketID moeglicherweise falsch, vlt abändern zu TicketID
+        'ticket': 'ticketID',
+        'manuals': 'source'
+    }
+
+    key = type_to_key_map.get(file_type)
+    if key is not None:
+        is_uploaded = col.count_documents({"metadata." + key: source}) != 0
+    else:
+        is_uploaded = False
+
+    return is_uploaded
+
 # Upload PDFs from given path
 def uploadPDF(path):
-    col = initMongo()
-    index = initPinecone()
-    chunks = pdfChunker.chunkPDF(path)
+    file_type = 'manuals'
+    if is_file_uploaded(path, file_type) == False:
+        col = initMongo()
+        index = initPinecone()
+        chunks = pdfChunker.chunkPDF(path)
 
-    for chunk in chunks:
-        uploadChunk(chunk, index, col)
+        for chunk in chunks:
+            uploadChunk(chunk, index, col)
 
-    print("uploaded " + path)
+        print("uploaded " + path)
+    else:
+        print("File already uploaded")
 
 # Upload Pagecontent from given URLs
 def uploadURL(url):
-    col = initMongo()
-    index = initPinecone()
+    file_type = 'manuals'
+    if is_file_uploaded(url, file_type) == False:
+        col = initMongo()
+        index = initPinecone()
 
-    chunks = pdfChunker.chunkURL(url)
+        chunks = pdfChunker.chunkURL(url)
 
-    for chunk in chunks:
-        uploadChunk(chunk, index, col)
+        for chunk in chunks:
+            uploadChunk(chunk, index, col)
 
-    print("uploaded " + url)
+        print("uploaded " + url)
+    else:
+        print("File already uploaded")
 
 # Upload mails from SQL database
 def uploadMail(case):
-    col = initMongo()
-    index = initPinecone()
-    chunks = email_chunker.chunk_email(case)
-    for chunk in chunks:
-        uploadChunk(chunk, index, col)
+    file_type = 'email'
+    if is_file_uploaded(case, file_type) == False:
+        col = initMongo()
+        index = initPinecone()
+        chunks = email_chunker.chunk_email(case)
+        for chunk in chunks:
+            uploadChunk(chunk, index, col)
 
-    print("uploaded case: " + str(case))
+        print("uploaded case: " + str(case))
+    else:
+        print("File already uploaded")
 
 # Upload tickets from Deskpro API
 def uploadTicket(TicketID):
-    ticket = Ticket(TicketID)
-    ticket.set_WholeTicket()
-    ticket.set_metadata()
-    ticket.set_fullTicketText()
-    chunker = TicketChunker()
-    chunks = chunker.chunkTicket(ticket)
-    col = initMongo()
-    index = initPinecone()
+    file_type = 'ticket'
+    if is_file_uploaded(TicketID, file_type) == False:
+        ticket = Ticket(TicketID)
+        ticket.set_WholeTicket()
+        ticket.set_metadata()
+        ticket.set_fullTicketText()
+        chunker = TicketChunker()
+        chunks = chunker.chunkTicket(ticket)
+        col = initMongo()
+        index = initPinecone()
 
-    for chunk in chunks:
-        uploadChunk(chunk, index, col)
+        for chunk in chunks:
+            uploadChunk(chunk, index, col)
 
-    print("uploaded ticket: " + str(TicketID))
+        print("uploaded ticket: " + str(TicketID))
+    else:
+        print("File already uploaded")
