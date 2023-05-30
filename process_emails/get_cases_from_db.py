@@ -4,7 +4,8 @@ from .sql_connection import create_connection
 # TODO: Test if it is working
 def get_all_cases():
     connection, cursor = create_connection()
-    query = "SELECT DISTINCT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] ORDER BY [createdon] ASC"
+    query = "SELECT DISTINCT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails]"
+    # not distinct but ordered by date: SELECT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] ORDER BY [createdon] ASC
     cursor.execute(query)
     results = cursor.fetchall()
     connection.close()
@@ -14,7 +15,7 @@ def get_all_cases():
 def get_new_cases(days_back):
     connection, cursor = create_connection()
     query = "SELECT DISTINCT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] " \
-            "WHERE [createdon] > DATEADD(DAY, -%s, GETDATE()) ORDER BY [createdon] ASC"
+            "WHERE [createdon] > DATEADD(DAY, -%s, GETDATE())"
     cursor.execute(query, (days_back,))
     results = cursor.fetchall()
     connection.close()

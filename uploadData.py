@@ -82,7 +82,7 @@ def is_file_uploaded(source, file_type):
 
     key = type_to_key_map.get(file_type)
     if key is not None:
-        is_uploaded = col.count_documents({"metadata." + key: source}) != 0
+        is_uploaded = col.count_documents({"metadata." + key : source}) != 0
     else:
         is_uploaded = False
 
@@ -122,7 +122,7 @@ def uploadURL(url):
 # Upload mails from SQL database
 def uploadMail(case):
     file_type = 'email'
-    if is_file_uploaded(case, file_type) == False:
+    if is_file_uploaded(str(case[0]), file_type) == False:
         col = initMongo()
         index = initPinecone()
         chunks = email_chunker.chunk_email(case)
