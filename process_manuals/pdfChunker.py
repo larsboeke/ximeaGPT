@@ -61,7 +61,7 @@ def url_to_chunks(url):
     # chunk = text_splitter.split_text(page.page_content)
     # chunks.append(chunk)
 
-    print("Pdf turned into chunks")
+    #print("Pdf turned into chunks")
     return chunks
 
 
