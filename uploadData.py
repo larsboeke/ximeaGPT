@@ -68,7 +68,7 @@ def uploadChunk(chunk, index, col):
 
         #manuals get uploaded to manuals namespace
     elif (chunk['metadata']['type'] == 'manuals'):
-        index.upsert([(id, chunkEmbedding)], namespace='maunals')
+        index.upsert([(id, chunkEmbedding)], namespace='manuals')
 
 
 def is_file_uploaded(source, file_type):
