@@ -43,7 +43,7 @@ class TicketChunker:
         for chunk in chunks:
             jsonChunk = {"content": str(chunk.get_Text()),
                          "metadata":{
-                             "type": "Ticket", 
+                             "type": "ticket",
                              "TicketID": str(chunk.get_Ticket()),
                              "order in ticket: " : str(chunk.get_Order())}
                          }

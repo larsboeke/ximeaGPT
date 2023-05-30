@@ -35,7 +35,7 @@ def pdf_to_chunks(path):
     # chunk = text_splitter.split_text(page.page_content)
     # chunks.append(chunk)
 
-    print("Pdf turned into chunks")
+    #print("Pdf turned into chunks")
     os.remove('temp.pdf')
     return chunks
 

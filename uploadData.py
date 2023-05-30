@@ -29,7 +29,7 @@ def initMongo():
     # Initialise the non structured database MongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]
-    col = db["test"]
+    col = db["prototype"]
     return col
 
 # Initiialise Pinecone to upload embeddings
@@ -75,7 +75,6 @@ def is_file_uploaded(source, file_type):
     col = initMongo()
     type_to_key_map = {
         'email': 'case_id',
-        # TODO: ticketID moeglicherweise falsch, vlt abändern zu TicketID
         'ticket': 'ticketID',
         'manuals': 'source'
     }
