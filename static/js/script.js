@@ -36,11 +36,12 @@ const createElement = (html, className) => {
 }
 
 const getChatResponse = async(aiChatDiv) =>{
+
     const pElement = document.createElement("p")
     //TO-DO: here POST request, define properties 
     try {
         //const response = await(await fetch(API_URL, requestOptions)).json();
-        const response = "GPT Answer";
+        const response = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua";
         pElement.textContent = response.trim();
 
     } catch(error){
@@ -59,7 +60,7 @@ const getChatResponse = async(aiChatDiv) =>{
 
 const copyResponse = (copyBtn) => {
     // Copy the ai response to the clipboard
-    const responseTextElement = copyBtn.parentElement.querySelector("p");
+    const responseTextElement = copyBtn.parentElement.previousElementSibling.querySelector("p");
     navigator.clipboard.writeText(responseTextElement.textContent);
     copyBtn.textContent = "done";
     setTimeout(() => copyBtn.textContent = "content_copy", 1000);
@@ -75,10 +76,12 @@ const showTypingAnimation = () => {
                             <div class="typing-dot" style="--delay: 0.4s"></div>
                          </div>
                     </div>
+                    <div class="chat-controls">
                     <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons-->
-                    <!--<span class="material-symbols-outlined">thumb_up</span>
-                    <span class="material-symbols-outlined">thumb_down</span>-->
+                    <!--TO-DO:Feedback buttons functionality-->
+                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
+                    <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                    </div>
                 </div>`;
     const aiChatDiv = createElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
@@ -107,7 +110,6 @@ const handleUserMessage = () => {
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     setTimeout(showTypingAnimation,500);
-
 }
 
 themeButton.addEventListener("click", () =>{
@@ -120,6 +122,7 @@ deleteButton.addEventListener("click", () =>{
     //TO-DO: change confirm window to a centered pop-up window
     if(confirm("Are you sure that you want to delete the history of this chat?")){
         localStorage.removeItem("chat-history");
+        fileInfo.remove();
         loadDataFromLocalstorage();
     }
 });
@@ -180,7 +183,7 @@ chatInput.addEventListener("keydown", (e) => {
         e.preventDefault();
         handleUserMessage();
     }
-
+    
 })
 
 sendButton.addEventListener("click", handleUserMessage);
