@@ -141,7 +141,7 @@ def uploadTicket(TicketID):
         col = initMongo()
         index = initPinecone()
 
-        chunks = TicketChunker.chunkTicket(TicketID)
+        chunks = TicketChunker().chunkTicket(TicketID)
 
         for chunk in chunks:
             uploadChunk(chunk, index, col)
