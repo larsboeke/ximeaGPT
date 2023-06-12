@@ -124,7 +124,9 @@ def uploadMail(case):
     if is_file_uploaded(str(case[0]), file_type) == False:
         col = initMongo()
         index = initPinecone()
+
         chunks = email_chunker.chunk_email(case)
+
         for chunk in chunks:
             uploadChunk(chunk, index, col)
 
@@ -136,14 +138,10 @@ def uploadMail(case):
 def uploadTicket(TicketID):
     file_type = 'ticket'
     if is_file_uploaded(TicketID, file_type) == False:
-        ticket = Ticket(TicketID)
-        ticket.set_WholeTicket()
-        ticket.set_metadata()
-        ticket.set_fullTicketText()
-        chunker = TicketChunker()
-        chunks = chunker.chunkTicket(ticket)
         col = initMongo()
         index = initPinecone()
+
+        chunks = TicketChunker.chunkTicket(TicketID)
 
         for chunk in chunks:
             uploadChunk(chunk, index, col)

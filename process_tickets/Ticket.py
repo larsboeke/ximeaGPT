@@ -1,4 +1,3 @@
-
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -11,6 +10,12 @@ class Ticket:
         self.fullTicketText = ""
         self.metadata ={},
         self.ticketStartDate = None
+        self.set_parameter()
+
+    def set_parameter(self):
+        self.set_WholeTicket()
+        self.set_metadata()
+        self.set_fullTicketText()
 
     def set_metadata(self):
         self.metadata = {
