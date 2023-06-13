@@ -138,7 +138,6 @@ def uploadMail(case):
 def uploadTicket(TicketID):
     file_type = 'ticket'
     if is_file_uploaded(str(TicketID), file_type) == False:
-        print("Uploading ticket: " + str(TicketID))
         col = initMongo()
         index = initPinecone()
 

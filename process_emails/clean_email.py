@@ -23,11 +23,18 @@ def remove_last_greeting(text):
 
 def remove_greeting_to_subject(text):
     patterns = [r"From:.*?Subject:", r"Best regards.*?Subject:", r"Sincerely.*?Subject:",
-                 r"Best regards.*?Subject:", r"Kind regards.*?Subject:", r"Regards.*?Subject:",
-                 r"Best wishes.*?Subject:", r"Yours faithfully.*?Subject:", r"Yours sincerely.*?Subject:",
-                 r"Warm regards.*?Subject:", r"All the best.*?Subject:", r"Cheers.*?Subject:",
-                 r"Take care.*?Subject:", r"Have a nice day.*?Subject:", r"With appreciation.*?Subject:",
-                 r"Cordially.*?Subject:"]
+                    r"Best regards.*?Subject:", r"Kind regards.*?Subject:", r"Regards.*?Subject:",
+                    r"Best wishes.*?Subject:", r"Yours faithfully.*?Subject:", r"Yours sincerely.*?Subject:",
+                    r"Warm regards.*?Subject:", r"All the best.*?Subject:", r"Cheers.*?Subject:",
+                    r"Take care.*?Subject:", r"Have a nice day.*?Subject:", r"With appreciation.*?Subject:",
+                    r"Cordially.*?Subject:", r"Viele Grüße.*?Subject:", r"Mit freundlichen Grüßen.*?Subject:",
+                    r"Herzliche Grüße.*?Subject:", r"Liebe Grüße.*?Subject:", r"Alles Gute.*?Subject:",
+                    r"In freundschaftlicher Verbundenheit.*?Subject:", r"Hochachtungsvoll.*?Subject:",
+                    r"Beste Wünsche.*?Subject:", r"Auf Wiedersehen.*?Subject:", r"Bis bald.*?Subject:",
+                    r"Pass auf dich auf.*?Subject:", r"Schönen Tag noch.*?Subject:", r"Mit Dank und besten Grüßen.*?Subject:",
+                    r"Herzlichst.*?Subject:", r"Liebevoll.*?Subject:", r"Mit freundlichem Gruß.*?Subject:",
+                    r"Gruß.*?Subject:", r"Beste Grüße.*?Subject:", r"LG.*?Subject:", r"MfG.*?Subject:",
+                    r"Thanks again and best regards.*?Subject:"]
     for pattern in patterns:
         text = re.sub(pattern, "", text, flags=re.DOTALL)
         text = text.strip()
