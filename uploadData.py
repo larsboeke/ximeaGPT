@@ -75,7 +75,7 @@ def is_file_uploaded(source, file_type):
     col = initMongo()
     type_to_key_map = {
         'email': 'case_id',
-        'ticket': 'ticketID',
+        'ticket': 'TicketID',
         'manuals': 'source'
     }
 
@@ -124,7 +124,9 @@ def uploadMail(case):
     if is_file_uploaded(str(case[0]), file_type) == False:
         col = initMongo()
         index = initPinecone()
+
         chunks = email_chunker.chunk_email(case)
+
         for chunk in chunks:
             uploadChunk(chunk, index, col)
 
@@ -135,15 +137,12 @@ def uploadMail(case):
 # Upload tickets from Deskpro API
 def uploadTicket(TicketID):
     file_type = 'ticket'
-    if is_file_uploaded(TicketID, file_type) == False:
-        ticket = Ticket(TicketID)
-        ticket.set_WholeTicket()
-        ticket.set_metadata()
-        ticket.set_fullTicketText()
-        chunker = TicketChunker()
-        chunks = chunker.chunkTicket(ticket)
+    if is_file_uploaded(str(TicketID), file_type) == False:
+        print("Uploading ticket: " + str(TicketID))
         col = initMongo()
         index = initPinecone()
+
+        chunks = TicketChunker().chunkTicket(TicketID)
 
         for chunk in chunks:
             uploadChunk(chunk, index, col)

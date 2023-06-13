@@ -10,6 +10,12 @@ from .Chunk import Chunk
 
 class TicketChunker:
 
+    def chunkTicket(self,ticket_id):
+         ticket_object = Ticket(ticket_id)
+         chunks = self.ticket_to_chunks(ticket_object)
+         jsonChunks = self.ticketChunkToJson(chunks)
+         return jsonChunks    
+
     def ticket_to_chunks(self, ticket_object):
         chunkList = []
         
@@ -49,8 +55,3 @@ class TicketChunker:
                          }
             listOfJson.append(jsonChunk)
         return listOfJson
-
-    def chunkTicket(self,ticket_object):
-         chunks = self.ticket_to_chunks(ticket_object)
-         jsonChunks = self.ticketChunkToJson(chunks)
-         return jsonChunks
