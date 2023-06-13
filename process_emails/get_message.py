@@ -43,7 +43,7 @@ def unify_email_list(cleaned_history):
                 cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
                 unified_emails.append(cleaned_email)
             else:
-                unified_emails.append("Previous not found. Error 187! " + cleaned_history[i])
+                unified_emails.append("No previous email exists. " + cleaned_history[i])
     return unified_emails
 
 def get_full_message_from_one_case(caseid):
