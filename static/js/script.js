@@ -5,6 +5,20 @@ const themeButton = document.querySelector("#theme-btn");
 const deleteButton = document.querySelector("#delete-btn")
 const uploadButton = document.querySelector("#upload-btn")
 const fileInfo = document.querySelector(".file-info")
+const socket = io.connect('http://localhost:5000');
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+                console.log('Service Worker registered:', registration);
+            })
+            .catch((error) => {
+                console.error('Service Worker registration failed:', error);
+            });
+    });
+}
+
 
 const initialHeight = chatInput.scrollHeight;
 
@@ -37,12 +51,12 @@ const createElement = (html, className) => {
 
 const getChatResponse = async(aiChatDiv) =>{
 
-    const pElement = document.createElement("p")
+    const pElement = document.createElement("p");
     //TO-DO: here POST request, define properties 
     try {
         //const response = await(await fetch(API_URL, requestOptions)).json();
-        const response = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua";
-        pElement.textContent = response.trim();
+        const response1 = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua";
+        pElement.textContent = response1.trim();
 
     } catch(error){
         pElement.classList.add("error");
@@ -78,7 +92,7 @@ const showTypingAnimation = () => {
                     </div>
                     <div class="chat-controls">
                     <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons functionality-->
+                    <!--TO-DO:Feedback buttons onclick functionality-->
                     <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
                     <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                     </div>
@@ -87,29 +101,52 @@ const showTypingAnimation = () => {
     chatContainer.appendChild(aiChatDiv);
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    getChatResponse(aiChatDiv);
+    //getChatResponse(aiChatDiv);
 }
 
 const handleUserMessage = () => {
-    userText = chatInput.value.trim();
-    if(!userText) return; //if chatInput is empty retun from here
-
-    chatInput.value = " " //clear the textarea after sending
-    chatInput.style.height = `${initialHeight}px`;
-
-    const html =`<div class="chat-content">
+    if(chatInput.value){
+        socket.emit('client_message', chatInput.value);
+        const html =`<div class="chat-content">
                     <div class="chat-details">
                         <img src="../static/images/user_logo.png" alt="user-img">
-                        <p>${userText}</p>
+                        <p>${chatInput.value}</p>
                     </div>
                 </div>`;
-    const userChatDiv = createElement(html, "client");
-    document.querySelector(".default-text")?.remove();
-    chatContainer.appendChild(userChatDiv);
-    
-    //automatic scrolldown
+        const userChatDiv = createElement(html, "client");
+        document.querySelector(".default-text")?.remove();
+        chatContainer.appendChild(userChatDiv);
+        chatInput.value = " " //clear the textarea after sending
+        chatInput.style.height = `${initialHeight}px`;
+    } 
+
+    socket.on('backend_message', (msg) => {
+        const pElement = document.createElement("p");
+        pElement.textContent = msg.trim();
+        const html =`<div class="chat-content">
+                    <div class="chat-details">
+                        <img src="../static/images/gpt_logo.png" alt="chatbot-img">
+                        <div class="typing-animation">
+                            <div class="typing-dot" style="--delay: 0.2s"></div>
+                            <div class="typing-dot" style="--delay: 0.3s"></div>
+                            <div class="typing-dot" style="--delay: 0.4s"></div>
+                         </div>
+                    </div>
+                    <div class="chat-controls">
+                    <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
+                    <!--TO-DO:Feedback buttons onclick functionality-->
+                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
+                    <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                    </div>
+                </div>`;
+        const aiChatDiv = createElement(html, "backend");
+        chatContainer.appendChild(aiChatDiv);
+        aiChatDiv.querySelector(".typing-animation").remove();
+        aiChatDiv.querySelector(".chat-details").appendChild(pElement);
+        chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    });  
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    setTimeout(showTypingAnimation,500);
+    //setTimeout(showTypingAnimation,500);
 }
 
 themeButton.addEventListener("click", () =>{
@@ -182,8 +219,7 @@ chatInput.addEventListener("keydown", (e) => {
     if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800){
         e.preventDefault();
         handleUserMessage();
-    }
-    
+    }  
 })
 
 sendButton.addEventListener("click", handleUserMessage);

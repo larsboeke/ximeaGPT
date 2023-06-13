@@ -13,7 +13,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('chatbot.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -40,7 +40,6 @@ def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
     backend_msg = generate_backend_message(client_msg)
     emit('backend_message', backend_msg, broadcast=False)
-
 
 
 if __name__ == '__main__':
