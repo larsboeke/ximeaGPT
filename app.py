@@ -29,7 +29,6 @@ def upload():
 
 #react to client message
 def generate_backend_message(client_msg):
-    #ai_response = ai.create_ai_response(client_msg)
     generated_message = agent.agent(client_msg)['output']
     print(generated_message)
     return generated_message

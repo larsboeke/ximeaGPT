@@ -41,7 +41,7 @@ const loadDataFromLocalstorage = () => {
 
 loadDataFromLocalstorage(); 
 
-const createElement = (html, className) => {
+const createChatElement = (html, className) => {
     //create new div and apply chat, specified class and set html content of div
     const chatDiv = document.createElement("div");
     chatDiv.classList.add("chat", className)
@@ -49,27 +49,45 @@ const createElement = (html, className) => {
     return chatDiv; 
 }
 
-const getChatResponse = async(aiChatDiv) =>{
-
+const getChatResponse = (aiChatDiv) =>{
     const pElement = document.createElement("p");
-    //TO-DO: here POST request, define properties 
-    try {
-        //const response = await(await fetch(API_URL, requestOptions)).json();
-        const response1 = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua";
-        pElement.textContent = response1.trim();
-
-    } catch(error){
-        pElement.classList.add("error");
-        pElement.textContent ="Ooops! Something went wtrong while retrievig the response.Please try again.";
-    }
-
-    aiChatDiv.querySelector(".typing-animation").remove();
     aiChatDiv.querySelector(".chat-details").appendChild(pElement);
+
+    const receiveResponse = (msg) => {
+        pElement.textContent = msg.trim();
+        aiChatDiv.querySelector(".typing-animation").remove();
+        socket.off('backend_message', receiveResponse);
+    };
+
+    socket.on('backend_message', receiveResponse);
+
+    socket.on('backend_error', () => {
+        pElement.classList.add("error");
+        pElement.textContent = "Oops! Something went wrong while retrieving the response. Please try again.";
+        aiChatDiv.querySelector(".typing-animation").remove();
+        socket.off('backend_message', receiveResponse);
+    });
+    // try {
+    //     socket.on('backend_message', (msg) => {
+    //         pElement.textContent = msg.trim();
+    //         aiChatDiv.querySelector(".typing-animation").remove();
+    //         aiChatDiv.querySelector(".chat-details").appendChild(pElement);
+    //     })
+    // } catch(error){
+    //     socket.on('backend_error',(error)=>
+    //     {
+    //         pElement.classList.add("error");
+    //         pElement.textContent = "Oops! Something went wrong while retrieving the response. Please try again.";
+    //         aiChatDiv.querySelector(".typing-animation").remove();
+    //         socket.off('backend_message');
+    //         });
+    //     // pElement.classList.add("error");
+    //     // pElement.textContent ="Ooops! Something went wtrong while retrievig the response.Please try again.";
+    // }
+    //saving all chat HTML data as chat-hystory name in local storage
+    localStorage.setItem("chat-history", chatContainer.innerHTML)
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    //saving all chat HTML data as chat-hystory name in local storage
-    //TO-DO: saving in MongoDB?
-    localStorage.setItem("chat-history", chatContainer.innerHTML)
 }
 
 const copyResponse = (copyBtn) => {
@@ -97,11 +115,11 @@ const showTypingAnimation = () => {
                     <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                     </div>
                 </div>`;
-    const aiChatDiv = createElement(html, "backend");
+    const aiChatDiv = createChatElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    //getChatResponse(aiChatDiv);
+    getChatResponse(aiChatDiv);
 }
 
 const handleUserMessage = () => {
@@ -113,40 +131,14 @@ const handleUserMessage = () => {
                         <p>${chatInput.value}</p>
                     </div>
                 </div>`;
-        const userChatDiv = createElement(html, "client");
+        const userChatDiv = createChatElement(html, "client");
         document.querySelector(".default-text")?.remove();
         chatContainer.appendChild(userChatDiv);
         chatInput.value = " " //clear the textarea after sending
         chatInput.style.height = `${initialHeight}px`;
     } 
-
-    socket.on('backend_message', (msg) => {
-        const pElement = document.createElement("p");
-        pElement.textContent = msg.trim();
-        const html =`<div class="chat-content">
-                    <div class="chat-details">
-                        <img src="../static/images/gpt_logo.png" alt="chatbot-img">
-                        <div class="typing-animation">
-                            <div class="typing-dot" style="--delay: 0.2s"></div>
-                            <div class="typing-dot" style="--delay: 0.3s"></div>
-                            <div class="typing-dot" style="--delay: 0.4s"></div>
-                         </div>
-                    </div>
-                    <div class="chat-controls">
-                    <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons onclick functionality-->
-                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                    <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
-                    </div>
-                </div>`;
-        const aiChatDiv = createElement(html, "backend");
-        chatContainer.appendChild(aiChatDiv);
-        aiChatDiv.querySelector(".typing-animation").remove();
-        aiChatDiv.querySelector(".chat-details").appendChild(pElement);
-        chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    });  
+    showTypingAnimation();
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    //setTimeout(showTypingAnimation,500);
 }
 
 themeButton.addEventListener("click", () =>{
