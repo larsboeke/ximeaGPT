@@ -13,16 +13,20 @@
 </head>
 <body>
     <!--TO-DO: sidebar container-->
-    <!-- <div class="sidebar-container">
-        <span id="new-chat-btn" class="material-symbols-outlined" title="New chat">maps_ugc</span>
+    <div id="leftbox" class="history-container">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&#171;</a>
+        <a id="new-chat-btn" class="material-symbols-outlined" title="New chat">maps_ugc</a>
+        <!--TO-DO: onclick="newChat() & fix the button"-->
         <div class="history">
-            <p>Chat 1</p>
-            <p>Chat 2</p>
-            <p>Chat 3</p>
+            <a>Chat 1</a>
+            <a>Chat 2</a>
+            <a>Chat 3</a>
         </div>
-    </div> -->
+    </div>
+        <button class="openbtn" onclick="openNav()">&#187;</button>
         <!--CHAT CONTAINER-->
-        <div class="chat-container"></div>
+        <div id="chatbox" class="chat-container"></div>
+            
         <!--Typing CONTAINER-->
         <div class ="typing-container">
             <div class="typing-content">
@@ -37,6 +41,33 @@
                     <input id="upload-btn" type="file" accept=".pdf">                    
                 </div>
                 <div class="file-info"></div>
+            </div>
+        </div>
+
+        <!--TO-DO: sidebar container-->
+        <div id="rightbox" class="feedback-container">
+            <a href="javascript:void(0)" class="closeFeedbackbtn" onclick="closeFeedback()">&#10005;</a>
+            <div>
+            <form>    
+                <label class="feedback-checkbox">Unprecise answer
+                    <input type="checkbox" checked="checked">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Wrong answer
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Wrong sources
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Not complete
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <textarea id="feedback-text" placeholder="Additional Feedback?"></textarea> 
+                <a class="sendFeedbackbtn">&#10146;</a>
+            </form>
             </div>
         </div>
 </body>

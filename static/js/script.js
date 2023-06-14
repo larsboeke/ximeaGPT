@@ -83,7 +83,7 @@ const copyResponse = (copyBtn) => {
 const showTypingAnimation = () => {
     const html =`<div class="chat-content">
                     <div class="chat-details">
-                        <img src="../static/images/gpt_logo.png" alt="chatbot-img">
+                        <img src="../static/images/AI_Lean.png" alt="chatbot-img">
                         <div class="typing-animation">
                             <div class="typing-dot" style="--delay: 0.2s"></div>
                             <div class="typing-dot" style="--delay: 0.3s"></div>
@@ -125,7 +125,7 @@ const handleUserMessage = () => {
         pElement.textContent = msg.trim();
         const html =`<div class="chat-content">
                     <div class="chat-details">
-                        <img src="../static/images/gpt_logo.png" alt="chatbot-img">
+                        <img src="../static/images/AI_Lean.png" alt="chatbot-img">
                         <div class="typing-animation">
                             <div class="typing-dot" style="--delay: 0.2s"></div>
                             <div class="typing-dot" style="--delay: 0.3s"></div>
@@ -135,8 +135,8 @@ const handleUserMessage = () => {
                     <div class="chat-controls">
                     <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
                     <!--TO-DO:Feedback buttons onclick functionality-->
-                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                    <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                    <span onclick="posFeedback()" id="thumb-up" class="material-symbols-outlined">thumb_up</span>
+                    <span onclick="negFeedback()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                     </div>
                 </div>`;
         const aiChatDiv = createElement(html, "backend");
@@ -223,3 +223,35 @@ chatInput.addEventListener("keydown", (e) => {
 })
 
 sendButton.addEventListener("click", handleUserMessage);
+
+// Sidebar Close and Open Button
+    /* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
+    function openNav() {
+        document.getElementById("leftbox").style.width = "250px";
+        document.getElementById("chatbox").style.marginLeft = "250px";
+    }
+    
+    /* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
+    function closeNav() {
+        document.getElementById("leftbox").style.width = "0";
+        document.getElementById("chatbox").style.marginLeft = "0";
+    }
+
+//TO-DO: New Chat
+//Save in Cache -> save in database with id
+//Delete old chat
+//Move the Chats in the history
+
+const posFeedback = () => {
+
+}
+
+const negFeedback = () => {
+    document.getElementById("rightbox").style.width = "250px";
+    document.getElementById("chatbox").style.marginRight = "250px";
+}
+
+function closeFeedback() {
+    document.getElementById("rightbox").style.width = "0";
+    document.getElementById("chatbox").style.marginRight = "0";
+}
