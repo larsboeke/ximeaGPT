@@ -27,6 +27,7 @@
     --activ-btn-bg: #ffd580;
     --positiv-fdb: rgb(36, 151, 36);
     --negativ-fdb: rgb(177, 39, 39);
+    --stars-bg: #222;
 
   }
   .light-mode{
@@ -39,10 +40,12 @@
     --client-chat-border: #FFFFFF;
     --backend-chat-border: #D9D9E3;
     --activ-color: #ffa500;
-  
+    --stars-bg: #bcbaba;  
   }
   body {
     background: var(--backend-chat-bg);
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
   }
 
   /*Chat container styling*/
@@ -70,15 +73,15 @@
     font-size: 1.1rem;
   }
   /*custom scrollbar for textarea*/
-  :where(.chat-container,textarea)::-webkit-scrollbar{
+  :where(.chat-container,textarea,.history-container)::-webkit-scrollbar{
     width: 6px;
   }
-  :where(.chat-container, textarea)::-webkit-scrollbar-track{
+  :where(.chat-container, textarea,.history-container)::-webkit-scrollbar-track{
 	  border-radius: 10px;
     background: var(--backend-chat-bg);
     border-radius: 25px;
   }
-  :where(.chat-container, textarea)::-webkit-scrollbar-thumb{
+  :where(.chat-container, textarea,.history-container)::-webkit-scrollbar-thumb{
     background: var(--icon-color);
     border-radius: 25px;
   }
@@ -112,6 +115,7 @@
   .chat .chat-details{
     display: flex;
     align-items: center;
+    position: relative;
   }
   .chat .chat-details img{
     width: 35px;
@@ -125,6 +129,24 @@
     font-size: 1.05rem;
     padding: 0 50px 0 25px;
   }
+  .chat .chat-details .time{
+    font-size: 12px;
+    color: var(--icon-color);
+    align-self: flex-end;
+    justify-content: space-between;
+    position:absolute;
+    bottom: -25px;
+    margin-left: 65px;
+    width: 100%;
+  }
+
+  .chat .chat-details .time:hover{
+    color:var(--icon-color);
+    cursor: default;
+  }
+
+  
+  
   .chat .chat-details p.error{
     color: var(--activ-color)
   }
@@ -264,6 +286,16 @@
   .typing-textarea textarea:valid ~ span{
     visibility: visible;
   }
+  .info{
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+  
   .typing-content span {
     height: 55px;
     width: 55px;
@@ -333,10 +365,12 @@
         z-index: 1; /* Stay on top */
         top: 0;
         left: 0;
-        background-color: #111; /* Black*/
+        background-color: var(--client-chat-bg); /* Black*/
         overflow-x: hidden; /* Disable horizontal scroll */
         padding-top: 25px; /* Place content 60px from the top */
         transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        display: flex;
+        flex-direction: column;
       }
 
       /* The sidebar links */
@@ -363,27 +397,98 @@
         margin-left: 50px;
       }
 
-      /* Position and style the new chat button (top left corner) */
-      .new-chat-btn {
-        position: absolute;
-        top: 0;
-        left: 25px;
-        font-size: 50px;
-        margin-left: 50px;
+      .nav-controls {
+        display: flex;
+        width: 100%;
       }
 
+      /* Position and style the new chat button (top left corner) */
+      .nav-controls button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: solid 0.5px rgba(255, 255, 255, 0.5);
+        background-color: var(--backend-chat-bg);
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px;
+        cursor: pointer; 
+        color:var(--icon-color);
+        border-color: var(--icon-hover-bg);
+      }
+      #new-chat-btn {
+        flex-basis: 80%;
+        font-size: 15px;
+      }
+      
+      #hide-sidebar-btn {
+        flex-basis: 20%;
+      }
+
+     .nav-controls button:hover{
+        color: var(--activ-color);
+        cursor: pointer;
+      }
+
+      .history{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: var(--icon-color);
+        border-radius: 5px;
+      }
+
+      .history-controls:hover{
+        background-color: var(--backend-chat-border);
+      }
+
+      .history-controls{
+        padding: 25px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .history span{
+        margin-left: 10px;
+      }
+
+
+
+      /*.nav-controls span{
+        height: 55px;
+        width: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--icon-color);
+        background-color: var(--backend-chat-bg);
+      }*/
+
       /* The button used to open the sidebar */
-      .openbtn {
-        font-size: 40px;
+      #open-sidebar-btn {
+        /*font-size: 40px;
         cursor: pointer;
         background-color: #111;
         color: white;
         padding: 10px 10px;
-        border: none;
+        border: none;*/
+        height: 55px;
+        width: 55px;
+        padding: 10px;
+        margin: 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--icon-color);
+        border: 1px solid var(--client-chat-border);
+        background: var(--client-chat-bg);
       }
 
-      .openbtn:hover {
-        background-color: #444;
+      #open-sidebar-btn:hover {
+        color: var(--activ-color);
       }
 
       /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
@@ -391,6 +496,44 @@
         transition: margin-left .5s; /* If you want a transition effect */
         padding: 20px;
       }
+      #input-panel {
+        transition: margin-left .5s; /* If you want a transition effect */
+        padding: 20px;
+      }
+
+  /*Star animation*/
+
+.rate:not(:checked) > input {
+    position:absolute;
+    top:-9999px;
+}
+.rate:not(:checked) > label {
+    float:right;
+    width:1em;
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:20px;
+    color: var(--stars-bg);
+}
+.rate:not(:checked) > label:before {
+    content: '★ ';
+}
+.rate > input:checked ~ label {
+    color: var(--activ-color);    
+}
+.rate:not(:checked) > label:hover,
+.rate:not(:checked) > label:hover ~ label {
+    color: var(--activ-btn-bg); 
+}
+.rate > input:checked + label:hover,
+.rate > input:checked + label:hover ~ label,
+.rate > input:checked ~ label:hover,
+.rate > input:checked ~ label:hover ~ label,
+.rate > label:hover ~ input:checked ~ label {
+    color: #c59b08;
+}
+
 
 
 /* Feedback Sidebar

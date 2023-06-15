@@ -14,21 +14,53 @@
 <body>
     <!--TO-DO: sidebar container-->
     <div id="leftbox" class="history-container">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&#171;</a>
-        <a id="new-chat-btn" class="material-symbols-outlined" title="New chat">maps_ugc</a>
+        <!--<button id="new-chat-btn" class="material-symbols-outlined" title="New chat">maps_ugc</button>-->
+        <div class = "nav-controls">
+            <!--<button id="new-chat-btn" class="material-symbols-outlined" title="New chat">maps_ugc</button>-->
+            <button id="new-chat-btn" title="New chat">+ New chat</button>
+            <button id="hide-sidebar-btn" onclick="closeNav()" class="material-symbols-outlined" title="Hide sidebar">left_panel_close</button>
+            <!--<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&#171;</a>-->
+        </div>
         <!--TO-DO: onclick="newChat() & fix the button"-->
         <div class="history">
-            <a>Chat 1</a>
-            <a>Chat 2</a>
-            <a>Chat 3</a>
+            <div class="history-controls">
+                <p>Chat 1</p>
+                <span class="rate">
+                    <input type="radio" id="star5" name="rate" value="5" />
+                    <label for="star5" title="5 stars">5 stars</label>
+                    <input type="radio" id="star4" name="rate" value="4" />
+                    <label for="star4" title="4 stars">4 stars</label>
+                    <input type="radio" id="star3" name="rate" value="3" />
+                    <label for="star3" title="3 stars">3 stars</label>
+                    <input type="radio" id="star2" name="rate" value="2" />
+                    <label for="star2" title="2 stars">2 stars</label>
+                    <input type="radio" id="star1" name="rate" value="1" />
+                    <label for="star1" title="1 star">1 star</label>
+                </span>
+            </div>
+            <div class="history-controls">
+                <p>Chat 2</p>
+                <span class="rate">
+                    <input type="radio" id="star5" name="rate" value="5" />
+                    <label for="star5" title="5 stars">5 stars</label>
+                    <input type="radio" id="star4" name="rate" value="4" />
+                    <label for="star4" title="4 stars">4 stars</label>
+                    <input type="radio" id="star3" name="rate" value="3" />
+                    <label for="star3" title="5 stars">3 stars</label>
+                    <input type="radio" id="star2" name="rate" value="2" />
+                    <label for="star2" title="2 stars">2 stars</label>
+                    <input type="radio" id="star1" name="rate" value="1" />
+                    <label for="star1" title="1 star">1 star</label>
+                </span>
+            </div>
         </div>
     </div>
-        <button class="openbtn" onclick="openNav()">&#187;</button>
+        <!--<button class="openbtn" onclick="openNav()">&#187;</button>-->
+        <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
         <!--CHAT CONTAINER-->
-        <div id="chatbox" class="chat-container"></div>
-            
+        <div id="chatbox" class="chat-container"></div>            
         <!--Typing CONTAINER-->
-        <div class ="typing-container">
+        <div id="input-panel"class ="typing-container">
             <div class="typing-content">
                 <div class="typing-textarea">
                     <textarea id="chat-input" placeholder="Enter your question here" required></textarea>
@@ -41,6 +73,7 @@
                     <input id="upload-btn" type="file" accept=".pdf">                    
                 </div>
                 <div class="file-info"></div>
+                <p class="info">AI:lean Jun 15 Version. Demo Preview. AI:lean may produce inaccurate information. Your feedback will help us to improve.</p>
             </div>
         </div>
 
