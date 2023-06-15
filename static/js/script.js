@@ -2,10 +2,14 @@ const chatInput = document.querySelector("#chat-input");
 const sendButton = document.querySelector("#send-btn");
 const chatContainer = document.querySelector(".chat-container");
 const themeButton = document.querySelector("#theme-btn");
-const deleteButton = document.querySelector("#delete-btn")
-const uploadButton = document.querySelector("#upload-btn")
-const fileInfo = document.querySelector(".file-info")
+const deleteButton = document.querySelector("#delete-btn");
+const uploadButton = document.querySelector("#upload-btn");
+const fileInfo = document.querySelector(".file-info");
 const socket = io.connect('http://localhost:5000');
+const thumbUp = document.querySelector("#thumb-up");
+const thumbDown = document.querySelector("#thumb-down");
+var positiveFeedback = new Boolean(false);
+var negativeFeedback = new Boolean(false);
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -109,10 +113,10 @@ const showTypingAnimation = () => {
                          </div>
                     </div>
                     <div class="chat-controls">
-                    <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons onclick functionality-->
-                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                    <span id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                        <span onclick="copyResponse(this)" id="copy" class="material-symbols-rounded">content_copy</span>
+                        <!--TO-DO:Feedback buttons onclick functionality-->
+                        <span onclick="posFeedback(this)" id="thumb-up" class="material-symbols-outlined">thumb_up</span>
+                        <span onclick="openFeedbackBar()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                     </div>
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
@@ -137,32 +141,7 @@ const handleUserMessage = () => {
         chatInput.value = " " //clear the textarea after sending
         chatInput.style.height = `${initialHeight}px`;
     } 
-
-    socket.on('backend_message', (msg) => {
-        const pElement = document.createElement("p");
-        pElement.textContent = msg.trim();
-        const html =`<div class="chat-content">
-                    <div class="chat-details">
-                        <img src="../static/images/AI_Lean.png" alt="chatbot-img">
-                        <div class="typing-animation">
-                            <div class="typing-dot" style="--delay: 0.2s"></div>
-                            <div class="typing-dot" style="--delay: 0.3s"></div>
-                            <div class="typing-dot" style="--delay: 0.4s"></div>
-                         </div>
-                    </div>
-                    <div class="chat-controls">
-                    <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons onclick functionality-->
-                    <span onclick="posFeedback()" id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                    <span onclick="negFeedback()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
-                    </div>
-                </div>`;
-        const aiChatDiv = createElement(html, "backend");
-        chatContainer.appendChild(aiChatDiv);
-        aiChatDiv.querySelector(".typing-animation").remove();
-        aiChatDiv.querySelector(".chat-details").appendChild(pElement);
-        chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    });  
+    showTypingAnimation(); 
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
@@ -259,11 +238,55 @@ sendButton.addEventListener("click", handleUserMessage);
 //Delete old chat
 //Move the Chats in the history
 
-const posFeedback = () => {
-
+const posFeedback = (thumbUpBtn) => {
+    changeColorThumb('up', thumbUpBtn);
 }
 
-const negFeedback = () => {
+const negFeedback = (sendFeedbackBtn) => {
+    const thumbDownBtn = sendFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
+    changeColorThumb('downSend', thumbDownBtn);
+    //thumbDownBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChildren.firstElementChildren.lastElementChildren.lastElementChildren.);
+    
+}
+
+const deleteFeedback = (deleteFeedbackBtn) => {
+    const thumbDeleteBtn = deleteFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
+    changeColorThumb('downDelete', thumbDeleteBtn);
+}
+
+function changeColorThumb(thumb, thumbBtn) {
+
+    if(thumb == 'up') {
+        if (positiveFeedback == false) {
+            thumbBtn.style.color = "#249724";
+            positiveFeedback = true;
+            if (negativeFeedback == true) {
+                thumbBtn.nextElementSibling.style.color = "#ACACBE";
+                negativeFeedback = false;
+            }
+        } else {
+            thumbBtn.style.color = "#ACACBE";
+            positiveFeedback = false;
+        }
+    } else if (thumb == 'downSend') {
+        thumbBtn.style.color = "#b12727";
+        negativeFeedback = true;
+        if (positiveFeedback == true) {
+            thumbBtn.previousElementSibling.style.color = "#ACACBE";
+            positiveFeedback = false;
+        }
+    } else if (thumb == 'downDelete') {
+        thumbBtn.style.color = "#ACACBE";
+        thumbBtn.previousElementSibling.style.color = "#ACACBE";
+        positiveFeedback = false;
+        negativeFeedback = false;
+    } else {
+
+    }
+    
+}
+
+const openFeedbackBar = () => {
     document.getElementById("rightbox").style.width = "250px";
     document.getElementById("chatbox").style.marginRight = "250px";
 }
