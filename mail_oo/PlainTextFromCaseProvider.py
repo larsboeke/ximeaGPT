@@ -1,6 +1,6 @@
 class PlainTextFromCaseProvider:
     
-    def provide_full_content(case):
+    def provide_full_content(self, case):
         unified_emails = []
 
         for i in range(len(case.emails)):

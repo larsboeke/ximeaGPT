@@ -6,13 +6,13 @@ from Case import Case
 
 class EmailChunker:
     
-    def chunk_case(self,case_object):
-         chunks = self.case_to_chunks(case_object)
-         #jsonChunks = self.ticketChunkToJson(chunks)
+    def chunk_data(self, content, metadata):
+         chunks = self.data_to_chunks(content, metadata)
+         #json_chunks = self.chunk_to_json(chunks)
          return chunks
     
-    def case_to_chunks(self, case_object):
-        chunkList = []
+    def data_to_chunks(self, content, metadata):
+        chunk_list = []
         
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=800,
@@ -20,14 +20,17 @@ class EmailChunker:
             length_function= self.tiktoken_len,
             separators=['\n\n\n', '\n\n', '\n', ' ', '']
         )
-        content = PlainTextFromCaseProvider.provide_full_content(case_object)
         chunks = text_splitter.split_text(content)
 
         for chunk in chunks:
-            chunkList.append(Chunk(chunk, case_object.metadata))
+            jsonChunk = {"content": chunk,
+                        "metadata": metadata
+                        }
+            chunk_list.append(jsonChunk)
+
 
         print("Email turned into chunks")
-        return chunkList
+        return chunk_list
 
 
     def tiktoken_len(self, text):
@@ -39,12 +42,12 @@ class EmailChunker:
         )
         return len(tokens)
 
-    def email_chunk_to_json(self, chunks, metadata):
+    def chunk_to_json(self, chunks):
         listOfJson = []
 
         for chunk in chunks:
-            jsonChunk = {"content": chunk,
-                        "metadata": metadata
+            jsonChunk = {"content": chunk.content,
+                        "metadata": chunk.metadata
                         }
             listOfJson.append(jsonChunk)
 
