@@ -1,6 +1,6 @@
 from process_manuals import manuals
 import uploadData
-from process_emails.get_cases_from_db import get_all_cases
+from process_emails_old.get_cases_from_db import get_all_cases
 from process_tickets.resolved_ids import ticket_ids
 
 # Approx 42€ total costs

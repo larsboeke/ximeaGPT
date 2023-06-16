@@ -4,7 +4,7 @@ import os
 import openai
 from process_manuals import pdfChunker
 from dotenv import load_dotenv
-from process_emails import email_chunker
+from process_emails_old import email_chunker
 from time import sleep
 from process_tickets.TicketChunker import TicketChunker
 from process_tickets.Ticket import Ticket
