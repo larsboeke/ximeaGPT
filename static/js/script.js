@@ -9,6 +9,11 @@ const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
 const chatNum = 0;
 const socket = io.connect('http://localhost:5000');
+const thumbUp = document.querySelector("#thumb-up");
+const thumbDown = document.querySelector("#thumb-down");
+var positiveFeedback = new Boolean(false);
+var negativeFeedback = new Boolean(false);
+
 
 
 if ('serviceWorker' in navigator) {
@@ -100,10 +105,10 @@ const showTypingAnimation = () => {
                          </div>
                     </div>
                     <div class="chat-controls">
-                    <span onclick="copyResponse(this)" class="material-symbols-rounded">content_copy</span>
-                    <!--TO-DO:Feedback buttons onclick functionality-->
-                    <span id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                    <span onclick="negFeedback" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                        <span onclick="copyResponse(this)" id="copy" class="material-symbols-rounded">content_copy</span>
+                        <!--TO-DO:Feedback buttons onclick functionality-->
+                        <span onclick="posFeedback(this)" id="thumb-up" class="material-symbols-outlined">thumb_up</span>
+                        <span onclick="openFeedbackBar()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                     </div>
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
@@ -244,11 +249,55 @@ newChatButton.addEventListener("click", () => {
 //Delete old chat
 //Move the Chats in the history
 
-const posFeedback = () => {
-
+const posFeedback = (thumbUpBtn) => {
+    changeColorThumb('up', thumbUpBtn);
 }
 
-const negFeedback = () => {
+const negFeedback = (sendFeedbackBtn) => {
+    const thumbDownBtn = sendFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
+    changeColorThumb('downSend', thumbDownBtn);
+    //thumbDownBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChildren.firstElementChildren.lastElementChildren.lastElementChildren.);
+    
+}
+
+const deleteFeedback = (deleteFeedbackBtn) => {
+    const thumbDeleteBtn = deleteFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
+    changeColorThumb('downDelete', thumbDeleteBtn);
+}
+
+function changeColorThumb(thumb, thumbBtn) {
+
+    if(thumb == 'up') {
+        if (positiveFeedback == false) {
+            thumbBtn.style.color = "#249724";
+            positiveFeedback = true;
+            if (negativeFeedback == true) {
+                thumbBtn.nextElementSibling.style.color = "#ACACBE";
+                negativeFeedback = false;
+            }
+        } else {
+            thumbBtn.style.color = "#ACACBE";
+            positiveFeedback = false;
+        }
+    } else if (thumb == 'downSend') {
+        thumbBtn.style.color = "#b12727";
+        negativeFeedback = true;
+        if (positiveFeedback == true) {
+            thumbBtn.previousElementSibling.style.color = "#ACACBE";
+            positiveFeedback = false;
+        }
+    } else if (thumb == 'downDelete') {
+        thumbBtn.style.color = "#ACACBE";
+        thumbBtn.previousElementSibling.style.color = "#ACACBE";
+        positiveFeedback = false;
+        negativeFeedback = false;
+    } else {
+
+    }
+    
+}
+
+const openFeedbackBar = () => {
     document.getElementById("rightbox").style.width = "250px";
     document.getElementById("chatbox").style.marginRight = "250px";
 }

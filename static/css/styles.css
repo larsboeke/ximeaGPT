@@ -25,8 +25,8 @@
     --backend-chat-border: #444654;
     --activ-color: #ffa500;
     --activ-btn-bg: #ffd580;
-    --positiv-fdb: rgb(36, 151, 36);
-    --negativ-fdb: rgb(177, 39, 39);
+    --positiv-fdb: #249724;
+    --negativ-fdb: #b12727;
     --stars-bg: #222;
 
   }
@@ -38,7 +38,7 @@
     --client-chat-bg: #FFFFFF;
     --backend-chat-bg: #F7F7F8;
     --client-chat-border: #FFFFFF;
-    --backend-chat-border: #D9D9E3;
+    --backend-chat-border: #F7F7F8;
     --activ-color: #ffa500;
     --stars-bg: #bcbaba;  
   }
@@ -104,10 +104,15 @@
     color: var(--icon-color);
     visibility: hidden;
   }
-  .chat .chat-content span:hover{
-    color: var(--activ-color);
+  .chat .chat-controls span:hover{
+    transform: scale(1.3);
     cursor: pointer;
   }
+
+  #copy:hover {
+    color: var(--activ-color);
+  }
+
   .chat:hover .chat-content:not(:has(.typing-animation, .error)) span{ /*hiding copy and fdb btn while loading and while error accurs*/
     visibility: visible;
   }
@@ -162,16 +167,16 @@
     user-select: none;
     cursor: pointer;
   }
-  #thumb-up:hover{
+  /*#thumb-up:hover{
     user-select: none;
     cursor: pointer;
-    color: var(--positiv-fdb);
+    transform: scale(1.3);
   }
   #thumb-down:hover{
     user-select: none;
     cursor: pointer;
-    color: var(--negativ-fdb);
-  }
+    transform: scale(1.3);
+  }*/
   .chat-container .chat.client{
     background: var(--client-chat-bg);
     border: 1px solid var(--client-chat-border)
@@ -366,6 +371,7 @@
         top: 0;
         left: 0;
         background-color: var(--client-chat-bg); /* Black*/
+        background-color: var(--client-chat-bg); /* Black*/
         overflow-x: hidden; /* Disable horizontal scroll */
         padding-top: 25px; /* Place content 60px from the top */
         transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
@@ -546,7 +552,7 @@
         z-index: 1; /* Stay on top */
         top: 0;
         right: 0;
-        background-color: #111; /* Black*/
+        background-color: var(--client-chat-bg); /* Black*/
         overflow-x: hidden; /* Disable horizontal scroll */
         padding-top: 10px;
         transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
@@ -580,15 +586,6 @@
         padding: 20px;
       }
 
-      .sendFeedbackbtn {
-        position:absolute;
-        right: 25px;
-        font-size: 50px;
-      }
-
-      .sendFeedbackbtn :hover {
-        color: var(--activ-color);
-      }
 
 
 /* Feedbock Checkbox
@@ -606,7 +603,7 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        color: white;
+        color: var(--text-color);
       }
 
       /* Hide the browser's default checkbox */
@@ -626,6 +623,7 @@
         height: 25px;
         width: 25px;
         background-color: #eee;
+        border-radius: 4px;
       }
 
       /* On mouse-over, add a grey background color */
@@ -680,3 +678,30 @@
         background: var(--backend-chat-bg);
         outline: 1px solid var(--backend-chat-border);
       }
+
+/* Feedback Buttons */
+
+  .feedback-buttons {
+    margin-top: 30px;
+  }
+
+  .feedback-buttons span{
+    height: 55px;
+    width: 55px;
+    display: inline;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-color);
+
+    padding: 14px 16px 14px 16px;
+    margin: 30px;
+    font-size: 1.4rem;
+    border-radius: 4px;
+    background: var(--backend-chat-bg);
+    border: 1px solid var(--backend-chat-border)
+  }
+
+  .feedback-buttons span:hover{
+    color: var(--activ-color);
+    cursor: pointer;
+  }

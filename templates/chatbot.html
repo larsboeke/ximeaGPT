@@ -98,8 +98,12 @@
                     <input type="checkbox">
                     <span class="checkmark"></span>
                 </label>
-                <textarea id="feedback-text" placeholder="Additional Feedback?"></textarea> 
-                <a class="sendFeedbackbtn">&#10146;</a>
+                <textarea id="feedback-text" placeholder="Additional Feedback?"></textarea>
+                <div class="feedback-buttons">
+                    <span id="delete-feedback-btn" class="material-symbols-rounded" title="Delete Feedback" onclick="deleteFeedback(this)">delete</span>
+                    <span id="send-feedback-btn" class="material-symbols-rounded" title="Send Feedback" onclick="negFeedback(this)">send</span>
+                </div>
+
             </form>
             </div>
         </div>
