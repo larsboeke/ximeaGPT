@@ -1,39 +1,70 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.document_loaders import PyPDFLoader
-from langchain.document_loaders import OnlinePDFLoader
 import tiktoken
-from Chunk_Handler.Chunk import Chunk
-from langchain.text_splitter import TokenTextSplitter
-import requests
-import os
+from Chunk import Chunk
 
 class Chunker:
     
-    def data_to_chunks(self, text, metadata):
+    def data_to_chunks(self, content, metadata):
+        """
+        Turn the data into chunks
+        :param content:
+        :param metadata:
+        :return chunk_list: list of chunks
+        :rtype: list
+        """
+        chunk_list = []
+        
         text_splitter = RecursiveCharacterTextSplitter(
-        # encoding_name='cl100k_base',
-        chunk_size=800,
-        chunk_overlap=50,
-        length_function=Chunker.tiktoken_len,
-        separators=['\n\n\n', '\n\n', '\n', ' ', '']
-    )
-        # split pages into chunks
-        chunks = text_splitter.split_text(text)
+            chunk_size=800,
+            chunk_overlap=50,
+            length_function= self.tiktoken_len,
+            separators=['\n\n\n', '\n\n', '\n', ' ', '']
+        )
+        chunks = text_splitter.split_text(content)
 
-        json_list = []
         for chunk in chunks:
-            json_chunk = {"content": chunk,
+            jsonChunk = {"content": chunk,
                         "metadata": metadata
                         }
-            Chunk(json_chunk)
-        json_list.append(json_chunk)
+            chunk_list.append(jsonChunk)
 
-        return chunks
 
-    def tiktoken_len(text):
-        tokenizer = tiktoken.get_encoding('cl100k_base')  # maybe woanders die varaible erstellen
+        print("Email turned into chunks")
+        return chunk_list
+
+
+    def tiktoken_len(self, text):
+        """
+        Get the length of the text
+        :param text:
+        :return length: length of the text
+        :rtype: int
+        """
+        # maybe woanders die varaible erstellen
+        tokenizer = tiktoken.get_encoding('cl100k_base')
         tokens = tokenizer.encode(
             text,
             disallowed_special=()
         )
         return len(tokens)
+
+    #Currently not in use due to design decision
+    def chunk_to_json(self, chunks):
+        """
+        Turn the chunks into json with content and metadata
+        :param chunks:
+        :return listOfJson: list of json
+        :rtype: list
+        """
+        listOfJson = []
+
+        for chunk in chunks:
+            jsonChunk = {"content": chunk.content,
+                        "metadata": chunk.metadata
+                        }
+            listOfJson.append(jsonChunk)
+
+        return listOfJson
+
+
+
