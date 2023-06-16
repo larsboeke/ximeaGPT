@@ -3,9 +3,18 @@ from Email import Email
 
 class EmailRepository:
     def __init__(self, sql_connection):
+        """
+        :param sql_connection:
+        """
         self.connection, self.cursor = sql_connection
 
     def get_emails_for_case(self, caseid):
+        """
+        Get all emails for a case
+        :param caseid:
+        :return emails: list of emails
+        :rtype: list
+        """
         emails = []  # Initialize an empty list for emails
         query = "SELECT [activityid], [description], [regardingobjectid], [createdon] FROM [AI:Lean].[dbo].[CrmEmails] " \
                 "WHERE [regardingobjectid] = %s ORDER BY [createdon] ASC"

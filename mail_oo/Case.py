@@ -4,21 +4,43 @@ from PlainTextFromEmailProvider import PlainTextFromEmailProvider
 
 class Case:
     def __init__(self, caseid, emails_for_one_case):
+        """
+        :param caseid:
+        :param emails_for_one_case:
+        """
         self.caseid = caseid
         self.emails = []
         self.metadata = {}
         self.set_case(caseid, emails_for_one_case)
 
     def add_email(self, email: Email):
+        """
+        Add an email to the case
+        :param email:
+        """
         self.emails.append(email)
 
     def remove_email(self, email: Email):
+        """
+        Remove an email from the case
+        :param email:
+        """
         self.emails.remove(email)
 
     def get_emails(self):
+        """
+        Get all emails for the case
+        :return emails: list of emails
+        :rtype: list
+        """
         return self.emails
     
     def set_case(self, caseid, emails_for_one_case):
+        """
+        Set the case
+        :param caseid:
+        :param emails_for_one_case:
+        """
         activityids = []
         createdons = []
         

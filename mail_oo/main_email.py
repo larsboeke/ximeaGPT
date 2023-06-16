@@ -11,7 +11,7 @@ sql_connection = SQLConnectionProvider().create_connection()
 
 all_cases = CaseRepository(sql_connection).get_cases()
 
-#Liste an Email-Objekten 
+#Liste an Email-Objekten
 print(all_cases[5][0])
 #TODO: move sql_connection to object generation (into the init)
 emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(all_cases[5][0])

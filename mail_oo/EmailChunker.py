@@ -7,11 +7,25 @@ from Case import Case
 class EmailChunker:
     
     def chunk_data(self, content, metadata):
+         """
+         Chunk the data
+         :param content:
+         :param metadata:
+         :return chunks: list of chunks#
+         :rtype: list
+         """
          chunks = self.data_to_chunks(content, metadata)
          #json_chunks = self.chunk_to_json(chunks)
          return chunks
     
     def data_to_chunks(self, content, metadata):
+        """
+        Turn the data into chunks
+        :param content:
+        :param metadata:
+        :return chunk_list: list of chunks
+        :rtype: list
+        """
         chunk_list = []
         
         text_splitter = RecursiveCharacterTextSplitter(
@@ -34,6 +48,12 @@ class EmailChunker:
 
 
     def tiktoken_len(self, text):
+        """
+        Get the length of the text
+        :param text:
+        :return length: length of the text
+        :rtype: int
+        """
         # maybe woanders die varaible erstellen
         tokenizer = tiktoken.get_encoding('cl100k_base')
         tokens = tokenizer.encode(
@@ -43,6 +63,12 @@ class EmailChunker:
         return len(tokens)
 
     def chunk_to_json(self, chunks):
+        """
+        Turn the chunks into json with content and metadata
+        :param chunks:
+        :return listOfJson: list of json
+        :rtype: list
+        """
         listOfJson = []
 
         for chunk in chunks:
