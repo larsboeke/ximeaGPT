@@ -1,16 +1,36 @@
 from . import sql_connection
 from .clean_email import clean_message
+from .clean_email import Email
 
-# Input: specific caseid
-# Output: a list of this format: [(activityid, description, caseid, date)(activityid, description, caseid, date)...]
-def get_activities_from_specific_case(caseid):
-    connection, cursor = sql_connection.create_connection()
-    query = "SELECT [activityid], [description], [regardingobjectid], [createdon] FROM [AI:Lean].[dbo].[CrmEmails] " \
-            "WHERE [regardingobjectid] = %s ORDER BY [createdon] ASC"
-    cursor.execute(query, (caseid,))
-    text_w_metadata = cursor.fetchall()
-    connection.close()
-    return text_w_metadata
+
+class Case:
+    def __init__(self, caseid):
+        self.caseid = caseid
+        self.emails = []
+        self.set_case()
+
+    def add_email(self, email: Email):
+        self.emails.append(email)
+
+    def remove_email(self, email: Email):
+        self.emails.remove(email)
+
+    def get_emails(self):
+        return self.emails
+
+    def set_case(self):
+        self.emails = []  # Clear the existing emails
+        connection, cursor = sql_connection.create_connection()
+        query = "SELECT [activityid], [description], [regardingobjectid], [createdon] FROM [AI:Lean].[dbo].[CrmEmails] " \
+                "WHERE [regardingobjectid] = %s ORDER BY [createdon] ASC"
+        cursor.execute(query, (self.caseid,))
+        text_w_metadata = cursor.fetchall()
+        connection.close()
+
+        # Convert each email in the list to an Email object
+        for email in text_w_metadata:
+            email_obj = Email(*email)
+            self.add_email(email_obj)
 
 # Extract email contents from tuple and create list out of it
 def create_uncleaned_history(text_w_metadata):
@@ -43,7 +63,7 @@ def unify_email_list(cleaned_history):
                 cleaned_email = cleaned_history[i].split(prev_email_splitted)[0]
                 unified_emails.append(cleaned_email)
             else:
-                unified_emails.append("Previous not found. Error 187! " + cleaned_history[i])
+                unified_emails.append("No previous email exists. " + cleaned_history[i])
     return unified_emails
 
 def get_full_message_from_one_case(caseid):
