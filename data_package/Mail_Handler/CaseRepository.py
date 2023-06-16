@@ -1,5 +1,5 @@
-from SQLConnectionProvider import SQLConnectionProvider
- 
+
+
 class CaseRepository:
     def __init__(self, sql_connection):
         """
