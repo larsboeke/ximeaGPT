@@ -26,7 +26,7 @@ class PlainTextFromCaseProvider:
         """
         unified_emails = []
 
-        case.emails = self.remove_duplicates(case.emails)
+        case.emails = self.remove_identical_emails(case.emails)
 
         for i in range(len(case.emails)):
             if i == 0:
