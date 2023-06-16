@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import re
-from Email import Email
+from data_package.Mail_Handler.Email import Email
 
 class PlainTextFromEmailProvider:
     def __init__(self):

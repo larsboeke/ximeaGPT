@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import pymssql
 
-load_dotenv()  # load environment variables from .env file
+load_dotenv()  # load environment variables from .env file #sd
 
 class SQLConnectionProvider:
     def __init__(self):

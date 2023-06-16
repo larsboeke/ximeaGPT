@@ -1,6 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import tiktoken
-from Chunk import Chunk
+from data_package.Chunk_Handler.Chunk import Chunk
 
 class Chunker:
     

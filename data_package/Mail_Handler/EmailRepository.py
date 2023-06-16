@@ -1,5 +1,5 @@
-from SQLConnectionProvider import SQLConnectionProvider
-from Email import Email
+from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
+from data_package.Mail_Handler.Email import Email
 
 class EmailRepository:
     def __init__(self, sql_connection):

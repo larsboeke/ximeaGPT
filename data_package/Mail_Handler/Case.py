@@ -1,6 +1,6 @@
-from Email import Email
-from EmailRepository import EmailRepository
-from PlainTextFromEmailProvider import PlainTextFromEmailProvider
+from data_package.Mail_Handler.Email import Email
+from data_package.Mail_Handler.EmailRepository import EmailRepository
+from data_package.Mail_Handler.PlainTextFromEmailProvider import PlainTextFromEmailProvider
 
 class Case:
     def __init__(self, caseid, emails_for_one_case):
