@@ -149,3 +149,30 @@ def uploadTicket(TicketID):
         print("uploaded ticket: " + str(TicketID))
     else:
         print("File already uploaded")
+
+
+import manuals
+from URL_Handler.URL import URL
+from URL_Handler.PlainTextProviderURL import PlainTextProviderURL
+from Chunk_Handler.Chunker import Chunker
+import tiktoken
+from PDF_Handler.PDF import PDF
+from PDF_Handler.PlainTextProviderPDF import PlainTextProviderPDF
+
+# path = manuals.url_list[4]
+# url = URL(path)
+# plainString = PlainTextProviderURL().get_text(url)
+# chunks = Chunker().data_to_chunks(plainString, url.get_metadata())
+
+path = manuals.pdf_list[0]
+pdf = PDF(path=path)
+plainString = PlainTextProviderPDF().get_text(pdf)
+chunks = Chunker().data_to_chunks(plainString, pdf.get_metadata())
+
+print(len(chunks))
+
+
+for chunk in chunks:
+    encoding = tiktoken.get_encoding("cl100k_base")
+    length = len(encoding.encode(chunk))
+    print("charakters : " + str(len(chunk)) + " Tokens : " + str(length))

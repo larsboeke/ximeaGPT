@@ -7,7 +7,7 @@ import os
 from bs4 import BeautifulSoup
 
 
-def pdf_to_chunks(pages):
+def data_to_chunks(text):
     # initialize text splitter
     text_splitter = RecursiveCharacterTextSplitter(
         # Set a tiny chunk size, just to show.
@@ -17,7 +17,7 @@ def pdf_to_chunks(pages):
         separators=['\n\n', '\n', ' ', '']
     )
     # split pages into chunks
-    chunks = text_splitter.split_documents(pages)
+    chunks = text_splitter.split_text(text)
     return chunks
 
 
