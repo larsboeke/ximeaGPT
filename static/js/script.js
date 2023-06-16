@@ -117,7 +117,7 @@ const getCurrentTime = () =>{
     let dateObject = new Date();
     let cDate = dateObject.getDate() + '/' + (dateObject.getMonth() + 1) + '/' + dateObject.getFullYear();
     let cTime = dateObject.getHours() + ":" + dateObject.getMinutes() + ":" + dateObject.getSeconds();
-    return cDate + ' ' + cTime;
+    return cTime + ' ' + cDate;
 }
 
 const handleUserMessage = () => {
