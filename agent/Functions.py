@@ -38,7 +38,7 @@ query_maunals = {
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to technical information to",
+                            "description": "The query of the user, you want to gather technical information about",
                         },
                     },
                     "required": ["query"],
@@ -74,9 +74,12 @@ def getText(query, namespace):
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
     col = db["prototype"]
-    query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")['data'][0]['embedding']
+    query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
+    used_tokens = query_embedding["usage"]["total_tokens"]
+
+    filtered_query_embedding = query_embedding['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
-    pinecone_results = index.query([query_embedding], top_k=3, include_metadata=True, namespace=namespace)
+    pinecone_results = index.query([filtered_query_embedding], top_k=3, include_metadata=True, namespace=namespace)
     #validIds = []
         # try:
     #     for id in ids:
@@ -91,12 +94,9 @@ def getText(query, namespace):
     print(pinecone_results)
     for id in pinecone_results['matches']:
         idToFind = ObjectId(id['id'])
-        print(idToFind)
-        match = col.find_one({'_id' : idToFind}) #['content']    
-        print(match)
+        match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
         matches.append(match)
        
 
-    return matches
+    return matches, used_tokens
 
-print(getText("what is the Xix Family?", "manuals"))
