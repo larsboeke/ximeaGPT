@@ -120,8 +120,9 @@ const showTypingAnimation = () => {
 
 const getCurrentTime = () =>{
     let dateObject = new Date();
-    let cDate = dateObject.getDate() + '/' + (dateObject.getMonth() + 1) + '/' + dateObject.getFullYear();
-    let cTime = dateObject.getHours() + ":" + dateObject.getMinutes() + ":" + dateObject.getSeconds();
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
+    let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds();
     return cTime + ' ' + cDate;
 }
 
