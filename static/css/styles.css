@@ -28,8 +28,7 @@
     --positiv-fdb: #249724;
     --negativ-fdb: #b12727;
     --stars-bg: #222;
-
-  }
+    }
   .light-mode{
     --text-color: #343541;
     --icon-color: #a9a9bc;
@@ -457,6 +456,16 @@
 
       .history span{
         margin-left: 10px;
+      }
+      
+      .user-info{
+        color: var(--activ-color);
+        font-size: 18px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
       }
 
 

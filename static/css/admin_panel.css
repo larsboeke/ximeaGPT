@@ -1,0 +1,196 @@
+/* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+:root {
+    --text-color: #FFFFFF;
+    --icon-color: #ACACBE;
+    --icon-hover-bg: #5b5e71;
+    --placeholder-color: #dcdcdc;
+    --client-chat-bg: #343541;
+    --backend-chat-bg: #444654;
+    --client-chat-border: #343541;
+    --backend-chat-border: #444654;
+    --activ-color: #ffa500;
+    --activ-btn-bg: #ffd580;
+    --positiv-fdb: #249724;
+    --negativ-fdb: #b12727;
+    --stars-bg: #222;
+    }
+
+body{
+    display: flex;
+    margin: 0; 
+    background: var(--backend-chat-bg);
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+#sidebar-container {
+    height: 100vh;
+    width: 200px;
+    background-color: var(--client-chat-bg);
+    overflow-y: auto;
+    transition: all 0.5s;
+}
+  
+.sidebar-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 30px 30px 30px;
+    margin-bottom: 30px;
+}
+  
+.sidebar-list {
+    padding: 0;
+    margin-top: 15px;
+    list-style-type: none;
+}
+  
+.sidebar-list-item {
+    padding: 20px 20px 20px 20px;
+    font-size: 18px;
+}
+  
+.sidebar-list-item:hover {
+    background-color: var(--icon-hover-bg);
+    cursor: pointer;
+}
+/*removing li element styling*/  
+.sidebar-list-item > a {
+    text-decoration: none;
+    color: var(--icon-color);
+}
+
+#main-container{
+    flex: 1;
+    max-height: 100vh;
+    overflow-y: auto;
+    color: white;
+    padding: 20px, 20px;
+}
+
+.main-title{
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+/*Styling for DASHBOARD page-------------------------------------------------------------------------------*/
+/*Main statistics styling*/
+.main-stats{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 20px;
+}
+
+.stats {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+    
+    position:relative;
+    transition: transform 0.3s;
+  }
+
+  .stats:hover{
+    transform: scale(1.05);
+  }
+  
+  .stats:first-child {
+    background-color: #3d348b;
+  }
+  
+  .stats:nth-child(2) {
+    background-color: #7678ed;
+  }
+  
+  .stats:nth-child(3) {
+    background-color: #f7b801;
+  }
+  
+  .stats:nth-child(4) {
+    background-color: #f18701;
+  }
+  
+  .stats-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .stats-inner #stats_icon{
+    font-size: 35px;
+  }
+
+  /*Chart styling*/
+  /*.charts {
+    display: flex;
+    align-items: center;
+    height: 50%;
+    margin-top: 60px;
+    margin-bottom: 60px;
+  }
+  
+  .chart-container {
+    background-color: var(--client-chat-border);
+    margin-bottom: 20px;
+    padding: 25px;
+    box-sizing: border-box;
+    -webkit-column-break-inside: avoid;
+    border-radius: 5px;
+    box-shadow: 0 6px 7px -4px rgba(0, 0, 0, 0.2);
+    align-items: center;
+  }
+  
+  .chart-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }*/
+  .charts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+  }
+  
+  .chart-container {
+    width: 80%;
+    max-width: 600px;
+    background-color: var(--client-chat-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .chart-title {
+    color: #fff;
+    font-size: 24px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #chart {
+    width: 100%;
+    height: 350px;
+  }
+  
+  
+
+
+
+
+  
+  

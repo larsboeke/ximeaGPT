@@ -117,18 +117,33 @@ const showTypingAnimation = () => {
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     getChatResponse(aiChatDiv);
 }
+socket.on('chat_started', function(data) {
+    var chatId = data.chat_id;
+    // Handle the newly generated chat ID
+    console.log('New chat started with ID:', chatId);
+});
+socket.on('chat_updated', function(chat) {
+    // Handle the updated chat document
+    console.log('Chat updated:', chat);
+});
 
 const getCurrentTime = () =>{
     let dateObject = new Date();
     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
-    let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds();
+    let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
     return cTime + ' ' + cDate;
 }
 
 const handleUserMessage = () => {
     if(chatInput.value){
-        socket.emit('client_message', chatInput.value);
+        //socket.emit('client_message', chatInput.value);
+        var data = {
+            'chat_id': chatId,
+            'text': chatInput.value,
+            'time': getCurrentTime()            
+        }
+        socket.emit('send_message', data);
         const html =`<div class="chat-content">
                         <div class="chat-details">
                             <img src="../static/images/user_logo.png" alt="user-img">
@@ -222,6 +237,21 @@ chatInput.addEventListener("keydown", (e) => {
 sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
+    var user_id = 'Test account'
+    socket.emit('start_chat', user_id);
+    socket.on('chat_started', function(data) {
+        var chatId = data.chat_id;
+        // Handle the newly generated chat ID
+        console.log('New chat started with ID:', chatId);
+        // You can use the chat ID for further operations or pass it to other functions
+        localStorage.setItem('chat_id', chatId);        
+    });
+    
+
+    chatContainer.remove();
+    const pElement = document.createElement("p");
+    pElement.textContent = `chat ${chatId}`;
+    history.appendChild(pElement);
     // chatDiv = localStorage.getItem(`chat-history ${chatNum}`);
     // const pElement = document.createElement("p");
     // pElement.textContent = `chat ${chatNum}`
