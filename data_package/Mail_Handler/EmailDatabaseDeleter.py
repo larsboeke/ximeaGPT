@@ -14,15 +14,11 @@ class EmailDatabaseDeleter:
         :param updated_cases: list of updated cases
         """
         for case in updated_cases:
-            # TODO: check for working
             mongodb_filter = {"metadata.case_id": str(case[0])}
-            #wrong: mongodb_filter = {"case_id": case[0]}
-            #wrong: pinecone_filter = {"metadata.case_id": str(case[0])}
-
-            chunks = []
-            for chunk in self.mongodb_connection.find(mongodb_filter, {}):
-                chunks.append(str(chunk["_id"]))
-
+            print(case[0])
+            mongodb_chunk_ids = []
+            for mongodb_chunk_id in self.mongodb_connection.find(mongodb_filter, {}):
+                mongodb_chunk_ids.append(str(mongodb_chunk_id["_id"]))
+            print(mongodb_chunk_ids)
+            self.pinecone_connection.delete(ids = mongodb_chunk_ids, namespace ='pastConversations')
             self.mongodb_connection.delete_many(mongodb_filter)
-            # TODO; Wrong sth with pinecone_filter
-            self.pinecone_connection.delete(ids = chunks, namespace = 'pastConversations')
