@@ -23,10 +23,14 @@ class CaseRepository:
         Get cases where new activities have been added since last upload
         :return results: list of cases
         """
-        query = "SELECT [regardingobjectid] FROM [AI:Lean].[dbo].[CrmEmails] " \
-                "GROUP BY [regardingobjectid]" \
-                "HAVING COUNT(*) = SUM([is_uploaded])"
-        # not distinct but ordered by date: SELECT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails] ORDER BY [createdon] ASC
+        query = "SELECT DISTINCT [regardingobjectid]" \
+                "FROM [AI:Lean].[dbo].[CrmEmails]" \
+                "WHERE [regardingobjectid] IN ( " \
+                    "SELECT [regardingobjectid] " \
+                    "FROM [AI:Lean].[dbo].[CrmEmails] " \
+                    "GROUP BY [regardingobjectid] " \
+                    "HAVING COUNT(*) > SUM(CAST([is_uploaded] AS INT)))"
+
         self.cursor.execute(query)
         results = self.cursor.fetchall()
         return results

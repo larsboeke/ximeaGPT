@@ -15,5 +15,14 @@ class EmailDatabaseDeleter:
         """
         for case in updated_cases:
             # TODO: check for working
-            self.mongodb_connection.delete_one({'_id': case[0]})
-            self.pinecone_connection.delete(case[0])
+            mongodb_filter = {"metadata.case_id": str(case[0])}
+            #wrong: mongodb_filter = {"case_id": case[0]}
+            #wrong: pinecone_filter = {"metadata.case_id": str(case[0])}
+
+            chunks = []
+            for chunk in self.mongodb_connection.find(mongodb_filter, {}):
+                chunks.append(str(chunk["_id"]))
+
+            self.mongodb_connection.delete_many(mongodb_filter)
+            # TODO; Wrong sth with pinecone_filter
+            self.pinecone_connection.delete(ids = chunks, namespace = 'pastConversations')

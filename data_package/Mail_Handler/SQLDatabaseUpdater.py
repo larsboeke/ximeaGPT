@@ -12,8 +12,7 @@ class SQLDatabaseUpdater:
         Set specific case as uploaded in database (set is_uploaded = 1)
         :param caseid: [regardingobjectid] in database
         """
-        # TODO: check functionality
         update_query = f"UPDATE [AI:Lean].[dbo].[CrmEmails] SET [is_uploaded] = 1 " \
                        f"WHERE [regardingobjectid] = '{caseid}'"
-
         self.cursor.execute(update_query)
+        self.connection.commit()
