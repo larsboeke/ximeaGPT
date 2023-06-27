@@ -44,12 +44,19 @@ def create_chat(user_id):
 
         conversation_id = generate_chat_id()
         
+        #add conversation entry to conversatoin collection
         entry = {
             'converation_id': conversation_id,
             'messages': [] 
             }
         conversations_mongo.insert_one(entry)
 
+        #add conversation id to user
+        user = user_mongo.find_one({'user_id': user_id})
+        conversations = user['conversations']
+        conversations_updated = conversations.append(conversation_id)
+        user_mongo.update_one({'user_id': user_id}, {'$set': {'conversations': conversations_updated}})
+        
         return conversation_id
         
 def generate_chat_id():
@@ -66,7 +73,7 @@ def add_message(conversation_id, role, content):
         updated_messages = conversation.append(message)
         update_query = conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
 
-def add_function( conversation_id, function_name, content):
+def add_function(conversation_id, function_name, content):
     message = {"role": 'function','function_name': function_name, "content": content}
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
     updated_messages = conversation.append(message)
