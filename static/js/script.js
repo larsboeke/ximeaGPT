@@ -237,9 +237,9 @@ chatInput.addEventListener("keydown", (e) => {
 sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
-    localStorage.setItem('username', "test");//Set this item by login
+    //Set this username item by login first
     const user_id = localStorage.getItem('username');
-    socket.emit('start_chat', user_id);
+    socket.emit('start_chat', username);
     chatContainer.remove();
     localStorage.removeItem('chat-history');
     const historyControlsDiv = document.createElement("div");

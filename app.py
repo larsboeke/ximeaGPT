@@ -116,9 +116,9 @@ def handle_message(data):
     socketio.emit('receive_response', backend_msg, broadcast=False)
 
 @socketio.on('start_chat')
-def start_chat(user_id):
+def start_chat(username):
     chat_document = {
-        'user_id': user_id,
+        'username': username,
         'messages': []
     }
     chat = chats_collection.insert_one(chat_document)

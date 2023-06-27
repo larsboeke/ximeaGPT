@@ -216,7 +216,8 @@ body{
   grid-gap: 20px;
 }
 .file-uploader, 
-.text-uploader{
+.text-uploader,
+.url-uploader{
   display: flex;
   align-items: center;  
   justify-content: center;
@@ -226,7 +227,7 @@ body{
   border-radius: 10px;
   box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.3);
   width: 100%;
-  height: 400px;
+  height: 370px;
   background-color: var(--client-chat-bg);
   padding: 10px 30px 40px;
   margin:20px;
@@ -242,11 +243,28 @@ body{
   border-radius: 5px;
   height: 90%;
 }
+select{
+  border:none;
+  padding: 5px 5px;
+  margin: 10px 20px;
+  border: transparent;
+  border-radius: 4px;
+  background-color: #7678ed;
+  color: #ffffff;
+}
+
+select:focus{
+  outline: none;
+  background-color: #ffffff;
+  color: #7678ed;
+}
+
 
 .drop_box h4 {
   font-size: 16px;
   font-weight: 400;
   color: var(--text-color);
+  display: inline-block;
 }
 
 .drop_box p {
@@ -259,7 +277,6 @@ body{
 .card h3 {
   font-size: 22px;
   font-weight: 600;
-  
 }
 .btn {
   text-decoration: none;
@@ -283,12 +300,12 @@ body{
 
 .typing-textarea textarea{
     width: 100%;
-    height: 200px;
+    height: 150px;
     border: none;
     resize: none;
     font-size: 1rem;
     overflow-y: auto;
-    padding: 15px 45px 15px 20px;
+    padding: 15px 20px 15px 20px;
     border-radius: 4px;
     color: var(--text-color);
     background: var(--backend-chat-bg);
@@ -297,6 +314,7 @@ body{
 .typing-textarea textarea::placeholder{
   color: var(--placeholder-color);
 }
+
 
   
 
