@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, make_response
 from flask_socketio import SocketIO, emit
 import flask
 import os
@@ -115,34 +115,37 @@ def generate_backend_message(client_msg):
     print(generated_message)
     return generated_message
 
-#resive client messages and send response
+
 @socketio.on('client_message')
 def handleMessage(client_msg):
     print(f"Client message: {client_msg}")
     backend_msg = generate_backend_message(client_msg)
-    message_document = {
-        'client_message': client_msg,
-        'backend_response': backend_msg
-    }
-    chats_collection.insert_one(message_document)
+    # message_document = {
+    #     'client_message': client_msg,
+    #     'backend_response': backend_msg
+    # }
+    # chats_collection.insert_one(message_document)
     emit('backend_message', backend_msg, broadcast=False)
 
+#resive client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
     chat_id = data['chat_id']
     client_msg = data['text']
     time = data['time']
+    print(f"Client message: {client_msg}")
+    print(f"Sended at:  {time}")
     backend_msg = agent.agent(client_msg)['output']
+    print(f"Backend message: {backend_msg}")
+    #add sources here
     message_document = {
         'client_message': client_msg,
         'backend_response': backend_msg,
         'timestamp': time
     }
     chats_collection.update_one({'_id': chat_id}, {'$push': {'messages': message_document}})
-     # Get the updated chat document
-    chat = chats_collection.find_one({'_id': chat_id})
     # Emit the updated chat document back to the client
-    socketio.emit('chat_updated', chat, room=chat_id)
+    socketio.emit('receive_response', backend_msg, broadcast=False)
 
 @socketio.on('start_chat')
 def start_chat(user_id):
@@ -150,13 +153,25 @@ def start_chat(user_id):
     chat_id = usr.create_chat(user_id)
     # Emit the chat ID back to the client
     socketio.emit('chat_started', {'chat_id': str(chat_id)})
-    #TO-DO:add on the client side socket.on('chat_started')
 
-
+#  @socketio.on('delete_chat')
+# def delete_chat(chat_id):
+#     chats_collection.delete_one({'_id': chat_id})
+#     socketio.emit('chat_deleted', {'chat_id': chat_id})
+    
+@socketio.on('add_sources')
+def add_sources(data):
+    #array of chunks here
+    socketio.emit('sources_added')
+    
 #Routing for the admin panel
 @app.route('/admin/dashboard')
 def admin_dashboard():
-    return render_template('dashboard.html')
+    stat1 = 234
+    stat2 = 3
+    stat3 = 34
+    stat4 = 76
+    return render_template('dashboard.html', stat1=stat1, stat2=stat2, stat3=stat3, stat4=stat4)
 
 @app.route('/admin/documents')
 def admin_documents():

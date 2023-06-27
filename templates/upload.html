@@ -6,14 +6,72 @@
     <title>Upload</title>
 </head>
 <body>
-    {% extends 'admin_panel.html' %}
-
-    {% block content %}
-        <h1>Upload</h1>
-        <p>the upload is here</p>
-        <!-- Add the specific content for the dashboard page -->
-    {% endblock %}
-
-    
+{% extends 'admin_panel.html' %}
+{% block content %}
+<div class="main-title">
+    <h2>UPLOAD MANAGER</h2>
+</div>
+<div class="upload-container">
+    <div class="file-uploader">
+        <div class="card">
+            <h3>Upload Files</h3>
+            <div class="drop_box">
+                <div class="namespace-selection">
+                    <h4>Please select a namespace first:</h4>
+                    <select id="namespaces">
+                        <option value="first">first</option>
+                        <option value="second">second</option>
+                        <option value="third">third</option>
+                    </select>   
+                </div>                                
+              <header>
+                <h4>Select your file here:</h4>
+              </header>
+              <p>Files Supported:.PDF,.DOCX, ect. </p>
+              <input type="file" hidden accept=".pdf" id="fileID" style="display:none;">
+              <button class="btn">Choose File</button>
+            </div>
+        </div>
+    </div>
+    <div class="text-uploader">
+        <div class="card">
+            <h3>Upload Text</h3>
+            <div class="drop_box">
+                <div class="namespace-selection">
+                    <h4>Please select a namespace first:</h4>
+                    <select id="namespaces">
+                        <option value="first">first</option>
+                        <option value="second">second</option>
+                        <option value="third">third</option>
+                    </select>     
+                </div>                    
+                <div class="typing-textarea">
+                    <textarea id="text-input" placeholder="Enter your text here..." required></textarea>
+                    <button class="btn">Upload Text</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="url-uploader">
+        <div class="card">
+            <h3>Upload URL</h3>
+            <div class="drop_box">
+                <div class="namespace-selection">
+                    <h4>Please select a namespace first:</h4>
+                    <select id="namespaces">
+                        <option value="first">first</option>
+                        <option value="second">second</option>
+                        <option value="third">third</option>
+                    </select>
+                </div>                
+                <div class="typing-textarea">
+                    <textarea id="url-input" placeholder="Enter your URL here..." required></textarea>
+                    <button class="btn">Upload URL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}    
 </body>
 </html>    
