@@ -6,6 +6,8 @@ import mysql.connector
 import json
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
+from utils import create_connection
+from database_schema import database_3tables
 
 load_dotenv()
 
@@ -61,11 +63,28 @@ get_mysql = {
                 "required": ["sqlquery"],
             },
         }
+get_database_schema = {
+            "name": "get_database_schema",
+            "description": "Get the schema of the database of XIMEA. Run this function once before writing your first mysql query Statement.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "empty_string": {
+                        "type": "string",
+                        "description": "empty_string e.g '' ",
+                    },
+                },
+                "required": [],
+            },
+        }
 get_last_message = "pass"
 
 query_product_databse = "pass"
 
-tools = [get_context_tool, query_maunals, get_mysql]
+tools = [get_context_tool, query_maunals, get_mysql, get_database_schema]
+def get_database_schema(empty_string = ""):
+    database_schema = {"database": database_3tables}
+    return json.dumps(database_schema)
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -86,14 +105,7 @@ def initPinecone():
 
 def get_mysql(sqlquery):
     
-    mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="859760Si.",
-    database="products3"
-    )
-    mycursor = mydb.cursor()
-
+    connection, mycursor = create_connection()
     mycursor.execute(sqlquery)
     myresult = mycursor.fetchall()
 

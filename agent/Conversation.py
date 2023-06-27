@@ -67,7 +67,7 @@ class Conversation:
         self.add_message("user", prompt)
         
         message = self.get_openai_response()
-    
+        print(message)
         check_function_call = message.get("function_call")
            
         while check_function_call:
@@ -97,11 +97,12 @@ class Conversation:
                 function_response = Functions.get_mysql(
                     sqlquery = data["sqlquery"]
                 )
-                
                 print(function_response)
 
-            elif function_name == "get_last_message":
-                pass
+            elif function_name == "get_database_schema":
+                print("Using get_database_schema tool...")
+                function_response = Functions.get_database_schema()
+                print(function_response)
 
             elif function_name == "query_product_database":
                 pass
