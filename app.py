@@ -1,11 +1,13 @@
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
+import flask
 import os
 import uploadData
 from werkzeug.utils import secure_filename
 import agent
 import uploadData
 from pymongo import MongoClient
+import backend.user_utils as usr
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -53,9 +55,47 @@ chats_collection = db['chats']
     # ],
 # }
 #Routing for the chatbot page
+chats = [
+    {
+        'conversation_id': 'chat1',
+        'messages': [
+            {'role': 'user1', 'message': 'Hello'},
+            {'role': 'user2', 'message': 'Hi there!'}
+        ]
+    },
+    {
+        'conversation_id': 'chat2',
+        'messages': [
+            {'role': 'user1', 'message': 'How are you?'},
+            {'role': 'user2', 'message': 'I am doing great, thanks!'}
+        ]
+    },
+    {
+        'conversation_id': 'chat3',
+        'messages': [
+            {'role': 'user1', 'message': 'What are you up to?'},
+            {'role': 'user2', 'message': 'Just working on a project.'}
+        ]
+    }
+]
 @app.route('/')
 def index():
-    return render_template('chatbot.html')
+    # Check if the user has a cookie
+    if 'ailean_user_id' in request.cookies:
+        user_id = request.cookies.get('ailean_user_id')
+        conversations = usr.get_past_cleaned_conversations(user_id)
+
+        return render_template('chatbot.html', user_id=user_id, conversations=conversations)
+
+    
+    else:
+        user_id = usr.add_user()
+        response = flask.make_response()
+        response.set_cookie('ailean_user_id', user_id)
+        conversations = usr.get_past_cleaned_conversations(user_id)
+        return response, render_template('chatbot.html', user_id=user_id, conversations=conversations)
+
+
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -106,12 +146,7 @@ def handle_message(data):
 
 @socketio.on('start_chat')
 def start_chat(user_id):
-    chat_document = {
-        'user_id': user_id,
-        'messages': []
-    }
-    chat = chats_collection.insert_one(chat_document)
-    chat_id = chat.inserted_id
+    chat_id = usr.create_chat(user_id)
     # Emit the chat ID back to the client
     socketio.emit('chat_started', {'chat_id': str(chat_id)})
     #TO-DO:add on the client side socket.on('chat_started')

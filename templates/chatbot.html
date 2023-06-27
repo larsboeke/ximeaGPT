@@ -23,6 +23,15 @@
         </div>
         <!--TO-DO: onclick="newChat() & fix the button"-->
         <div class="history">
+            {% for chat in chats %}
+            <div class="history-controls">
+                <p>{{ chat.conversation_id }}</p>
+                <span class="rate">
+                    <!-- Add your rating stars code here if needed -->
+                </span>
+            </div>
+            {% endfor %}
+        </div>
             <div class="history-controls">
                 <p>Chat 1</p>
                 <span class="rate">
@@ -57,7 +66,7 @@
         <div class="user-info">
             <span class="material-symbols-outlined">account_circle</span> 
             <p id="user">Test Account</p>
-        </div>>
+        </div>
     </div>
         <!--<button class="openbtn" onclick="openNav()">&#187;</button>-->
         <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
