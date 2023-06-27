@@ -51,9 +51,14 @@ def create_chat(user_id):
         #add conversation id to user
         user = user_mongo.find_one({'user_id': user_id})
         conversations = user['conversations']
-        conversations_updated = conversations.append(conversation_id)
-        user_mongo.update_one({'user_id': user_id}, {'$set': {'conversations': conversations_updated}})
 
+        # if conversations == None:
+        #     conversations_updated = [conversation_id]
+        # else:
+        #     conversations_updated = conversations.append(conversation_id)
+    
+        user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': conversation_id}})
+        print("created new chat with id:" + conversation_id)
         return conversation_id
         
 def generate_chat_id():
