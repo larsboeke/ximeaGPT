@@ -39,9 +39,6 @@ def generate_user_id():
 
 def create_chat(user_id):
         
-        # TODO
-        # add conversation to user
-
         conversation_id = generate_chat_id()
         
         #add conversation entry to conversatoin collection
@@ -56,7 +53,7 @@ def create_chat(user_id):
         conversations = user['conversations']
         conversations_updated = conversations.append(conversation_id)
         user_mongo.update_one({'user_id': user_id}, {'$set': {'conversations': conversations_updated}})
-        
+
         return conversation_id
         
 def generate_chat_id():

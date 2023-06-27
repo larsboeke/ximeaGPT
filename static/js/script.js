@@ -161,6 +161,23 @@ const handleUserMessage = () => {
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
+// Add an event listener to the button
+document.getElementById('new-chat-btn').addEventListener('click', function() {
+    // Retrieve the user ID from the stored cookies
+    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+
+    // Emit the 'start_chat' event to the server with the user ID
+    socket.emit('user_id', userId);
+  });
+  
+  // Listen for the 'chat_started' event from the server
+  socket.on('chat_started', function(data) {
+    var chatId = data.chat_id;
+    // Handle the newly generated chat ID
+    console.log('New chat started with ID:', chatId);
+  });
+  
+
 themeButton.addEventListener("click", () =>{
     document.body.classList.toggle("light-mode");
     localStorage.setItem("theme-color", themeButton.innerText);
@@ -237,7 +254,7 @@ chatInput.addEventListener("keydown", (e) => {
 sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
-    var user_id = 'Test account'
+    var user_id = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     socket.emit('start_chat', user_id);
     socket.on('chat_started', function(data) {
         var chatId = data.chat_id;
