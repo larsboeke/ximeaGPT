@@ -43,7 +43,7 @@ def create_chat(user_id):
         
         #add conversation entry to conversatoin collection
         entry = {
-            'converation_id': conversation_id,
+            'conversation_id': conversation_id,
             'messages': [] 
             }
         conversations_mongo.insert_one(entry)
@@ -90,26 +90,28 @@ def get_past_cleaned_conversations(user_id):
     #get all conversation IDs
     user = user_mongo.find_one({'user_id': user_id})
     conversation_ids = user['conversations']
-
+    print(conversation_ids)
     if conversation_ids:
         #get conversations for user_id and sort by time
-        conversations = conversations_mongo.find(conversation_ids)
-        conversations_list = list(conversations)
+        conversations = conversations_mongo.find({"conversation_id": {"$in": conversation_ids}})
+        print(conversations)
+        # conversations = conversations_mongo.find(conversation_ids)
+        # conversations_list = list(conversations)
 
         #clear conversation from function and system messages
-        cleared_converations = []
-        for conversation in conversations_list:
-            cleared_conversation = []
-            for message in conversation:
+        cleared_conversations = []
+        for conversation in conversations:
+            cleared_conversation = {'conversation_id': conversation['conversation_id'], 'messages': []}
+            for message in conversation['messages']:
 
                 if message["role"] == "system" or message["role"] == "function":
-                    cleared_conversation.append(message)
+                    cleared_conversation['messages'].append(message)
             
-            cleared_converations.append(cleared_conversation)
+            cleared_conversations.append(cleared_conversation)
 
-        sorted_conversations = sorted(conversations_list, key=lambda x: x['datetime'])
+        #sorted_conversations = sorted(conversations, key=lambda x: x['datetime'])
         
-        return sorted_conversations
+        return cleared_conversations
     return []
 
 

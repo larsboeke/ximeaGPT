@@ -25,6 +25,7 @@
         <div class="history">
             {% for chat in chats %}
             <div class="history-controls">
+                <button onclick="openChat('{{ chat.conversation_id }}')" class="chat-button">{{ chat.conversation_id }}</button>
                 <p>{{ chat.conversation_id }}</p>
                 <span class="rate">
                     <!-- Add your rating stars code here if needed -->

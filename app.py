@@ -59,22 +59,22 @@ chats = [
     {
         'conversation_id': 'chat1',
         'messages': [
-            {'role': 'user1', 'message': 'Hello'},
-            {'role': 'user2', 'message': 'Hi there!'}
+            {'role': 'user', 'content': 'Hello'},
+            {'role': 'assistant', 'content': 'Hi there!'}
         ]
     },
     {
         'conversation_id': 'chat2',
         'messages': [
-            {'role': 'user1', 'message': 'How are you?'},
-            {'role': 'user2', 'message': 'I am doing great, thanks!'}
+            {'role': 'assistant', 'content': 'How are you?'},
+            {'role': 'user', 'content': 'I am doing great, thanks!'}
         ]
     },
     {
         'conversation_id': 'chat3',
         'messages': [
-            {'role': 'user1', 'message': 'What are you up to?'},
-            {'role': 'user2', 'message': 'Just working on a project.'}
+            {'role': 'user', 'content': 'What are you up to?'},
+            {'role': 'assistant', 'content': 'Just working on a project.'}
         ]
     }
 ]
@@ -84,8 +84,8 @@ def index():
     if 'ailean_user_id' in request.cookies:
         user_id = request.cookies.get('ailean_user_id')
         conversations = usr.get_past_cleaned_conversations(user_id)
-
-        return render_template('chatbot.html', user_id=user_id, conversations=conversations)
+        print(conversations)
+        return render_template('chatbot.html', user_id=user_id, chats=conversations)
 
     
     else:
@@ -93,7 +93,7 @@ def index():
         response = flask.make_response()
         response.set_cookie('ailean_user_id', user_id)
         conversations = usr.get_past_cleaned_conversations(user_id)
-        return response, render_template('chatbot.html', user_id=user_id, conversations=conversations)
+        return response, render_template('chatbot.html', user_id=user_id, chats=conversations)
 
 
 

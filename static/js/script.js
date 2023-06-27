@@ -58,6 +58,7 @@ const createChatElement = (html, className) => {
     return chatDiv; 
 }
 
+
 const getChatResponse = (aiChatDiv) =>{
     const pElement = document.createElement("p");
     aiChatDiv.querySelector(".chat-details").appendChild(pElement);
