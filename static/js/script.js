@@ -7,7 +7,6 @@ const uploadButton = document.querySelector("#upload-btn");
 const fileInfo = document.querySelector(".file-info");
 const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
-const chatNum = 0;
 const socket = io.connect('http://localhost:5000');
 const thumbUp = document.querySelector("#thumb-up");
 const thumbDown = document.querySelector("#thumb-down");
@@ -43,19 +42,19 @@ const loadDataFromLocalstorage = () => {
                             <p>Start a conversation and explore the power of AI.<br> Your chat history will be displayed here.</p>
                         </div>`
 
-    chatContainer.innerHTML = localStorage.getItem(`chat-history ${chatNum}`) || defaultText;
+    chatContainer.innerHTML = localStorage.getItem('chat-history') || defaultText;
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
-loadDataFromLocalstorage(); 
+loadDataFromLocalstorage();
 
 const createChatElement = (html, className) => {
     //create new div and apply chat, specified class and set html content of div
     const chatDiv = document.createElement("div");
     chatDiv.classList.add("chat", className)
     chatDiv.innerHTML = html;
-    return chatDiv; 
+    return chatDiv;
 }
 
 const getChatResponse = (aiChatDiv) =>{
@@ -65,23 +64,22 @@ const getChatResponse = (aiChatDiv) =>{
     timeElement.className = "time";
     aiChatDiv.querySelector(".chat-details").appendChild(timeElement);
 
-    const receiveResponse = (msg) => {
-        pElement.textContent = msg.trim();
+    const receiveResponse = (backend_msg) => {
+        pElement.textContent = backend_msg.trim();
         timeElement.textContent = getCurrentTime();
         aiChatDiv.querySelector(".typing-animation").remove();
-        socket.off('backend_message', receiveResponse);
+        socket.off('receive_response', receiveResponse);
     };
-
-    socket.on('backend_message', receiveResponse);
-
+    socket.on('receive_response', receiveResponse);
+    // TO-DO add a socket.emit('error') on the server side
     socket.on('backend_error', () => {
         pElement.classList.add("error");
         pElement.textContent = "Oops! Something went wrong while retrieving the response. Please try again.";
         aiChatDiv.querySelector(".typing-animation").remove();
-        socket.off('backend_message', receiveResponse);
+        socket.off('receive_response', receiveResponse);
     });
-    //saving all chat HTML data as chat-hystory name in local storage
-    localStorage.setItem(`chat-history ${chatNum}`, chatContainer.innerHTML)
+    //saving all chat HTML data(only last chat) as chat-hystory name in local storage
+    localStorage.setItem('chat-history', chatContainer.innerHTML)
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -117,15 +115,16 @@ const showTypingAnimation = () => {
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     getChatResponse(aiChatDiv);
 }
-socket.on('chat_started', function(data) {
+socket.on('chat_started', (data) => {
     var chatId = data.chat_id;
-    // Handle the newly generated chat ID
     console.log('New chat started with ID:', chatId);
 });
-socket.on('chat_updated', function(chat) {
-    // Handle the updated chat document
-    console.log('Chat updated:', chat);
-});
+
+socket.on('chat_deleted', (data) =>{
+    var deletedChatId = data.chat_id;
+    console.log('Chat deleted with ID:', deletedChatId);
+})
+
 
 const getCurrentTime = () =>{
     let dateObject = new Date();
@@ -139,9 +138,9 @@ const handleUserMessage = () => {
     if(chatInput.value){
         //socket.emit('client_message', chatInput.value);
         var data = {
-            'chat_id': chatId,
+            'chat_id': localStorage.getItem('chat_id'),
             'text': chatInput.value,
-            'time': getCurrentTime()            
+            'time': getCurrentTime()
         }
         socket.emit('send_message', data);
         const html =`<div class="chat-content">
@@ -154,9 +153,9 @@ const handleUserMessage = () => {
         const userChatDiv = createChatElement(html, "client");
         document.querySelector(".default-text")?.remove();
         chatContainer.appendChild(userChatDiv);
-        chatInput.value = " " //clear the textarea after sending
+        chatInput.value = " "
         chatInput.style.height = `${initialHeight}px`;
-    } 
+    }
     showTypingAnimation();
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -170,17 +169,18 @@ themeButton.addEventListener("click", () =>{
 deleteButton.addEventListener("click", () =>{
     //TO-DO: change confirm window to a centered pop-up window
     if(confirm("Are you sure that you want to delete the history of this chat?")){
-        localStorage.removeItem(`chat-history ${chatNum}`);
+        localStorage.removeItem('chat-history');
         fileInfo.remove();
         loadDataFromLocalstorage();
+        socket.emit('delete_chat', localStorage.getItem('chat_id'));
     }
 });
 
 uploadButton.addEventListener("change", (event)=> {
     const file = event.target.files[0]; // Get the selected file
 
-     if (file && file.type === "application/pdf"){//MIME type  
-        const formData = new FormData(); // Create a new FormData instance 
+     if (file && file.type === "application/pdf"){//MIME type
+        const formData = new FormData(); // Create a new FormData instance
         formData.append("file", file); // Append the file to the form data
 
         uploadFile(file);
@@ -231,35 +231,32 @@ chatInput.addEventListener("keydown", (e) => {
     if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800){
         e.preventDefault();
         handleUserMessage();
-    }  
-})
+    }
+});
 
 sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
-    var user_id = 'Test account'
+    localStorage.setItem('username', "test");//Set this item by login
+    const user_id = localStorage.getItem('username');
     socket.emit('start_chat', user_id);
+    chatContainer.remove();
+    localStorage.removeItem('chat-history');
+    const historyControlsDiv = document.createElement("div");
+    historyControlsDiv.classList.add("history-controls");
+    history.appendChild(historyControlsDiv);
     socket.on('chat_started', function(data) {
         var chatId = data.chat_id;
-        // Handle the newly generated chat ID
-        console.log('New chat started with ID:', chatId);
-        // You can use the chat ID for further operations or pass it to other functions
-        localStorage.setItem('chat_id', chatId);        
+        const pElement = document.createElement("p");
+        pElement.textContent = `Chat ${chatId}`;
+        historyControlsDiv.appendChild(pElement);
+        localStorage.setItem('chat_id', chatId);
     });
-    
-
-    chatContainer.remove();
-    const pElement = document.createElement("p");
-    pElement.textContent = `chat ${chatId}`;
-    history.appendChild(pElement);
-    // chatDiv = localStorage.getItem(`chat-history ${chatNum}`);
-    // const pElement = document.createElement("p");
-    // pElement.textContent = `chat ${chatNum}`
-    // history.appendChild(pElement);
-    // chatContainer.remove();
-    // chatNum++;  
-    // console.log(chatNum);
 });
+
+
+
+
 
 
 // Sidebar Close and Open Button
@@ -268,7 +265,7 @@ newChatButton.addEventListener("click", () => {
         document.getElementById("leftbox").style.width = "250px";
         document.getElementById("chatbox").style.marginLeft = "250px";
     }
-    
+
     /* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
     function closeNav() {
         document.getElementById("leftbox").style.width = "0";
@@ -288,7 +285,7 @@ const negFeedback = (sendFeedbackBtn) => {
     const thumbDownBtn = sendFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
     changeColorThumb('downSend', thumbDownBtn);
     //thumbDownBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChildren.firstElementChildren.lastElementChildren.lastElementChildren.);
-    
+
 }
 
 const deleteFeedback = (deleteFeedbackBtn) => {
@@ -325,7 +322,7 @@ function changeColorThumb(thumb, thumbBtn) {
     } else {
 
     }
-    
+
 }
 
 const openFeedbackBar = () => {
