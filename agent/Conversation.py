@@ -50,17 +50,17 @@ class Conversation:
                 functions= self.functions,
                 function_call="auto"
             )
-            promt_tokens = response["usage"]["prompt_tokens"]
-            completion_tokens = response["usage"]["completion_tokens"]
+            #promt_tokens = response["usage"]["prompt_tokens"]
+            #completion_tokens = response["usage"]["completion_tokens"]
 
-            self.add_promt_tokens += promt_tokens
-            self.add_completion_tokens += completion_tokens
+            #self.add_promt_tokens += promt_tokens
+            #self.add_completion_tokens += completion_tokens
 
         except Exception as e:
             print("Unable to generate ChatCompletion response")
             print(f"Exception: {e}")
             return e
-        
+        print(response["choices"][0]["message"])
         return response["choices"][0]["message"]
 
     def chat_completion_request(self, prompt):
@@ -74,7 +74,6 @@ class Conversation:
 
             json_str = message["function_call"]["arguments"]
             data = json.loads(json_str)
-
             function_name = message["function_call"]["name"]
 
             if function_name == "get_context_tool":
@@ -93,6 +92,13 @@ class Conversation:
                 )
                 self.add_embedding_tokens(tokens)
                 print(function_response)
+            elif function_name == "get_mysql":
+                print("Using sql_query tool...")
+                function_response = Functions.get_mysql(
+                    sqlquery = data["sqlquery"]
+                )
+                
+                print(function_response)
 
             elif function_name == "get_last_message":
                 pass
@@ -103,8 +109,9 @@ class Conversation:
             self.add_function(function_name, str(function_response))
      
             additional_response = self.get_openai_response()
-        
-            additional_message = additional_response["choices"][0]["message"]
+            
+            
+            additional_message = additional_response#["choices"][0]["message"]
             print(additional_message["content"])
             self.add_message("assistant", str(additional_message["content"]))
 
@@ -115,7 +122,9 @@ class Conversation:
 
 test = Conversation("1234")
 
-while True:
+while True:             #we just keep going
     prompt = input("Ask a question...")
+
     test.chat_completion_request(prompt)
-    print(test.conversation_history[-1]["content"])
+    print("Outer loop")
+    #print(test.conversation_history)

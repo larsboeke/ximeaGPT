@@ -2,6 +2,8 @@ import pymongo
 import pinecone
 import openai
 import os
+import mysql.connector
+import json
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 
@@ -45,11 +47,25 @@ query_maunals = {
                 },
             }
 
+get_mysql = {
+            "name": "get_mysql",
+            "description": "Get the result back from a valid sql query on a database. Use it when you are asked about an mysql query!",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "sqlquery": {
+                        "type": "string",
+                        "description": "Valid MySQL syntax, e.g. SELECT id FROM prod LIMIT 5;",
+                    },
+                },
+                "required": ["sqlquery"],
+            },
+        }
 get_last_message = "pass"
 
 query_product_databse = "pass"
 
-tools = [get_context_tool, query_maunals]
+tools = [get_context_tool, query_maunals, get_mysql]
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -67,6 +83,25 @@ def initPinecone():
     )
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
+
+def get_mysql(sqlquery):
+    
+    mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="859760Si.",
+    database="products3"
+    )
+    mycursor = mydb.cursor()
+
+    mycursor.execute(sqlquery)
+    myresult = mycursor.fetchall()
+
+    query_info = {
+        "sqlquery": sqlquery,
+        "database_response": myresult
+    }
+    return json.dumps(query_info)
 
 def getText(query, namespace):
     index = initPinecone() #
