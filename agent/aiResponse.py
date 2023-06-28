@@ -3,30 +3,24 @@ import openai
 import os
 import json
 import backend.user_utils as usr
-
-def get_past_messages(conversation_id):
-
-    conversation = usr.get_past_messages
-    return conversation
+from datetime import datetime as dt
 
 class Conversation:
 
 
-    def __init__(self, conversation_id):
+    def __init__(self, conversation_id, user_prompt):
         
         self.conversation_id = conversation_id
-        self.conversation_history = [{"role": "system", "content": "You are a helpful assistant, helping out the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}]
+        self.conversation_history = usr.get_past_messages(conversation_id)
         self.functions = Functions.tools
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
+        self.start_timestamp = dt.now()
+    
 
-        past_conversation = get_past_messages(self.conversation_id)
-        if not past_conversation == None:
-        
-            self.conversation_history.append(past_conversation)
+        usr.add_message(conversation_id, 'user', user_prompt)
 
-        print(self.conversation_history)
 
     def add_message(self, role, content):
         message = {"role": role, "content": content}
@@ -105,7 +99,8 @@ class Conversation:
 
             check_function_call = additional_message.get("function_call")
         
-        usr.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens)
+        
+        usr.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
     
 
