@@ -151,7 +151,7 @@ def handle_message(data):
 def start_chat(user_id):    
     chat_id = usr.create_chat(user_id)
     # Emit the chat ID back to the client
-    socketio.emit('chat_started', {'chat_id': str(chat_id)})
+    socketio.emit('chat_started', chat_id)
 
 #  @socketio.on('delete_chat')
 # def delete_chat(chat_id):

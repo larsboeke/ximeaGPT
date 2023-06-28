@@ -10,6 +10,7 @@ const history = document.querySelector(".history");
 const socket = io.connect('http://localhost:5000');
 const thumbUp = document.querySelector("#thumb-up");
 const thumbDown = document.querySelector("#thumb-down");
+const historyElement = history.querySelector("p");
 var positiveFeedback = new Boolean(false);
 var negativeFeedback = new Boolean(false);
 
@@ -42,7 +43,7 @@ const loadDataFromLocalstorage = () => {
                             <p>Start a conversation and explore the power of AI.<br> Your chat history will be displayed here.</p>
                         </div>`
 
-    chatContainer.innerHTML = localStorage.getItem('chat-history') || defaultText;
+    chatContainer.innerHTML = defaultText;
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -116,10 +117,6 @@ const showTypingAnimation = () => {
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     getChatResponse(aiChatDiv);
 }
-socket.on('chat_started', (data) => {
-    var chatId = data.chat_id;
-    console.log('New chat started with ID:', chatId);
-});
 
 socket.on('chat_deleted', (data) =>{
     var deletedChatId = data.chat_id;
@@ -136,46 +133,45 @@ const getCurrentTime = () =>{
 }
 
 const handleUserMessage = () => {
-    if(chatInput.value){
-        //socket.emit('client_message', chatInput.value);
-        var data = {
-            'chat_id': localStorage.getItem('chat_id'),
-            'text': chatInput.value,
-            'time': getCurrentTime()
-        }
-        socket.emit('send_message', data);
-        const html =`<div class="chat-content">
-                        <div class="chat-details">
-                            <img src="../static/images/user_logo.png" alt="user-img">
-                            <p>${chatInput.value}</p>
-                            <span class="time">${getCurrentTime()}</span>
-                        </div>
-                    </div>`;
-        const userChatDiv = createChatElement(html, "client");
-        document.querySelector(".default-text")?.remove();
-        chatContainer.appendChild(userChatDiv);
-        chatInput.value = " "
-        chatInput.style.height = `${initialHeight}px`;
-    }
+    if (chatInput.value){
+            var data = {
+                'chat_id': localStorage.getItem('chat_id'),
+                'text': chatInput.value,
+                'time': getCurrentTime()
+            }
+            socket.emit('send_message', data);
+            const html =`<div class="chat-content">
+                            <div class="chat-details">
+                                <img src="../static/images/user_logo.png" alt="user-img">
+                                <p>${chatInput.value}</p>
+                                <span class="time">${getCurrentTime()}</span>
+                            </div>
+                        </div>`;
+            const userChatDiv = createChatElement(html, "client");
+            document.querySelector(".default-text")?.remove();
+            chatContainer.appendChild(userChatDiv);
+            chatInput.value = " "
+            chatInput.style.height = `${initialHeight}px`;
+        }     
     showTypingAnimation();
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
-}
+};
 
 // Add an event listener to the button
-document.getElementById('new-chat-btn').addEventListener('click', function() {
-    // Retrieve the user ID from the stored cookies
-    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+// document.getElementById('new-chat-btn').addEventListener('click', function() {
+//     // Retrieve the user ID from the stored cookies
+//     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
-    // Emit the 'start_chat' event to the server with the user ID
-    socket.emit('user_id', userId);
-  });
+//     // Emit the 'start_chat' event to the server with the user ID
+//     socket.emit('user_id', userId);
+//   });
   
   // Listen for the 'chat_started' event from the server
-  socket.on('chat_started', function(data) {
-    var chatId = data.chat_id;
-    // Handle the newly generated chat ID
-    console.log('New chat started with ID:', chatId);
-  });
+//   socket.on('chat_started', function(data) {
+//     var chatId = data.chat_id;
+//     // Handle the newly generated chat ID
+//     console.log('New chat started with ID:', chatId);
+//   });
   
 
 themeButton.addEventListener("click", () =>{
@@ -255,21 +251,19 @@ chatInput.addEventListener("keydown", (e) => {
 sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
-    //Set this username item by login first
-    const username = localStorage.getItem('username');
-    socket.emit('start_chat', username);
-    chatContainer.remove();
-    localStorage.removeItem('chat-history');
+    chatContainer.innerHTML = '';
     const historyControlsDiv = document.createElement("div");
     historyControlsDiv.classList.add("history-controls");
     history.appendChild(historyControlsDiv);
-    socket.on('chat_started', (chat_id) => {
-        const pElement = document.createElement("p");
-        pElement.textContent = `Chat ${chat_id}`;
-        historyControlsDiv.appendChild(pElement);
-        localStorage.setItem('chat_id', chat_id);
-    });
+
+    const pElement = document.createElement("p");
+    pElement.textContent = "New Chat Started";
+    historyControlsDiv.appendChild(pElement);
+    console.log('New Chat Started');
+    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    socket.emit('start_chat', userId);
 });
+
 
 
 
