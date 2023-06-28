@@ -90,13 +90,16 @@ def getText(query, namespace):
 
 
     #get matches from mongoDB for IDs
-    matches = []
+    matches_content = []
+    matches_sources = []
     print(pinecone_results)
     for id in pinecone_results['matches']:
         idToFind = ObjectId(id['id'])
         match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
-        matches.append(match)
-       
+        matches_content.append(match['content'])
+        source = {'id': match['_id'], 'content': match['content'], 'source': match['source']}
+        matches_sources.append(source)
 
-    return matches, used_tokens
+
+    return matches_content, matches_sources, used_tokens
 

@@ -70,7 +70,7 @@ def generate_chat_id():
             return id
 
 def add_message(conversation_id, role, content):
-        message = {"role": role, "content": content}
+        message = {"role": role, "content": content, "timestamp": dt.now()}
         conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
         updated_messages = conversation.append(message)
         update_query = conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
@@ -81,10 +81,13 @@ def add_function(conversation_id, function_name, content):
     updated_messages = conversation.append(message)
     conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
 
-def get_past_messages(user_id, conversation_id):
-    messages = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
+def retrieve_conversation(conversation_id):
+    conversation = conversations_mongo.find_one({'conversation_id': conversation_id})
 
-    return messages
+    # Remove timestamps from messages
+    conversation['messages'] = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
+
+    return conversation['messages']
 
 def get_past_cleaned_conversations(user_id):
     #get all conversation IDs

@@ -4,7 +4,7 @@ import flask
 import os
 import uploadData
 from werkzeug.utils import secure_filename
-import agent
+from agent.AIResponse import AiResponse
 import uploadData
 from pymongo import MongoClient
 import backend.user_utils as usr
@@ -17,13 +17,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 client = MongoClient('mongodb://192.168.11.30:27017/')
 db = client['XIMEAGPT']
 users_collection = db['users']
-#structure of users collection
-# {
-#     "_id": "unique_user_id",
-#     "email": "user's username",
-#     "password"?
-#     "chats": ["chat_id1", "chat_id2", ...]
-# }
 chats_collection = db['chats']
 #structure of chats collection
 # {
@@ -83,7 +76,7 @@ def index():
     # Check if the user has a cookie
     if 'ailean_user_id' in request.cookies:
         user_id = request.cookies.get('ailean_user_id')
-        conversations = usr.get_past_cleaned_conversations(user_id)
+        conversations = usr.get_chat_ids(user_id)
         print(conversations)
         return render_template('chatbot.html', user_id=user_id, chats=conversations)
 
@@ -110,24 +103,16 @@ def upload():
     return f"File '{file_name}' uploaded successfully."
 
 #react to client message
-def generate_backend_message(client_msg):
-    generated_message = agent.agent(client_msg)['output']
-    print(generated_message)
-    return generated_message
+def generate_backend_message(conversation_id, user_prompt, time):
+    #create airesponse object and request chat completion
+    response_request = AiResponse(conversation_id, user_prompt, time)
+    assistant_message, sources = response_request.chat_completion_request()
+    
+    return assistant_message, sources
 
 
-@socketio.on('client_message')
-def handleMessage(client_msg):
-    print(f"Client message: {client_msg}")
-    backend_msg = generate_backend_message(client_msg)
-    # message_document = {
-    #     'client_message': client_msg,
-    #     'backend_response': backend_msg
-    # }
-    # chats_collection.insert_one(message_document)
-    emit('backend_message', backend_msg, broadcast=False)
 
-#resive client messages and send response
+#recieve client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
     chat_id = data['chat_id']
@@ -135,17 +120,11 @@ def handle_message(data):
     time = data['time']
     print(f"Client message: {client_msg}")
     print(f"Sended at:  {time}")
-    backend_msg = agent.agent(client_msg)['output']
-    print(f"Backend message: {backend_msg}")
+    assistant_message, sources = generate_backend_message(chat_id, client_msg, time)
+    print(f"Backend message: {assistant_message}")
     #add sources here
-    message_document = {
-        'client_message': client_msg,
-        'backend_response': backend_msg,
-        'timestamp': time
-    }
-    chats_collection.update_one({'_id': chat_id}, {'$push': {'messages': message_document}})
     # Emit the updated chat document back to the client
-    socketio.emit('receive_response', backend_msg, broadcast=False)
+    socketio.emit('receive_response', assistant_message, sources, broadcast=False)
 
 @socketio.on('start_chat')
 def start_chat(user_id):
@@ -158,6 +137,14 @@ def start_chat(user_id):
 # def delete_chat(chat_id):
 #     chats_collection.delete_one({'_id': chat_id})
 #     socketio.emit('chat_deleted', {'chat_id': chat_id})
+
+@socketio.on('open_chat')
+def open_chat(data):
+    chat_id = data['chat_id']
+    messages = usr.get_messages(chat_id)
+
+    socketio.emit('chat_opened', messages, broadcast=False)
+
     
 @socketio.on('add_sources')
 def add_sources(data):
