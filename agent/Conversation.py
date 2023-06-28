@@ -68,8 +68,9 @@ class Conversation:
         message = self.get_openai_response()
         
         check_function_call = message.get("function_call")
-           
+        flag = False
         while check_function_call:
+            flag = True
 
             json_str = message["function_call"]["arguments"]
             data = json.loads(json_str)
@@ -115,6 +116,9 @@ class Conversation:
             self.add_message("assistant", str(additional_message["content"]))
 
             check_function_call = additional_message.get("function_call")
+        
+        if not flag:
+            print(message)
 
     
 
