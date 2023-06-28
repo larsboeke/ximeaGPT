@@ -262,6 +262,10 @@ newChatButton.addEventListener("click", () => {
     console.log('New Chat Started');
     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     socket.emit('start_chat', userId);
+    socket.on('chat_started', function(chat_id) {
+    pElement.p = chat_id;
+    console.log('New chat started with ID:', chat_id);
+  });
 });
 
 

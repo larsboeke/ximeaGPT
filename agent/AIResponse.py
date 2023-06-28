@@ -1,4 +1,4 @@
-import Functions
+from agent import Functions
 import openai
 import os
 import json
