@@ -103,9 +103,9 @@ def upload():
     return f"File '{file_name}' uploaded successfully."
 
 #react to client message
-def generate_backend_message(conversation_id, user_prompt, time):
+def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
-    response_request = AiResponse(conversation_id, user_prompt, time)
+    response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
     
     return assistant_message, sources
@@ -117,14 +117,12 @@ def generate_backend_message(conversation_id, user_prompt, time):
 def handle_message(data):
     chat_id = data['chat_id']
     client_msg = data['text']
-    time = data['time']
     print(f"Client message: {client_msg}")
-    print(f"Sended at:  {time}")
-    assistant_message, sources = generate_backend_message(chat_id, client_msg, time)
+    assistant_message, sources = generate_backend_message(chat_id, client_msg)
     print(f"Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', assistant_message, broadcast=False)
+    socketio.emit('receive_response', assistant_message)
 
 @socketio.on('start_chat')
 def start_chat(user_id):    
@@ -141,7 +139,7 @@ def start_chat(user_id):
 def open_chat(data):
     chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
-    socketio.emit('chat_opened', messages, broadcast=False)
+    socketio.emit('chat_opened', messages)
     
 
     
