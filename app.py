@@ -1,11 +1,13 @@
 from flask import Flask, render_template, jsonify, request, make_response
 from flask_socketio import SocketIO, emit
+import flask
 import os
 import uploadData
 from werkzeug.utils import secure_filename
 import agent
 import uploadData
 from pymongo import MongoClient
+import backend.user_utils as usr
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -53,17 +55,47 @@ chats_collection = db['chats']
     # ],
 # }
 #Routing for the chatbot page
+chats = [
+    {
+        'conversation_id': 'chat1',
+        'messages': [
+            {'role': 'user', 'content': 'Hello'},
+            {'role': 'assistant', 'content': 'Hi there!'}
+        ]
+    },
+    {
+        'conversation_id': 'chat2',
+        'messages': [
+            {'role': 'assistant', 'content': 'How are you?'},
+            {'role': 'user', 'content': 'I am doing great, thanks!'}
+        ]
+    },
+    {
+        'conversation_id': 'chat3',
+        'messages': [
+            {'role': 'user', 'content': 'What are you up to?'},
+            {'role': 'assistant', 'content': 'Just working on a project.'}
+        ]
+    }
+]
 @app.route('/')
 def index():
-    return render_template('chatbot.html')
-    # response = make_response(render_template('chatbot.html'))
-    # if 'user_id' in request.cookies:
-    #     user_id = request.cookies.get('user_id')
-    # else:
-    #     user = chats_collection.insert_one({'role':'user'})
-    #     user_id = user.inserted_id
-    #     response.set_cookie('user_id', user_id)
-    # return render_template('chatbot.html', user_id = user_id)
+    # Check if the user has a cookie
+    if 'ailean_user_id' in request.cookies:
+        user_id = request.cookies.get('ailean_user_id')
+        conversations = usr.get_past_cleaned_conversations(user_id)
+        print(conversations)
+        return render_template('chatbot.html', user_id=user_id, chats=conversations)
+
+    
+    else:
+        user_id = usr.add_user()
+        response = flask.make_response()
+        response.set_cookie('ailean_user_id', user_id)
+        conversations = usr.get_past_cleaned_conversations(user_id)
+        return response, render_template('chatbot.html', user_id=user_id, chats=conversations)
+
+
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -116,15 +148,10 @@ def handle_message(data):
     socketio.emit('receive_response', backend_msg)
 
 @socketio.on('start_chat')
-def start_chat(username):
-    chat_document = {
-        'username': username,
-        'messages': []
-    }
-    chat = chats_collection.insert_one(chat_document)
-    chat_id = chat.inserted_id
-    #socketio.emit('chat_started', {'chat_id': str(chat_id)})
-    socketio.emit('chat_started', chat_id)
+def start_chat(user_id):    
+    chat_id = usr.create_chat(user_id)
+    # Emit the chat ID back to the client
+    socketio.emit('chat_started', {'chat_id': str(chat_id)})
 
 #  @socketio.on('delete_chat')
 # def delete_chat(chat_id):
