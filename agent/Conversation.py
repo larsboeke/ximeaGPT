@@ -23,7 +23,7 @@ class Conversation:
         
             self.conversation_history.append(past_conversation)
 
-        print(self.conversation_history)
+        #print(self.conversation_history)
 
     def add_message(self, role, content):
         message = {"role": role, "content": content}
@@ -60,14 +60,13 @@ class Conversation:
             print("Unable to generate ChatCompletion response")
             print(f"Exception: {e}")
             return e
-        print(response["choices"][0]["message"])
         return response["choices"][0]["message"]
 
     def chat_completion_request(self, prompt):
         self.add_message("user", prompt)
         
         message = self.get_openai_response()
-        print(message)
+        
         check_function_call = message.get("function_call")
            
         while check_function_call:
@@ -97,12 +96,11 @@ class Conversation:
                 function_response = Functions.get_mysql(
                     sqlquery = data["sqlquery"]
                 )
-                print(function_response)
+                
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
                 function_response = Functions.get_database_schema()
-                print(function_response)
 
             elif function_name == "query_product_database":
                 pass
@@ -125,7 +123,5 @@ test = Conversation("1234")
 
 while True:             #we just keep going
     prompt = input("Ask a question...")
-
     test.chat_completion_request(prompt)
-    print("Outer loop")
     #print(test.conversation_history)

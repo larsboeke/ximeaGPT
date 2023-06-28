@@ -112,7 +112,6 @@ def get_mysql(sqlquery):
         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
     else:
         myresult = mycursor.fetchall()
-        print(len(myresult))
         if len(myresult)> 200:
             myresult = "The query you wrote returned too much data for you to handle. Please LIMIT the amount of data you get returned or rewrite the query!"
         
@@ -122,7 +121,6 @@ def get_mysql(sqlquery):
         "sqlquery": sqlquery,
         "database_response": myresult
     }
-    print(query_info)
     return json.dumps(query_info)
 
 def getText(query, namespace):
