@@ -96,7 +96,10 @@ def getText(query, namespace):
     for id in pinecone_results['matches']:
         idToFind = ObjectId(id['id'])
         match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
+        print(match)
+        print(match['content'])
         matches_content.append(match['content'])
+    
         source = {'id': match['_id'], 'content': match['content'], 'source': match['source']}
         matches_sources.append(source)
 

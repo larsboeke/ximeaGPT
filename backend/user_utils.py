@@ -71,9 +71,8 @@ def generate_chat_id():
 
 def add_message(conversation_id, role, content):
     message = {"role": role, "content": content, "timestamp": dt.now()}
-    conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
-    updated_messages = conversation.append(message)
-    update_query = conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
+    conversations_mongo.update_one({'conversation_id': conversation_id}, {'$push': {'messages': message}})
+    print('added message')
 
 def add_function(conversation_id, function_name, content):
     message = {"role": 'function','function_name': function_name, "content": content}

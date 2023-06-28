@@ -58,7 +58,6 @@ class AiResponse:
         return response["choices"][0]["message"]
 
     def chat_completion_request(self):
-        usr.add_message(self.conversation_id, 'user', self.user_prompt)
         self.add_message("user", self.user_prompt)
         
         message = self.get_openai_response()
@@ -126,10 +125,12 @@ class AiResponse:
                 usr.add_message(self.conversation_id, 'assistant', assistant_message)
             
             
-            self.add_message("assistant", str(additional_message["content"]))
+            
             print(additional_message["content"])
             additional_message['timestamp'] = str(dt.now())
             assistant_message = additional_message['content']
+
+            self.add_message("assistant", assistant_message)
 
         
         
