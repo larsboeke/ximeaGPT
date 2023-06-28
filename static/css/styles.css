@@ -443,21 +443,31 @@
         border-radius: 5px;
       }
 
-      .history-controls:hover{
-        background-color: var(--backend-chat-border);
+      .history li{
+        padding: 10px 10px;
+        margin: 10px 10px;
+    
       }
 
-      .history-controls{
+      .history li:hover{
+        cursor:pointer;
+        background-color: var(--backend-chat-border);
+        color: var(--activ-color)
+      }
+
+      .history span{
+        font-size: 20px;
+        margin-right: 10px;
+      }
+
+
+      /* .history-controls{
         padding: 25px 10px;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
       }
 
-      .history span{
-        margin-left: 10px;
-      }
-      
       .user-info{
         color: var(--activ-color);
         font-size: 18px;
@@ -466,7 +476,7 @@
         left: 0;
         width: 100%;
         text-align: center;
-      }
+      } */
 
 
 

@@ -31,7 +31,7 @@ if ('serviceWorker' in navigator) {
 
 const initialHeight = chatInput.scrollHeight;
 
-const loadDataFromLocalstorage = () => {
+const loadDefaultWindow = () => {
     //localstorage for now, mongobd for later
     const themeColor = localStorage.getItem("theme-color");
 
@@ -48,7 +48,7 @@ const loadDataFromLocalstorage = () => {
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
-loadDataFromLocalstorage();
+loadDefaultWindow();
 
 const createChatElement = (html, className) => {
     //create new div and apply chat, specified class and set html content of div
@@ -132,31 +132,52 @@ const getCurrentTime = () =>{
     return cTime + ' ' + cDate;
 }
 
-const handleUserMessage = () => {
-    if (chatInput.value){
-            var data = {
-                'chat_id': localStorage.getItem('chat_id'),
-                'text': chatInput.value,
-                'time': getCurrentTime()
-            }
-            socket.emit('send_message', data);
-            const html =`<div class="chat-content">
-                            <div class="chat-details">
-                                <img src="../static/images/user_logo.png" alt="user-img">
-                                <p>${chatInput.value}</p>
-                                <span class="time">${getCurrentTime()}</span>
-                            </div>
-                        </div>`;
-            const userChatDiv = createChatElement(html, "client");
-            document.querySelector(".default-text")?.remove();
-            chatContainer.appendChild(userChatDiv);
-            chatInput.value = " "
-            chatInput.style.height = `${initialHeight}px`;
-        }     
-    showTypingAnimation();
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
-};
+const startNewChat = () => {
+    chatContainer.innerHTML = "";
+    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    var newChat = document.createElement('li');
+    newChat.textContent = 'New Chat';
+    chatList.appendChild(newChat);
+    socket.emit('start_chat', userId);
+    socket.on('chat_started', (chat_id) =>{
+        localStorage.setItem('chat_id', chat_id);
+        console.log('New chat started with ID:', chat_id);
+        newChat.textContent = chat_id;
+    });  
+}
 
+const handleUserMessage = () => {
+    userMessage = chatInput.value.trim();
+    if (userMessage !==""){
+        //document.querySelector(".default-text")?.startNewChat();
+        if (document.querySelector(".default-text")){
+            console.log('It you first message! We start new chat');
+            startNewChat();            
+        }
+        var data = {
+            'chat_id': localStorage.getItem('chat_id'),
+            'text': userMessage
+        }
+        socket.emit('send_message', data);
+        const html =`<div class="chat-content">
+                        <div class="chat-details">
+                            <img src="../static/images/user_logo.png" alt="user-img">
+                            <p>${userMessage}</p>
+                            <span class="time">${getCurrentTime()}</span>
+                        </div>
+                    </div>`;
+        const userChatDiv = createChatElement(html, "client");
+        //document.querySelector(".default-text")?.remove();
+        chatContainer.appendChild(userChatDiv);
+        chatInput.value = "";
+        chatInput.style.height = `${initialHeight}px`;
+        showTypingAnimation();
+        chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    } 
+    else {
+        alert("Please type something in...");
+    }   
+};
 // Add an event listener to the button
 // document.getElementById('new-chat-btn').addEventListener('click', function() {
 //     // Retrieve the user ID from the stored cookies
@@ -172,7 +193,6 @@ const handleUserMessage = () => {
 //     // Handle the newly generated chat ID
 //     console.log('New chat started with ID:', chatId);
 //   });
-
 
 themeButton.addEventListener("click", () =>{
     document.body.classList.toggle("light-mode");
@@ -251,11 +271,17 @@ chatInput.addEventListener("keydown", (e) => {
 
 sendButton.addEventListener("click", handleUserMessage);
 
+
 chatList.addEventListener("click", (event) =>{
     var clickedElement = event.target;
-    var chatId = clickedElement.textContent;
+    var chatId = clickedElement.id;
     if (clickedElement.tagName === 'LI') {
         console.log('You clicked on chat:', chatId);
+        socket.emit('open_chat', chatId);
+        socket.on('chat_opened', (messages) =>{
+            chatContainer.innerHTML = '';
+            console.log(messages);
+        });
       }
     localStorage.setItem('chat_id', chatId);
     // socket.emit('open_chat', chatId);
@@ -264,17 +290,8 @@ chatList.addEventListener("click", (event) =>{
     // });
 });
 
-newChatButton.addEventListener("click", () => {
-    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
-    var newChat = document.createElement('li');
-    newChat.textContent = 'New Chat';
-    chatList.appendChild(newChat);
-    socket.emit('start_chat', userId);
-    socket.on('chat_started', (chat_id) =>{
-        localStorage.setItem('chat_id', chat_id);
-        console.log('New chat started with ID:', chat_id);
-        newChat.textContent = chat_id;
-    });  
+newChatButton.addEventListener("click", startNewChat);
+    
     //chatContainer.innerHTML = '';
 //     const historyControlsDiv = document.createElement("div");
 //     historyControlsDiv.classList.add("history-controls");
@@ -291,7 +308,6 @@ newChatButton.addEventListener("click", () => {
 //     console.log('New chat started with ID:', chat_id);
 //   });
 
-});
 
 
 

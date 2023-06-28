@@ -84,6 +84,7 @@ def index():
     else:
         user_id = usr.add_user()
         response = flask.make_response()
+        #TO-DO set expiration data for cookie
         response.set_cookie('ailean_user_id', user_id)
         conversations = usr.get_past_cleaned_conversations(user_id)
         return response, render_template('chatbot.html', user_id=user_id, chats=conversations)
@@ -136,8 +137,8 @@ def start_chat(user_id):
 #     socketio.emit('chat_deleted', {'chat_id': chat_id})
 
 @socketio.on('open_chat')
-def open_chat(data):
-    chat_id = data['chat_id']
+def open_chat(chat_id):
+    # chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
     socketio.emit('chat_opened', messages)
     
