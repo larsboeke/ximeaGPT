@@ -183,10 +183,11 @@ themeButton.addEventListener("click", () =>{
 deleteButton.addEventListener("click", () =>{
     //TO-DO: change confirm window to a centered pop-up window
     if(confirm("Are you sure that you want to delete the history of this chat?")){
-        localStorage.removeItem('chat-history');
-        fileInfo.remove();
-        loadDataFromLocalstorage();
         socket.emit('delete_chat', localStorage.getItem('chat_id'));
+        localStorage.removeItem('chat-history');
+        localStorage.removeItem('chat_id');
+        fileInfo.remove();
+        loadDataFromLocalstorage();       
     }
 });
 
@@ -250,16 +251,17 @@ chatInput.addEventListener("keydown", (e) => {
 
 sendButton.addEventListener("click", handleUserMessage);
 
-chatInput.addEventListener("click", (event) =>{
+chatList.addEventListener("click", (event) =>{
     var clickedElement = event.target;
     var chatId = clickedElement.textContent;
     if (clickedElement.tagName === 'LI') {
         console.log('You clicked on chat:', chatId);
       }
-    socketio.emit('open_chat', chatId);
-    socketio.on('chat_opened', (messages) =>{
-        console.log(messages);
-    });
+    localStorage.setItem('chat_id', chatId);
+    // socket.emit('open_chat', chatId);
+    // socket.on('chat_opened', (messages) =>{
+    //     console.log(messages);
+    // });
 });
 
 newChatButton.addEventListener("click", () => {

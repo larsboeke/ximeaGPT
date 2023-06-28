@@ -79,7 +79,7 @@ def index():
         conversations = usr.get_chat_ids(user_id)
         print(conversations)
         return render_template('chatbot.html', user_id=user_id, chats=conversations)
-
+    
     
     else:
         user_id = usr.add_user()
