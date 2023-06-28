@@ -54,7 +54,6 @@ class Uploader:
                 if attempt == max_attempts - 1:
                     # If it was the last try, we throw the exception again
                     raise e
-        print("ERRor: ", chunk)
         id_ = col.insert_one(chunk)
         id = str(id_.inserted_id)
 
@@ -132,10 +131,9 @@ class Uploader:
         if updated_cases and updated_cases != []:
             for case in updated_cases:
                 emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
-                one_case = Case(case[0], emails_for_one_case)
+                one_case = Case(str(case[0]), emails_for_one_case)
                 content = PlainTextFromCaseProvider().provide_full_content(one_case)
                 chunks = Chunker().data_to_chunks(content, one_case.metadata)
-                print(chunks)
                 SQLDatabaseUpdater(sql_connection).update_case(case[0])
                 for chunk in chunks:
                     self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
