@@ -84,6 +84,7 @@ def add_function(conversation_id, function_name, content):
 def retrieve_conversation(conversation_id):
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})
 
+    print(conversation['messages'])
     # Remove timestamps from messages
     conversation['messages'] = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
 

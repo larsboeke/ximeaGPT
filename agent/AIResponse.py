@@ -9,7 +9,7 @@ from backend import activity_utils as act
 class AiResponse:
 
 
-    def __init__(self, conversation_id, user_prompt, timestamp):
+    def __init__(self, conversation_id, user_prompt):
         
         self.conversation_id = conversation_id
         self.conversation_history = usr.retrieve_conversation(conversation_id)
@@ -19,7 +19,7 @@ class AiResponse:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
-        self.start_timestamp = timestamp
+        self.start_timestamp = dt.now()
     
 
  
@@ -67,6 +67,10 @@ class AiResponse:
 
         if not check_function_call:
             self.add_message('assistant', message['content'])
+
+        message['timestamp'] = str(dt.now())
+
+        assistant_message = message['content']
            
         while check_function_call:
 
@@ -124,13 +128,14 @@ class AiResponse:
             
             self.add_message("assistant", str(additional_message["content"]))
             print(additional_message["content"])
-            additional_message['timestamp'] = dt.now()
+            additional_message['timestamp'] = str(dt.now())
+            assistant_message = additional_message['content']
 
         
         
         act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
-        return additional_message, self.sources
+        return assistant_message, self.sources
     
 
 
