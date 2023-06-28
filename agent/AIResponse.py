@@ -6,7 +6,7 @@ import json
 def get_past_conversation(conversation_id):
     return None
 
-class Conversation:
+class AIResponse:
 
 
     def __init__(self, conversation_id):
@@ -123,9 +123,9 @@ class Conversation:
     
 
 
-test = Conversation("1234")
+test = AIResponse("1234")
 
-while True:             #we just keep going
+while True:             
     prompt = input("Ask a question...")
     test.chat_completion_request(prompt)
-    #print(test.conversation_history)
+
