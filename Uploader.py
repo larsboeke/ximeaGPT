@@ -18,6 +18,8 @@ from data_package.Mail_Handler.SQLDatabaseUpdater import SQLDatabaseUpdater
 from data_package.Mail_Handler.EmailDatabaseDeleter import EmailDatabaseDeleter
 from data_package.Pinecone_Connection_Provider.PineconeConnectionProvider import PineconeConnectionProvider
 from data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider import MongoDBConnectionProvider
+from data_package.PDF_Handler.PDF import PDF
+from data_package.PDF_Handler.PlainTextProviderPDF import PlainTextProviderPDF
 load_dotenv()
 
 class Uploader: 
@@ -67,7 +69,7 @@ class Uploader:
 
 
     def is_file_uploaded(self, source, file_type):
-        col = MongoDBConnectionProvider.initMongoDB()
+        col = MongoDBConnectionProvider().initMongoDB()
         type_to_key_map = {
             'ticket': 'TicketID',
             'manuals': 'source'
@@ -85,12 +87,14 @@ class Uploader:
     def uploadPDF(self, path):
         file_type = 'manuals'
         if self.is_file_uploaded(path, file_type) == False:
-            col = MongoDBConnectionProvider.initMongoDB()
-            index = PineconeConnectionProvider.initPinecone()
-            chunks = pdfChunker.chunkPDF(path)
+            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+            pinecone_connection = PineconeConnectionProvider().initPinecone()
+            pdf = PDF(path=path)
+            plainString = PlainTextProviderPDF().get_text(pdf)
+            chunks = Chunker().data_to_chunks(plainString, pdf.get_metadata())
 
             for chunk in chunks:
-                self.uploadChunk(chunk, index, col)
+                self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
             print("uploaded " + path)
         else:
