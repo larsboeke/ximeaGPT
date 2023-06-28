@@ -70,10 +70,10 @@ def generate_chat_id():
             return id
 
 def add_message(conversation_id, role, content):
-        message = {"role": role, "content": content, "timestamp": dt.now()}
-        conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
-        updated_messages = conversation.append(message)
-        update_query = conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
+    message = {"role": role, "content": content, "timestamp": dt.now()}
+    conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
+    updated_messages = conversation.append(message)
+    update_query = conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
 
 def add_function(conversation_id, function_name, content):
     message = {"role": 'function','function_name': function_name, "content": content}
@@ -120,6 +120,16 @@ def retrieve_conversation(conversation_id):
 def get_chat_ids(user_id):
     user = user_mongo.find_one({'user_id': user_id})
     conversation_ids = user['conversations']
+    filteres_conversation_ids = []
+    #filter conversations for empty converations
+    for conversation in conversation_ids:
+        messages = conversations_mongo.find_one({'conversation_id' : conversation})['messages']
+        
+        if len(messages) > 1:
+            filteres_conversation_ids.append(conversation)
+
+        else:
+            continue
 
     return conversation_ids
 
