@@ -20,6 +20,8 @@ from data_package.Pinecone_Connection_Provider.PineconeConnectionProvider import
 from data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider import MongoDBConnectionProvider
 from data_package.PDF_Handler.PDF import PDF
 from data_package.PDF_Handler.PlainTextProviderPDF import PlainTextProviderPDF
+from data_package.URL_Handler.URL import URL
+from data_package.URL_Handler.PlainTextProviderURL import PlainTextProviderURL
 load_dotenv()
 
 class Uploader: 
@@ -104,13 +106,15 @@ class Uploader:
     def uploadURL(self, url):
         file_type = 'manuals'
         if self.is_file_uploaded(url, file_type) == False:
-            col = MongoDBConnectionProvider.initMongoDB()
-            index = PineconeConnectionProvider.initPinecone()
+            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+            pinecone_connection = PineconeConnectionProvider().initPinecone()
 
-            chunks = pdfChunker.chunkURL(url)
+            url1 = URL(url)
+            plainURL = PlainTextProviderURL().get_text(url1)
+            chunks = Chunker().data_to_chunks(plainURL, url1.get_metadata())
 
             for chunk in chunks:
-                self.uploadChunk(chunk, index, col)
+                self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
             print("uploaded " + url)
         else:

@@ -1,8 +1,8 @@
-from .URL import URL
+from data_package.URL_Handler.URL import URL
 import requests
 import os
 from bs4 import BeautifulSoup
-from Chunk_Handler.Chunker import Chunker
+
 
 class PlainTextProviderURL:
 
