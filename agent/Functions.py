@@ -106,13 +106,23 @@ def initPinecone():
 def get_mysql(sqlquery):
     
     connection, mycursor = create_connection()
-    mycursor.execute(sqlquery)
-    myresult = mycursor.fetchall()
+    try:
+        mycursor.execute(sqlquery)      #Excecute Query Check for Errors
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
+        print(len(myresult))
+        if len(myresult)> 200:
+            myresult = "The query you wrote returned too much data for you to handle. Please LIMIT the amount of data you get returned or rewrite the query!"
+        
+    
 
     query_info = {
         "sqlquery": sqlquery,
         "database_response": myresult
     }
+    print(query_info)
     return json.dumps(query_info)
 
 def getText(query, namespace):
