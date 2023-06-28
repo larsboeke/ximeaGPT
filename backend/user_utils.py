@@ -89,33 +89,49 @@ def retrieve_conversation(conversation_id):
 
     return conversation['messages']
 
-def get_past_cleaned_conversations(user_id):
-    #get all conversation IDs
+# def get_past_cleaned_conversations(user_id):
+#     #get all conversation IDs
+#     user = user_mongo.find_one({'user_id': user_id})
+#     conversation_ids = user['conversations']
+#     print(conversation_ids)
+#     if conversation_ids:
+#         #get conversations for user_id and sort by time
+#         conversations = conversations_mongo.find({"conversation_id": {"$in": conversation_ids}})
+#         print(conversations)
+#         # conversations = conversations_mongo.find(conversation_ids)
+#         # conversations_list = list(conversations)
+
+#         #clear conversation from function and system messages
+#         cleared_conversations = []
+#         for conversation in conversations:
+#             cleared_conversation = {'conversation_id': conversation['conversation_id'], 'messages': []}
+#             for message in conversation['messages']:
+
+#                 if message["role"] == "system" or message["role"] == "function":
+#                     cleared_conversation['messages'].append(message)
+            
+#             cleared_conversations.append(cleared_conversation)
+
+#         #sorted_conversations = sorted(conversations, key=lambda x: x['datetime'])
+        
+#         return cleared_conversations
+#     return []
+
+def get_chat_ids(user_id):
     user = user_mongo.find_one({'user_id': user_id})
     conversation_ids = user['conversations']
-    print(conversation_ids)
-    if conversation_ids:
-        #get conversations for user_id and sort by time
-        conversations = conversations_mongo.find({"conversation_id": {"$in": conversation_ids}})
-        print(conversations)
-        # conversations = conversations_mongo.find(conversation_ids)
-        # conversations_list = list(conversations)
 
-        #clear conversation from function and system messages
-        cleared_conversations = []
-        for conversation in conversations:
-            cleared_conversation = {'conversation_id': conversation['conversation_id'], 'messages': []}
-            for message in conversation['messages']:
+    return conversation_ids
 
-                if message["role"] == "system" or message["role"] == "function":
-                    cleared_conversation['messages'].append(message)
-            
-            cleared_conversations.append(cleared_conversation)
+def get_messages(chat_id):
+    chat = conversations_mongo.find_one({'conversation_id': chat_id})
 
-        #sorted_conversations = sorted(conversations, key=lambda x: x['datetime'])
-        
-        return cleared_conversations
-    return []
+    filteres_messages = []
+    for message in chat['messages']:
+        if message['role'] == 'user' or message['role'] == 'assistant':
+            filteres_messages.append(message)
+
+    return filteres_messages
 
 
 
