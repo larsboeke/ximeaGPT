@@ -113,7 +113,7 @@ def handle_message(data):
     }
     chats_collection.update_one({'_id': chat_id}, {'$push': {'messages': message_document}})
     # Emit the updated chat document back to the client
-    socketio.emit('receive_response', backend_msg, broadcast=False)
+    socketio.emit('receive_response', backend_msg)
 
 @socketio.on('start_chat')
 def start_chat(username):
@@ -123,7 +123,8 @@ def start_chat(username):
     }
     chat = chats_collection.insert_one(chat_document)
     chat_id = chat.inserted_id
-    socketio.emit('chat_started', {'chat_id': str(chat_id)})
+    #socketio.emit('chat_started', {'chat_id': str(chat_id)})
+    socketio.emit('chat_started', chat_id)
 
 #  @socketio.on('delete_chat')
 # def delete_chat(chat_id):

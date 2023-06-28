@@ -238,19 +238,18 @@ sendButton.addEventListener("click", handleUserMessage);
 
 newChatButton.addEventListener("click", () => {
     //Set this username item by login first
-    const user_id = localStorage.getItem('username');
+    const username = localStorage.getItem('username');
     socket.emit('start_chat', username);
     chatContainer.remove();
     localStorage.removeItem('chat-history');
     const historyControlsDiv = document.createElement("div");
     historyControlsDiv.classList.add("history-controls");
     history.appendChild(historyControlsDiv);
-    socket.on('chat_started', function(data) {
-        var chatId = data.chat_id;
+    socket.on('chat_started', (chat_id) => {
         const pElement = document.createElement("p");
-        pElement.textContent = `Chat ${chatId}`;
+        pElement.textContent = `Chat ${chat_id}`;
         historyControlsDiv.appendChild(pElement);
-        localStorage.setItem('chat_id', chatId);
+        localStorage.setItem('chat_id', chat_id);
     });
 });
 
