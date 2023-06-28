@@ -120,16 +120,18 @@ def retrieve_conversation(conversation_id):
 def get_chat_ids(user_id):
     user = user_mongo.find_one({'user_id': user_id})
     conversation_ids = user['conversations']
-    filteres_conversation_ids = []
-    #filter conversations for empty converations
-    for conversation in conversation_ids:
-        messages = conversations_mongo.find_one({'conversation_id' : conversation})['messages']
-        
-        if len(messages) > 1:
-            filteres_conversation_ids.append(conversation)
+    # filteres_conversation_ids = []
+    # #filter conversations for empty converations
+    # conversations = conversations_mongo.find({'conversation_id': conversation_ids})
+    # print(str(conversations))
+    # for conversation in conversation_ids:
+    #     conv = conversations_mongo.find_one({'conversation_id' : conversation})
+    #     if conv is not None:
+    #         messages = conv['messages']
+            
+    #         if len(messages) > 1:
+    #             filteres_conversation_ids.append(conversation)
 
-        else:
-            continue
 
     return conversation_ids
 
