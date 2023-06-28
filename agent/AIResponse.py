@@ -4,6 +4,7 @@ import os
 import json
 import backend.user_utils as usr
 from datetime import datetime as dt
+from backend import activity_utils as act
 
 class AiResponse:
 
@@ -127,7 +128,7 @@ class AiResponse:
 
         
         
-        usr.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
+        act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
         return additional_message, self.sources
     

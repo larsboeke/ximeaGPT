@@ -10,7 +10,7 @@ const history = document.querySelector(".history");
 const socket = io.connect('http://localhost:5000');
 const thumbUp = document.querySelector("#thumb-up");
 const thumbDown = document.querySelector("#thumb-down");
-const historyElement = history.querySelector("p");
+const chatList = document.getElementById("chat-list");
 var positiveFeedback = new Boolean(false);
 var negativeFeedback = new Boolean(false);
 
@@ -42,7 +42,7 @@ const loadDataFromLocalstorage = () => {
                             <h1>AI:lean Demo</h1>
                             <p>Start a conversation and explore the power of AI.<br> Your chat history will be displayed here.</p>
                         </div>`
-
+    
     chatContainer.innerHTML = defaultText;
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
@@ -172,7 +172,7 @@ const handleUserMessage = () => {
 //     // Handle the newly generated chat ID
 //     console.log('New chat started with ID:', chatId);
 //   });
-  
+
 
 themeButton.addEventListener("click", () =>{
     document.body.classList.toggle("light-mode");
@@ -250,22 +250,45 @@ chatInput.addEventListener("keydown", (e) => {
 
 sendButton.addEventListener("click", handleUserMessage);
 
-newChatButton.addEventListener("click", () => {
-    chatContainer.innerHTML = '';
-    const historyControlsDiv = document.createElement("div");
-    historyControlsDiv.classList.add("history-controls");
-    history.appendChild(historyControlsDiv);
+chatInput.addEventListener("click", (event) =>{
+    var clickedElement = event.target;
+    var chatId = clickedElement.textContent;
+    if (clickedElement.tagName === 'LI') {
+        console.log('You clicked on chat:', chatId);
+      }
+    socketio.emit('open_chat', chatId);
+    socketio.on('chat_opened', (messages) =>{
+        console.log(messages);
+    });
+});
 
-    const pElement = document.createElement("p");
-    pElement.textContent = "New Chat Started";
-    historyControlsDiv.appendChild(pElement);
-    console.log('New Chat Started');
+newChatButton.addEventListener("click", () => {
     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    var newChat = document.createElement('li');
+    newChat.textContent = 'New Chat';
+    chatList.appendChild(newChat);
     socket.emit('start_chat', userId);
-    socket.on('chat_started', function(chat_id) {
-    pElement.p = chat_id;
-    console.log('New chat started with ID:', chat_id);
-  });
+    socket.on('chat_started', (chat_id) =>{
+        localStorage.setItem('chat_id', chat_id);
+        console.log('New chat started with ID:', chat_id);
+        newChat.textContent = chat_id;
+    });  
+    //chatContainer.innerHTML = '';
+//     const historyControlsDiv = document.createElement("div");
+//     historyControlsDiv.classList.add("history-controls");
+//     history.appendChild(historyControlsDiv);
+
+//     const pElement = document.createElement("p");
+//     pElement.textContent = "New Chat Started";
+//     historyControlsDiv.appendChild(pElement);
+//     console.log('New Chat Started');
+//     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+//     socket.emit('start_chat', userId);
+//     socket.on('chat_started', function(chat_id) {
+//     pElement.p = chat_id;
+//     console.log('New chat started with ID:', chat_id);
+//   });
+
 });
 
 

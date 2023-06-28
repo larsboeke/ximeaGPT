@@ -15,11 +15,15 @@
     <!--TO-DO: sidebar container-->
     <div id="leftbox" class="history-container">
         <div class = "nav-controls">
-            <button id="new-chat-btn" title="New chat" onclick="openNewChat()">+ New chat</button>
+            <button id="new-chat-btn" title="New chat">+ New chat</button>
             <button id="hide-sidebar-btn" onclick="closeNav()" class="material-symbols-outlined" title="Hide sidebar">left_panel_close</button>
         </div>
-        <div class="history"> 
-
+        <div class="history">
+            <ul id="chat-list">
+                {% for chat in chats %}
+                    <li>{{ chat }}</li>
+                {% endfor %}
+            </ul>
         </div>    
         <div class="user-info">
             <span class="material-symbols-outlined">account_circle</span> 

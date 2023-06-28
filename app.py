@@ -123,8 +123,8 @@ def handle_message(data):
     assistant_message, sources = generate_backend_message(chat_id, client_msg, time)
     print(f"Backend message: {assistant_message}")
     #add sources here
-    # Emit the updated chat document back to the client
-    socketio.emit('receive_response', assistant_message, sources, broadcast=False)
+    # Emit the updated chat document back to the client ADD SOURCES
+    socketio.emit('receive_response', assistant_message, broadcast=False)
 
 @socketio.on('start_chat')
 def start_chat(user_id):    
@@ -141,8 +141,8 @@ def start_chat(user_id):
 def open_chat(data):
     chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
-
     socketio.emit('chat_opened', messages, broadcast=False)
+    
 
     
 @socketio.on('add_sources')
