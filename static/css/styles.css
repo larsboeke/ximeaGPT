@@ -49,9 +49,10 @@
 
   /*Chat container styling*/
   .chat-container{
-    max-height: 100vh;
+    max-height: 80vh;
     padding-bottom: 150px;
     overflow-y: auto;
+    position: relative;
   }
   .default-text {
     display: flex;
@@ -71,12 +72,11 @@
     margin-top: 10px;
     font-size: 1.1rem;
   }
-  /*custom scrollbar for textarea*/
+  /*custom scrollbar*/
   :where(.chat-container,textarea,.history-container)::-webkit-scrollbar{
     width: 6px;
   }
   :where(.chat-container, textarea,.history-container)::-webkit-scrollbar-track{
-	  border-radius: 10px;
     background: var(--backend-chat-bg);
     border-radius: 25px;
   }
@@ -189,8 +189,6 @@
   #accordion {
     width: 70%;
     color: var(--placeholder-color)
-
-    
   }
 
   .menu {

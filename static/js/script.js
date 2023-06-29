@@ -48,7 +48,7 @@ const loadDefaultWindow = () => {
     
     chatContainer.innerHTML = defaultText;
     //automatic scrolldown
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
 }
 
 loadDefaultWindow();
@@ -128,7 +128,7 @@ const getChatResponse = (aiChatDiv) =>{
     //saving all chat HTML data(only last chat) as chat-hystory name in local storage
     localStorage.setItem('chat-history', chatContainer.innerHTML)
     //automatic scrolldown
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
 }
 
 const copyResponse = (copyBtn) => {
@@ -158,7 +158,7 @@ const showTypingAnimation = () => {
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight- 100);
     //automatic scrolldown
     getChatResponse(aiChatDiv);
     
@@ -219,7 +219,7 @@ const handleUserMessage = () => {
         chatInput.value = "";
         chatInput.style.height = `${initialHeight}px`;
         showTypingAnimation();
-        chatContainer.scrollTo(0, chatContainer.scrollHeight);
+        chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
     } 
     else {
         alert("Please type something in...");
@@ -254,7 +254,7 @@ deleteButton.addEventListener("click", () =>{
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
         fileInfo.remove();
-        loadDefaultWindow();      
+        loadDefaultWindow(); 
     }
 });
 
