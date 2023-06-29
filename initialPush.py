@@ -1,38 +1,25 @@
-from .URL_Handler import manuals
-import uploadData
-from process_emails_old.get_cases_from_db import get_all_cases
-from process_tickets.resolved_ids import ticket_ids
+from upload.Uploader import Uploader
+from data_package import manual_url_list
+from data_package import resolved_ids
+import sys; 
+print("Path" ,sys.path)
 
-# Approx 42€ total costs
+#Uploader().uploadMails()
 
-# Upload Emails
-# Approx costs 0,0004 * 0,4 * 8 * 29 750
-iter=0
-for case in get_all_cases():
-    uploadData.uploadMail(case)
+"""iter=0
+for path in manual_url_list.pdf_list:
+    Uploader().uploadPDF(path)
     iter += 1
-    print("Uploaded case ", iter, " / ", len(get_all_cases()))
+    print("Uploaded case ", iter, " / ", len(manual_url_list.pdf_list))"""
 
-# Upload URLs
-# Approx costs 0,0004 * 0,4 * 42
-iter=0
-for url in manuals.url_list:
-    uploadData.uploadURL(url)
+"""iter=0
+for url in manual_url_list.url_list:
+    Uploader().uploadURL(url)
     iter += 1
-    print("Uploaded case ", iter, " / ", len(manuals.url_list))
+    print("Uploaded case ", iter, " / ", len(manual_url_list.url_list))"""
 
-# Upload PDFs
-# Approx costs 0,0004 * 0,4 * 270 * 28
 iter=0
-for pdf in manuals.pdf_list:
-    uploadData.uploadPDF(pdf)
+for id in resolved_ids.ticket_ids:
+    Uploader().uploadTicket(id)
     iter += 1
-    print("Uploaded case ", iter, " / ", len(manuals.pdf_list))
-
-# Upload Tickets
-# Approx costs 0,0004 * 0,4 * 3 * 4 904
-iter=0
-for id in ticket_ids:
-    uploadData.uploadTicket(id)
-    iter += 1
-    print("Uploaded case ", iter, " / ", len(ticket_ids))
+    print("Uploaded case ", iter, " / ", len(resolved_ids.ticket_ids))

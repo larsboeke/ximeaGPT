@@ -2,11 +2,10 @@ import pymongo
 import pinecone
 import os
 import openai
-from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from time import sleep
-from process_tickets.TicketChunker import TicketChunker
-from process_tickets.Ticket import Ticket
+import sys; 
+print("Path" ,sys.path)
 from data_package.SQL_Connection_Provider import SQLConnectionProvider
 from data_package.Mail_Handler.CaseRepository import CaseRepository
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
