@@ -156,12 +156,12 @@ class Uploader:
     def uploadTicket(self, TicketID):
         file_type = 'ticket'
         if self.is_file_uploaded(str(TicketID), file_type) == False:
-            mongodb_connection = MongoDBConnectionProvider.initMongoDB()
-            pinecone_connection = PineconeConnectionProvider.initPinecone()
+            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+            pinecone_connection = PineconeConnectionProvider().initPinecone()
 
             ticket = Ticket(TicketID)
             plainTicket = PlainTextProviderTicket().getText(ticket)
-            chunks = Chunker().data_to_chunks(plainTicket)
+            chunks = Chunker().data_to_chunks(plainTicket, ticket.metadata)
 
             for chunk in chunks:
                 self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
