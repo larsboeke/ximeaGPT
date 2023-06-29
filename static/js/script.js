@@ -52,7 +52,7 @@ const loadDefaultWindow = () => {
 }
 
 loadDefaultWindow();
-showSources();
+
 
 const createChatElement = (html, className) => {
     //create new div and apply chat, specified class and set html content of div
@@ -69,25 +69,21 @@ const showSources = (sources) => {
                                             <div class="title"> &#128161 Source 1</div>
                                             <span class="material-symbols-outlined">expand_more</span>
                                         </div>
-                                        <div class="content">${sources.content[0]}</div>
+                                        <div class="content">Content 1</div>
                                     </div>
                                     <div class="menu">
                                         <div class="header">
                                             <div class="title"> &#128161 Source 2</div>
                                             <span class="material-symbols-outlined">expand_more</span>
                                         </div>
-                                        <div class="content">
-                                        Content 2
-                                        </div>
+                                        <div class="content">Content 2</div>
                                     </div>
                                     <div class="menu">
                                         <div class="header">
                                             <div class="title"> &#128161 Source 3</div>
                                             <span class="material-symbols-outlined">expand_more</span>
                                         </div>
-                                        <div class="content">
-                                        Content 3
-                                        </div>
+                                        <div class="content">Content 3</div>
                                     </div>
                              </section>`
     const sourceChatDiv = createChatElement(html_sources, "backend");
@@ -258,7 +254,7 @@ deleteButton.addEventListener("click", () =>{
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
         fileInfo.remove();
-        loadDataFromLocalstorage();       
+        loadDefaultWindow();      
     }
 });
 
