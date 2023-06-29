@@ -1,5 +1,5 @@
-from PDF_Handler.PDF import PDF
-from Chunk_Handler.Chunker import Chunker
+from data_package.PDF_Handler.PDF import PDF
+from data_package.Chunk_Handler.Chunker import Chunker
 import requests
 import os
 from langchain.document_loaders import PyPDFLoader

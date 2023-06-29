@@ -29,7 +29,7 @@ class Chunker:
             chunk_list.append(jsonChunk)
 
 
-        print("Email turned into chunks")
+        #print("Email turned into chunks")
         return chunk_list
 
 

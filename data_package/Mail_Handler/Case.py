@@ -47,7 +47,8 @@ class Case:
         for email in emails_for_one_case:
             cleaned_email = PlainTextFromEmailProvider().clean_email(email)
             self.emails.append(cleaned_email)
-            activityids.append(email.activityid)
+            activityid = str(email.activityid)
+            activityids.append(activityid)
             createdons.append(email.createdon)
 
         formatted_dates = []
