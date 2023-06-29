@@ -320,6 +320,35 @@ chatInput.addEventListener("keydown", (e) => {
 
 sendButton.addEventListener("click", handleUserMessage);
 
+const loadChat = (messages) => {
+    for (let i = 0; i < messages.length; i++){
+        //const message = messages[i]; than doesnt use an index
+        if (messages.role[i] == 'user'){
+            const html =`<div class="chat-content">
+                        <div class="chat-details">
+                            <img src="../static/images/user_logo.png" alt="user-img">
+                            <p>${messages.content[i]}</p>
+                            <span class="time">${messages.time[i]}</span>
+                        </div>
+                    </div>`;
+            const userChatDiv = createChatElement(html, "client");
+            chatContainer.appendChild(userChatDiv);
+        }
+        else if(messages.role[i] == 'assistant'){
+            const html =`<div class="chat-content">
+                        <div class="chat-details">
+                            <img src="../static/images/user_logo.png" alt="chatbot-img">
+                            <p>${messages.content[i]}</p>
+                            <span class="time">${messages.time[i]}</span>
+                        </div>
+                    </div>`;
+            const aiChatDiv = createChatElement(html, "backend");
+            chatContainer.appendChild(aiChatDiv);
+            //sourses?
+        }
+    }
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+};
 
 chatList.addEventListener("click", (event) =>{
     var clickedElement = event.target;
@@ -330,6 +359,7 @@ chatList.addEventListener("click", (event) =>{
         socket.on('chat_opened', (messages) =>{
             chatContainer.innerHTML = '';
             console.log(messages);
+            loadChat(messages);
         });
       }
     localStorage.setItem('chat_id', chatId);
