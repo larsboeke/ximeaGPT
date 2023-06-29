@@ -106,8 +106,7 @@ def upload():
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
     response_request = AiResponse(conversation_id, user_prompt)
-    assistant_message, sources = response_request.chat_completion_request()
-    
+    assistant_message, sources = response_request.chat_completion_request()    
     return assistant_message, sources
 
 
@@ -137,8 +136,8 @@ def delete_chat(chat_id):
     socketio.emit('chat_deleted', {'chat_id': chat_id})
 
 @socketio.on('open_chat')
-def open_chat(chat_id):
-    # chat_id = data['chat_id']
+def open_chat(data):
+    chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
     socketio.emit('chat_opened', messages)
     

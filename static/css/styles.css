@@ -185,7 +185,45 @@
     background: var(--backend-chat-bg);
     border: 1px solid var(--backend-chat-border)
   }
- 
+
+  #accordion {
+    width: 70%;
+    color: var(--placeholder-color)
+
+    
+  }
+
+  .menu {
+    border:1px solid var(--client-chat-border);
+    border-bottom:none;
+  }
+  
+   .menu:last-child {
+    border-bottom:1px solid var(--client-chat-border);
+  }
+
+  .header {
+    display:flex;
+    padding:10px; 
+    cursor: pointer;
+  }
+  
+  .title {
+    flex:1;
+  }
+  
+  .icon {
+    width:20px;
+  } 
+  
+   .content {
+    padding:10px;
+    display:none;
+    padding:10px;
+  } 
+
+  
+
 
 /*Typing animation DOTS*/
   .typing-animation {

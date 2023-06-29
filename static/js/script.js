@@ -11,6 +11,9 @@ const socket = io.connect('http://localhost:5000');
 const thumbUp = document.querySelector("#thumb-up");
 const thumbDown = document.querySelector("#thumb-down");
 const chatList = document.getElementById("chat-list");
+const sourcesHeaders = document.getElementsByClassName("header");
+const sourcesContents = document.getElementsByClassName("content");
+const icons = document.getElementsByClassName("icon");
 var positiveFeedback = new Boolean(false);
 var negativeFeedback = new Boolean(false);
 
@@ -49,6 +52,7 @@ const loadDefaultWindow = () => {
 }
 
 loadDefaultWindow();
+showSources();
 
 const createChatElement = (html, className) => {
     //create new div and apply chat, specified class and set html content of div
@@ -56,6 +60,44 @@ const createChatElement = (html, className) => {
     chatDiv.classList.add("chat", className)
     chatDiv.innerHTML = html;
     return chatDiv;
+}
+
+const showSources = (sources) => {
+    const html_sources = `<section id="accordion">
+                                    <div class="menu">
+                                        <div class="header">
+                                            <div class="title"> &#128161 Source 1</div>
+                                            <span class="material-symbols-outlined">expand_more</span>
+                                        </div>
+                                        <div class="content">${sources.content[0]}</div>
+                                    </div>
+                                    <div class="menu">
+                                        <div class="header">
+                                            <div class="title"> &#128161 Source 2</div>
+                                            <span class="material-symbols-outlined">expand_more</span>
+                                        </div>
+                                        <div class="content">
+                                        Content 2
+                                        </div>
+                                    </div>
+                                    <div class="menu">
+                                        <div class="header">
+                                            <div class="title"> &#128161 Source 3</div>
+                                            <span class="material-symbols-outlined">expand_more</span>
+                                        </div>
+                                        <div class="content">
+                                        Content 3
+                                        </div>
+                                    </div>
+                             </section>`
+    const sourceChatDiv = createChatElement(html_sources, "backend");
+    chatContainer.appendChild(sourceChatDiv);
+    for (let i = 0; i < sourcesHeaders.length; i++) {
+        sourcesHeaders[i].addEventListener("click", () => {
+            sourcesContents[i].style.display = sourcesContents[i].style.display == "block" ? "none" : "block";
+            icons[i].innerHTML = sourcesContents[i].style.display == "block" ? "expand_less" : "expand_more";
+        });
+    }
 }
 
 
@@ -68,7 +110,13 @@ const getChatResponse = (aiChatDiv) =>{
 
     const receiveResponse = (backend_msg, sources) => {
         pElement.textContent = backend_msg.trim();
-        console.log('New chat started with ID:',sources);
+        if (sources.length !== 0){
+            console.log('You have following sources:', sources);
+            showSources(sources);            
+        }
+        else{
+            console.log('There are no additionsl sources');            
+        }
         timeElement.textContent = getCurrentTime();
         aiChatDiv.querySelector(".typing-animation").remove();
         socket.off('receive_response', receiveResponse);
@@ -108,15 +156,16 @@ const showTypingAnimation = () => {
                     <div class="chat-controls">
                         <span onclick="copyResponse(this)" id="copy" class="material-symbols-rounded">content_copy</span>
                         <!--TO-DO:Feedback buttons onclick functionality-->
-                        <span onclick="posFeedback(this)" id="thumb-up" class="material-symbols-outlined">thumb_up</span>
-                        <span onclick="openFeedbackBar()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                        <!--<span onclick="posFeedback(this)" id="thumb-up" class="material-symbols-outlined">thumb_up</span>-->
+                        <!--<span onclick="openFeedbackBar()" id="thumb-down" class="material-symbols-outlined">thumb_down</span>-->
                     </div>
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
-    //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    //automatic scrolldown
     getChatResponse(aiChatDiv);
+    
 }
 
 socket.on('chat_deleted', (data) =>{
@@ -138,13 +187,14 @@ const startNewChat = () => {
     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     var newChat = document.createElement('li');
     newChat.textContent = 'New Chat';
-    chatList.appendChild(newChat);
+    // chatList.appendChild(newChat);
+    chatList.prepend(newChat);
     socket.emit('start_chat', userId);
     socket.on('chat_started', (chat_id) =>{
         localStorage.setItem('chat_id', chat_id);
         console.log('New chat started with ID:', chat_id);
         newChat.textContent = chat_id;
-    });  
+    });
 }
 
 const handleUserMessage = () => {
