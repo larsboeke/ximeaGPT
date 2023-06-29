@@ -84,9 +84,8 @@ def index():
     else:
         user_id = usr.add_user()
         response = flask.make_response()
-        #TO-DO set expiration data for cookie
         response.set_cookie('ailean_user_id', user_id)
-        conversations = usr.get_past_cleaned_conversations(user_id)
+        conversations = usr.get_chat_ids(user_id)
         return response, render_template('chatbot.html', user_id=user_id, chats=conversations)
 
 
@@ -123,7 +122,7 @@ def handle_message(data):
     print(f"Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', assistant_message)
+    socketio.emit('receive_response', assistant_message, sources)
 
 @socketio.on('start_chat')
 def start_chat(user_id):    
@@ -131,10 +130,11 @@ def start_chat(user_id):
     # Emit the chat ID back to the client
     socketio.emit('chat_started', chat_id)
 
-#  @socketio.on('delete_chat')
-# def delete_chat(chat_id):
-#     chats_collection.delete_one({'_id': chat_id})
-#     socketio.emit('chat_deleted', {'chat_id': chat_id})
+@socketio.on('delete_chat')
+def delete_chat(chat_id):
+    ##Delete chat functionfrom User
+    chats_collection.delete_one({'_id': chat_id})
+    socketio.emit('chat_deleted', {'chat_id': chat_id})
 
 @socketio.on('open_chat')
 def open_chat(chat_id):

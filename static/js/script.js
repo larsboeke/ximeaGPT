@@ -66,8 +66,9 @@ const getChatResponse = (aiChatDiv) =>{
     timeElement.className = "time";
     aiChatDiv.querySelector(".chat-details").appendChild(timeElement);
 
-    const receiveResponse = (backend_msg) => {
+    const receiveResponse = (backend_msg, sources) => {
         pElement.textContent = backend_msg.trim();
+        console.log('New chat started with ID:',sources);
         timeElement.textContent = getCurrentTime();
         aiChatDiv.querySelector(".typing-animation").remove();
         socket.off('receive_response', receiveResponse);

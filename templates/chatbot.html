@@ -20,11 +20,11 @@
         </div>
         <div class="history">
             <ul id="chat-list">
-                <!-- {% for chat in chats %}
-                    <li>{{ chat }}</li>
-                {% endfor %} -->
-                <li id="hdg68dj99"><span class="material-symbols-outlined">chat_bubble</span>Chat 1</li>
-                <li id="dfsbjf0976"><span class="material-symbols-outlined">chat_bubble</span>Chat 2</li>
+                {% for chat in chats %}
+                    <li id="{{ chat }}"><span class="material-symbols-outlined">chat_bubble</span>{{ chat }}</li>
+                {% endfor %}
+                <!-- <li id="hdg68dj99"><span class="material-symbols-outlined">chat_bubble</span>Chat 1</li>
+                <li id="dfsbjf0976"><span class="material-symbols-outlined">chat_bubble</span>Chat 2</li> -->
             </ul>
         </div>    
         <!-- <div class="user-info">
