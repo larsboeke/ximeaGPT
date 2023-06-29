@@ -53,6 +53,7 @@
     padding-bottom: 150px;
     overflow-y: auto;
     position: relative;
+    caret-color: transparent;
   }
   .default-text {
     display: flex;
@@ -212,6 +213,7 @@
   
   .icon {
     width:20px;
+    font-weight: bold;
   } 
   
    .content {

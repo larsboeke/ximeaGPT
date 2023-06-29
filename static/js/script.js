@@ -48,7 +48,7 @@ const loadDefaultWindow = () => {
     
     chatContainer.innerHTML = defaultText;
     //automatic scrolldown
-    chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
 loadDefaultWindow();
@@ -67,31 +67,32 @@ const showSources = (sources) => {
                                     <div class="menu">
                                         <div class="header">
                                             <div class="title"> &#128161 Source 1</div>
-                                            <span class="material-symbols-outlined">expand_more</span>
+                                            <span class="icon">&#x2228</span>
                                         </div>
                                         <div class="content">Content 1</div>
                                     </div>
                                     <div class="menu">
-                                        <div class="header">
-                                            <div class="title"> &#128161 Source 2</div>
-                                            <span class="material-symbols-outlined">expand_more</span>
-                                        </div>
-                                        <div class="content">Content 2</div>
+                                    <div class="header">
+                                        <div class="title"> &#128161 Source 2</div>
+                                        <span class="icon">&#x2228</span>
                                     </div>
-                                    <div class="menu">
-                                        <div class="header">
-                                            <div class="title"> &#128161 Source 3</div>
-                                            <span class="material-symbols-outlined">expand_more</span>
-                                        </div>
-                                        <div class="content">Content 3</div>
+                                    <div class="content">Content 2</div>
+                                </div>
+                                <div class="menu">
+                                    <div class="header">
+                                        <div class="title"> &#128161 Source 3</div>
+                                        <span class="icon">&#x2228</span>
                                     </div>
+                                    <div class="content">Content 3</div>
+                                </div>
+                                   
                              </section>`
     const sourceChatDiv = createChatElement(html_sources, "backend");
     chatContainer.appendChild(sourceChatDiv);
     for (let i = 0; i < sourcesHeaders.length; i++) {
         sourcesHeaders[i].addEventListener("click", () => {
             sourcesContents[i].style.display = sourcesContents[i].style.display == "block" ? "none" : "block";
-            icons[i].innerHTML = sourcesContents[i].style.display == "block" ? "expand_less" : "expand_more";
+            icons[i].innerHTML = sourcesContents[i].style.display == "block" ? "&#x2227" : "&#x2228";
         });
     }
 }
@@ -128,7 +129,7 @@ const getChatResponse = (aiChatDiv) =>{
     //saving all chat HTML data(only last chat) as chat-hystory name in local storage
     localStorage.setItem('chat-history', chatContainer.innerHTML)
     //automatic scrolldown
-    chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
 const copyResponse = (copyBtn) => {
@@ -158,7 +159,8 @@ const showTypingAnimation = () => {
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight- 100);
+    showSources(html);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
     //automatic scrolldown
     getChatResponse(aiChatDiv);
     
@@ -219,7 +221,7 @@ const handleUserMessage = () => {
         chatInput.value = "";
         chatInput.style.height = `${initialHeight}px`;
         showTypingAnimation();
-        chatContainer.scrollTo(0, chatContainer.scrollHeight - 100);
+        chatContainer.scrollTo(0, chatContainer.scrollHeight);
     } 
     else {
         alert("Please type something in...");
