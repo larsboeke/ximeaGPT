@@ -4,8 +4,6 @@ import os
 import openai
 from dotenv import load_dotenv
 from time import sleep
-import sys; 
-print("Path" ,sys.path)
 from data_package.SQL_Connection_Provider import SQLConnectionProvider
 from data_package.Mail_Handler.CaseRepository import CaseRepository
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
@@ -23,6 +21,7 @@ from data_package.URL_Handler.URL import URL
 from data_package.URL_Handler.PlainTextProviderURL import PlainTextProviderURL
 from data_package.Ticket_Handler.Ticket import Ticket
 from data_package.Ticket_Handler.PlainTextProviderTicket import PlainTextProviderTicket
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 load_dotenv()
 
@@ -122,6 +121,31 @@ class Uploader:
         else:
             print("File already uploaded")
 
+
+    def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(self.uploadCase, case, pinecone_connection, mongodb_connection): case for case in cases}
+            for future in as_completed(futures):
+                case = futures[future]
+                try:
+                    future.result()  # This will raise an exception if the uploadCase method failed.
+                    print(f"Case: {case} uploaded successfully!")
+                except Exception as exc:
+                    print(f"Case: {case} generated an exception: {exc}")
+
+
+    def uploadCase(self, case, pinecone_connection, mongodb_connection):
+        sql_connection = SQLConnectionProvider().create_connection()
+        emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
+        one_case = Case(str(case[0]), emails_for_one_case)
+        content = PlainTextFromCaseProvider().provide_full_content(one_case)
+        chunks = Chunker().data_to_chunks(content, one_case.metadata)
+        SQLDatabaseUpdater(sql_connection).update_case(case[0])
+        for chunk in chunks:
+            self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
+        print("Case: " , case, " uploaded!")
+        sql_connection[0].close()
+
     # Upload mails from SQL database
     def uploadMails(self):
         """
@@ -148,7 +172,13 @@ class Uploader:
                 for chunk in chunks:
                     self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
                 print("Case: " , case, " uploaded!")
-                
+
+    def initialUploadMail(self):
+        sql_connection = SQLConnectionProvider().create_connection()
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+        all_cases = CaseRepository(sql_connection).get_all_cases()
+        self.upload_cases_parallel(all_cases, pinecone_connection, mongodb_connection)
 
 
     # Upload tickets from Deskpro API
