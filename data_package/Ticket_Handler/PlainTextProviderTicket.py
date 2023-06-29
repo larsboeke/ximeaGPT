@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from Ticket import Ticket
+from data_package.Ticket_Handler.Ticket import Ticket
 import re
 
 class PlainTextProviderTicket:

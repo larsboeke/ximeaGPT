@@ -2,11 +2,10 @@ import pymongo
 import pinecone
 import os
 import openai
-from process_manuals import pdfChunker
 from dotenv import load_dotenv
 from time import sleep
-from process_tickets.TicketChunker import TicketChunker
-from process_tickets.Ticket import Ticket
+import sys; 
+print("Path" ,sys.path)
 from data_package.SQL_Connection_Provider import SQLConnectionProvider
 from data_package.Mail_Handler.CaseRepository import CaseRepository
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
@@ -22,6 +21,9 @@ from data_package.PDF_Handler.PDF import PDF
 from data_package.PDF_Handler.PlainTextProviderPDF import PlainTextProviderPDF
 from data_package.URL_Handler.URL import URL
 from data_package.URL_Handler.PlainTextProviderURL import PlainTextProviderURL
+from data_package.Ticket_Handler.Ticket import Ticket
+from data_package.Ticket_Handler.PlainTextProviderTicket import PlainTextProviderTicket
+
 load_dotenv()
 
 class Uploader: 
@@ -153,13 +155,15 @@ class Uploader:
     def uploadTicket(self, TicketID):
         file_type = 'ticket'
         if self.is_file_uploaded(str(TicketID), file_type) == False:
-            col = MongoDBConnectionProvider.initMongoDB()
-            index = PineconeConnectionProvider.initPinecone()
+            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+            pinecone_connection = PineconeConnectionProvider().initPinecone()
 
-            chunks = TicketChunker().chunkTicket(TicketID)
+            ticket = Ticket(TicketID)
+            plainTicket = PlainTextProviderTicket().getText(ticket)
+            chunks = Chunker().data_to_chunks(plainTicket, ticket.metadata)
 
             for chunk in chunks:
-                self.uploadChunk(chunk, index, col)
+                self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
             print("uploaded ticket: " + str(TicketID))
         else:
