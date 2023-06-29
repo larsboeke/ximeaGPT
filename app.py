@@ -1,10 +1,10 @@
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 import os
-import uploadData
+import old_stuff.uploadData as uploadData
 from werkzeug.utils import secure_filename
 import agent
-import uploadData
+import old_stuff.uploadData as uploadData
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'

@@ -2,7 +2,7 @@ from upload.Uploader import Uploader
 from data_package import manual_url_list
 from data_package import resolved_ids
 import sys; 
-print("Path" ,sys.path)
+
 
 #Uploader().uploadMails()
 
@@ -22,4 +22,4 @@ iter=0
 for id in resolved_ids.ticket_ids:
     Uploader().uploadTicket(id)
     iter += 1
-    print("Uploaded case ", iter, " / ", len(resolved_ids.ticket_ids))
+    print("Uploaded Ticket ", iter, " / ", len(resolved_ids.ticket_ids))

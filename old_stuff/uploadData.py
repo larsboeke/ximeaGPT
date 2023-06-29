@@ -151,7 +151,7 @@ def uploadTicket(TicketID):
         print("File already uploaded")
 
 
-import manuals
+import old_stuff.manuals as manuals
 from URL_Handler.URL import URL
 from URL_Handler.PlainTextProviderURL import PlainTextProviderURL
 from Chunk_Handler.Chunker import Chunker
