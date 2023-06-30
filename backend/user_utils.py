@@ -37,7 +37,7 @@ def generate_user_id():
             return id
         
 
-def create_chat(user_id):
+def create_chat(user_id, user_prompt):
         
         conversation_id = generate_chat_id()
         
@@ -46,9 +46,10 @@ def create_chat(user_id):
             'conversation_id': conversation_id,
             'messages': [{"role": "system", "content": "You are a helpful assistant, helping out the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
             }
-        conversations_mongo.insert_one(entry)
+        test = conversations_mongo.insert_one(entry)
 
         #title = generate_chat_title(user_prompt)
+        title = "test"
         #add conversation id to user
         user = user_mongo.find_one({'user_id': user_id})
         conversations = user['conversations']
@@ -58,20 +59,22 @@ def create_chat(user_id):
         # else:
         #     conversations_updated = conversations.append(conversation_id)
     
-        user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': conversation_id}})
+        user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': {'conversation_id' : conversation_id, 'title': title}}})
         print("created new chat with id:" + conversation_id)
         return conversation_id, title
 
 def generate_chat_title(user_prompt):#
     
-    gpt_prompt = f"Write a Title about the following user prompt with as little words as possible: {user_prompt} "
-    response = openai.Completion.create(
+    gpt_prompt = f"Write a discritive Title about the follwing User Message Topic. DO NOT RESPONDE WITH MORE THAN 4 WORDS USER PROMPT: {user_prompt} "
+    response = openai.ChatCompletion.create(
         model = 'gpt-3.5-turbo',
-        promt = gpt_prompt
+        messages = [{'role': 'system', 'content': 'Your are a assiatant that generates descripütive Titles Titles of Chats based on the first USer Message. ONLY CREATE TITLES THAT CONTAIN LESS THAN 4 WORDS.'},
+                    {'role': 'user', 'content': user_prompt}]
     )
 
-    print(response)
-    return(response)
+    title = response['choices'][0]['message']['content']
+    print(title)
+    return title
 
 def delete_chat(user_id, chat_id):
     pass
@@ -96,9 +99,10 @@ def add_function(conversation_id, function_name, content):
     conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
 
 def retrieve_conversation(conversation_id):
+    print(conversation_id)
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})
     # Remove timestamps from messages
-    conversation['messages'] = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
+    conversation = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
 
     return conversation['messages']
 
@@ -159,9 +163,10 @@ def get_messages(chat_id):
     chat = conversations_mongo.find_one({'conversation_id': chat_id})
 
     filteres_messages = []
+    #print(chat['messages'])
 
-    if filteres_messages is not None:
-
+    if filteres_messages:
+    
         for message in chat['messages']:
             if message['role'] == 'user' or message['role'] == 'assistant':
                 filteres_messages.append(message)

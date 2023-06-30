@@ -73,7 +73,7 @@ def getText(query, namespace):
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype"]
+    col = db["prototype2"]
     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
     used_tokens = query_embedding["usage"]["total_tokens"]
 
@@ -100,7 +100,7 @@ def getText(query, namespace):
         # print(match['content'])
         matches_content.append(match['content'])
     
-        source = {'id': match['_id'], 'content': match['content'], 'source': match['source']}
+        source = {'id': str(match['_id']), 'content': match['content'], 'source': match['metadata']}
         matches_sources.append(source)
 
 

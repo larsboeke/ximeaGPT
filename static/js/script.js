@@ -105,7 +105,9 @@ const getChatResponse = (aiChatDiv) =>{
     timeElement.className = "time";
     aiChatDiv.querySelector(".chat-details").appendChild(timeElement);
 
-    const receiveResponse = (backend_msg, sources) => {
+    const receiveResponse = (data) => {
+        backend_msg = data['assistant_message'];
+        sources = data['sources'];
         pElement.textContent = backend_msg.trim();
         if (sources.length !== 0){
             console.log('You have following sources:', sources);
@@ -186,13 +188,16 @@ const startNewChat = (userMessage) => {
     var newChat = document.createElement('li');
     chatList.prepend(newChat);
     socket.emit('start_chat', userId, userMessage);
-    socket.on('chat_started', (chat_id, title) =>{
+    socket.on('chat_started', (data) =>{
+        chat_id = data['chat_id']
+        title = data['title']
         localStorage.setItem('chat_id', chat_id);
         newChat.id = chat_id;
         newChat.textContent = title;
         console.log('New chat started with ID:', chat_id); 
         console.log('New chat started with title:', title);  
     });
+    handleUserMessage(userMessage);
 }
 
 const handleUserMessage = () => {
@@ -201,26 +206,28 @@ const handleUserMessage = () => {
         if (document.querySelector(".default-text")){
             console.log('It you first message! We start new chat');
             startNewChat(userMessage);         
+        }else{
+            var data = {
+                'chat_id': localStorage.getItem('chat_id'),
+                'text': userMessage
+            }
+            socket.emit('send_message', data);
+            const html =`<div class="chat-content">
+                            <div class="chat-details">
+                                <img src="../static/images/user_logo.png" alt="user-img">
+                                <p>${userMessage}</p>
+                                <span class="time">${getCurrentTime()}</span>
+                            </div>
+                        </div>`;
+            const userChatDiv = createChatElement(html, "client");
+            //document.querySelector(".default-text")?.remove();
+            chatContainer.appendChild(userChatDiv);
+            chatInput.value = "";
+            chatInput.style.height = `${initialHeight}px`;
+            showTypingAnimation();
+            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+
         }
-        var data = {
-            'chat_id': localStorage.getItem('chat_id'),
-            'text': userMessage
-        }
-        socket.emit('send_message', data);
-        const html =`<div class="chat-content">
-                        <div class="chat-details">
-                            <img src="../static/images/user_logo.png" alt="user-img">
-                            <p>${userMessage}</p>
-                            <span class="time">${getCurrentTime()}</span>
-                        </div>
-                    </div>`;
-        const userChatDiv = createChatElement(html, "client");
-        //document.querySelector(".default-text")?.remove();
-        chatContainer.appendChild(userChatDiv);
-        chatInput.value = "";
-        chatInput.style.height = `${initialHeight}px`;
-        showTypingAnimation();
-        chatContainer.scrollTo(0, chatContainer.scrollHeight);
     }         
     else {
         alert("Please type something in...");
