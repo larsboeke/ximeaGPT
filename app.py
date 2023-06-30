@@ -137,8 +137,8 @@ def delete_chat(chat_id):
     socketio.emit('chat_deleted', {'chat_id': chat_id})
 
 @socketio.on('open_chat')
-def open_chat(data):
-    chat_id = data['chat_id']
+def open_chat(chat_id):
+    #chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
     socketio.emit('chat_opened', messages)
     
