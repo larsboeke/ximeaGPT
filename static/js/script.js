@@ -180,28 +180,27 @@ const getCurrentTime = () =>{
     return cTime + ' ' + cDate;
 }
 
-const startNewChat = () => {
+const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     var newChat = document.createElement('li');
-    newChat.textContent = 'New Chat';
-    // chatList.appendChild(newChat);
     chatList.prepend(newChat);
-    socket.emit('start_chat', userId);
-    socket.on('chat_started', (chat_id) =>{
+    socket.emit('start_chat', userId, userMessage);
+    socket.on('chat_started', (chat_id, title) =>{
         localStorage.setItem('chat_id', chat_id);
-        console.log('New chat started with ID:', chat_id);
-        newChat.textContent = chat_id;
+        newChat.id = chat_id;
+        newChat.textContent = title;
+        console.log('New chat started with ID:', chat_id); 
+        console.log('New chat started with title:', title);  
     });
 }
 
 const handleUserMessage = () => {
     userMessage = chatInput.value.trim();
     if (userMessage !==""){
-        //document.querySelector(".default-text")?.startNewChat();
         if (document.querySelector(".default-text")){
             console.log('It you first message! We start new chat');
-            startNewChat();            
+            startNewChat(userMessage);         
         }
         var data = {
             'chat_id': localStorage.getItem('chat_id'),
@@ -222,7 +221,7 @@ const handleUserMessage = () => {
         chatInput.style.height = `${initialHeight}px`;
         showTypingAnimation();
         chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    } 
+    }         
     else {
         alert("Please type something in...");
     }   
@@ -369,7 +368,7 @@ chatList.addEventListener("click", (event) =>{
     // });
 });
 
-newChatButton.addEventListener("click", startNewChat);
+newChatButton.addEventListener("click", loadDefaultWindow);
     
     //chatContainer.innerHTML = '';
 //     const historyControlsDiv = document.createElement("div");
