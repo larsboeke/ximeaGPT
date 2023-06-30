@@ -140,10 +140,12 @@ class Uploader:
         one_case = Case(str(case[0]), emails_for_one_case)
         content = PlainTextFromCaseProvider().provide_full_content(one_case)
         chunks = Chunker().data_to_chunks(content, one_case.metadata)
-        SQLDatabaseUpdater(sql_connection).update_case(case[0])
+        
         for chunk in chunks:
             self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
         print("Case: " , case, " uploaded!")
+
+        SQLDatabaseUpdater(sql_connection).update_case(case[0])
         sql_connection[0].close()
 
     # Upload mails from SQL database
@@ -171,7 +173,7 @@ class Uploader:
                 SQLDatabaseUpdater(sql_connection).update_case(case[0])
                 for chunk in chunks:
                     self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
-                print("Case: " , case, " uploaded!")
+                print("Case: " , case[0], " uploaded!")
 
     def initialUploadMail(self):
         sql_connection = SQLConnectionProvider().create_connection()

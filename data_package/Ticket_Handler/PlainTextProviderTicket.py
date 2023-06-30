@@ -38,6 +38,3 @@ class PlainTextProviderTicket:
 
 
 
-t = Ticket(53483)
-p = PlainTextProviderTicket()
-print(p.getText(t))

@@ -8,6 +8,7 @@ class SQLDatabaseUpdater:
         self.connection, self.cursor = sql_connection
 
     def update_case(self, caseid):
+        #print("Sql-update-id", caseid) -> caseid ist nur id nicht UUID
         """
         Set specific case as uploaded in database (set is_uploaded = 1)
         :param caseid: [regardingobjectid] in database
