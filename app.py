@@ -114,20 +114,34 @@ def generate_backend_message(conversation_id, user_prompt):
 #recieve client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
+    print("AiResponse started")
     chat_id = data['chat_id']
     client_msg = data['text']
     print(f"Client message: {client_msg}")
     assistant_message, sources = generate_backend_message(chat_id, client_msg)
+
+    data = {'assistant_message': assistant_message, 'sources': sources}
     print(f"Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', assistant_message, sources)
+    socketio.emit('receive_response', data)
 
 @socketio.on('start_chat')
+<<<<<<< HEAD
 def start_chat(user_id, userMessage):    
     chat_id = usr.create_chat(user_id)
     # Emit the chat ID back to the client
     socketio.emit('chat_started', chat_id)
+=======
+def start_chat(user_id, user_message): 
+    print("started chat")   
+    chat_id, title = usr.create_chat(user_id, user_message)
+
+    data = {'chat_id': chat_id, 'title': title}
+    # Emit the chat ID back to the client
+    print("chat started")
+    socketio.emit('chat_started', data)
+>>>>>>> 12598333e08c464e6fbc18bbbcf893bd1aa07247
 
 @socketio.on('delete_chat')
 def delete_chat(chat_id):
