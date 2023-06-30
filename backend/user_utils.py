@@ -48,6 +48,7 @@ def create_chat(user_id):
             }
         conversations_mongo.insert_one(entry)
 
+        #title = generate_chat_title(user_prompt)
         #add conversation id to user
         user = user_mongo.find_one({'user_id': user_id})
         conversations = user['conversations']
@@ -59,7 +60,21 @@ def create_chat(user_id):
     
         user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': conversation_id}})
         print("created new chat with id:" + conversation_id)
-        return conversation_id
+        return conversation_id, title
+
+def generate_chat_title(user_prompt):#
+    
+    gpt_prompt = f"Write a Title about the following user prompt with as little words as possible: {user_prompt} "
+    response = openai.Completion.create(
+        model = 'gpt-3.5-turbo',
+        promt = gpt_prompt
+    )
+
+    print(response)
+    return(response)
+
+def delete_chat(user_id, chat_id):
+    pass
         
 def generate_chat_id():
     while True:
@@ -82,12 +97,17 @@ def add_function(conversation_id, function_name, content):
 
 def retrieve_conversation(conversation_id):
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})
-
-    print(conversation['messages'])
     # Remove timestamps from messages
     conversation['messages'] = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
 
     return conversation['messages']
+
+
+
+
+
+
+
 
 # def get_past_cleaned_conversations(user_id):
 #     #get all conversation IDs
@@ -139,9 +159,12 @@ def get_messages(chat_id):
     chat = conversations_mongo.find_one({'conversation_id': chat_id})
 
     filteres_messages = []
-    for message in chat['messages']:
-        if message['role'] == 'user' or message['role'] == 'assistant':
-            filteres_messages.append(message)
+
+    if filteres_messages is not None:
+
+        for message in chat['messages']:
+            if message['role'] == 'user' or message['role'] == 'assistant':
+                filteres_messages.append(message)
 
     return filteres_messages
 
