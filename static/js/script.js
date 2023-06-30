@@ -159,7 +159,6 @@ const showTypingAnimation = () => {
                 </div>`;
     const aiChatDiv = createChatElement(html, "backend");
     chatContainer.appendChild(aiChatDiv);
-    showSources(html);
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     //automatic scrolldown
     getChatResponse(aiChatDiv);
@@ -321,24 +320,24 @@ sendButton.addEventListener("click", handleUserMessage);
 
 const loadChat = (messages) => {
     for (let i = 0; i < messages.length; i++){
-        //const message = messages[i]; than doesnt use an index
-        if (messages.role[i] == 'user'){
+        const message = messages[i];
+        if (message.role == 'user'){
             const html =`<div class="chat-content">
                         <div class="chat-details">
                             <img src="../static/images/user_logo.png" alt="user-img">
-                            <p>${messages.content[i]}</p>
-                            <span class="time">${messages.time[i]}</span>
+                            <p>${message.content}</p>
+                            <span class="time">${message.time}</span>
                         </div>
                     </div>`;
             const userChatDiv = createChatElement(html, "client");
             chatContainer.appendChild(userChatDiv);
         }
-        else if(messages.role[i] == 'assistant'){
+        else if(message.role == 'assistant'){
             const html =`<div class="chat-content">
                         <div class="chat-details">
                             <img src="../static/images/user_logo.png" alt="chatbot-img">
-                            <p>${messages.content[i]}</p>
-                            <span class="time">${messages.time[i]}</span>
+                            <p>${message.content}</p>
+                            <span class="time">${message.time}</span>
                         </div>
                     </div>`;
             const aiChatDiv = createChatElement(html, "backend");
