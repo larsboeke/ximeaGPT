@@ -47,6 +47,7 @@ const loadDefaultWindow = () => {
                         </div>`
     
     chatContainer.innerHTML = defaultText;
+    newChatButton.disabled = true;
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -225,7 +226,7 @@ const handleUserMessage = () => {
             chatInput.style.height = `${initialHeight}px`;
             showTypingAnimation();
             chatContainer.scrollTo(0, chatContainer.scrollHeight);
-
+            newChatButton.disabled = false;
         }
     }         
     else {

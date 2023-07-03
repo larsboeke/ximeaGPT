@@ -472,6 +472,9 @@
         color: var(--activ-color);
         cursor: pointer;
       }
+      .nav-controls button[disabled]:hover{
+        cursor: not-allowed;
+      }
 
       .history{
         display: flex;
