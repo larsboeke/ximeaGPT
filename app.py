@@ -127,6 +127,7 @@ def handle_message(data):
     socketio.emit('receive_response', data)
 
 @socketio.on('start_chat')
+
 def start_chat(user_id, user_message): 
     print("started chat")   
     chat_id, title = usr.create_chat(user_id, user_message)
