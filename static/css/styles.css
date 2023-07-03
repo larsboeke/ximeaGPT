@@ -188,18 +188,18 @@
   }
 
   #accordion {
-    width: 70%;
+    width: 75%;
     color: var(--placeholder-color)
   }
 
-  .menu {
+  /* .menu {
     border:1px solid var(--client-chat-border);
     border-bottom:none;
   }
   
    .menu:last-child {
     border-bottom:1px solid var(--client-chat-border);
-  }
+  } */
 
   .header {
     display:flex;
@@ -222,6 +222,9 @@
     padding:10px;
   } 
 
+  .content a{
+    color: var(--activ-color);
+  }
   
 
 

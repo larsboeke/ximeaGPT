@@ -48,11 +48,11 @@ def create_chat(user_id, user_prompt):
             }
         test = conversations_mongo.insert_one(entry)
 
-        #title = generate_chat_title(user_prompt)
-        title = "test"
+        title = generate_chat_title(user_prompt)
+        #title = "test"
         #add conversation id to user
-        user = user_mongo.find_one({'user_id': user_id})
-        conversations = user['conversations']
+        # user = user_mongo.find_one({'user_id': user_id})
+        # conversations = user['conversations']
 
         # if conversations == None:
         #     conversations_updated = [conversation_id]
@@ -104,7 +104,7 @@ def retrieve_conversation(conversation_id):
     # Remove timestamps from messages
     conversation = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
 
-    return conversation['messages']
+    return conversation
 
 
 
