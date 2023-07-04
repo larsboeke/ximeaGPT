@@ -18,18 +18,20 @@ class Chunker:
             chunk_size=400,
             chunk_overlap=50,
             length_function= self.tiktoken_len,
-            separators=['\n\n\n', '\n\n', '\n', '.', ' ', '']
+            separators=['\n\n\n', '\n\n', '\n', ' ', '']
         )
         chunks = text_splitter.split_text(content)
 
         metadata["order_id"] = 0
-        for index, chunk in enumerate(chunks):
-            metadata["order_id"] = index
+        for chunk in chunks:
             jsonChunk = {"content": chunk,
-                        "metadata": metadata
+                        "metadata": metadata.copy()
                         }
             chunk_list.append(jsonChunk)
 
+        # set order_ids
+        for i in range(len(chunk_list)):
+            chunk_list[i]['metadata']['order_id'] = i
 
         #print("Email turned into chunks")
         return chunk_list
