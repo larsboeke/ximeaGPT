@@ -15,14 +15,16 @@ class Chunker:
         chunk_list = []
         
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=800,
+            chunk_size=400,
             chunk_overlap=50,
             length_function= self.tiktoken_len,
-            separators=['\n\n\n', '\n\n', '\n', ' ', '']
+            separators=['\n\n\n', '\n\n', '\n', '.', ' ', '']
         )
         chunks = text_splitter.split_text(content)
 
-        for chunk in chunks:
+        metadata["order_id"] = 0
+        for index, chunk in enumerate(chunks):
+            metadata["order_id"] = index
             jsonChunk = {"content": chunk,
                         "metadata": metadata
                         }
