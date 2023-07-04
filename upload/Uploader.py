@@ -142,7 +142,7 @@ class Uploader:
         chunks = Chunker().data_to_chunks(content, one_case.metadata)
         
         for chunk in chunks:
-            self.uploadChunk(chunk, pinecone_connection, mongodb_connection))
+            self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
         SQLDatabaseUpdater(sql_connection).update_case(case[0])
         sql_connection[0].close()
