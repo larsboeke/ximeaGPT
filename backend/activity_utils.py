@@ -6,7 +6,6 @@ db = client['admin']
 activity_mongo = db["activity"]
 
 def add_activity(embeddings_token, prompt_token, completion_token, start_timestamp, end_timestamp):
-    timestamp = dt.now()
 
     embeddings_price = 0.0001
     prompt_price = 0.003

@@ -30,6 +30,11 @@ class AiResponse:
         self.conversation_history.append(message)
         usr.add_message(self.conversation_id, 'user', content)
 
+    def add_assistant_message(self, content, sources):
+        message = {"role": 'assistant', 'content': content}
+        self.conversation_history.append(message)
+        usr.add_assistant_message(self.conversation_id, content, sources)
+
     def add_function(self, function_name, content):
         message = {"role": "function", "name": function_name, "content": content}
         self.conversation_history.append(message)
@@ -59,14 +64,14 @@ class AiResponse:
 
     def chat_completion_request(self):
         try:
-            self.add_message("user", self.user_prompt)
+            self.add_user_message(self.user_prompt)
             
             message = self.get_openai_response()
         
             check_function_call = message.get("function_call")
 
             if not check_function_call:
-                self.add_message('assistant', message['content'])
+                self.add_assistant_message(message['content'], [])
 
             message['timestamp'] = str(dt.now())
 
@@ -119,27 +124,18 @@ class AiResponse:
                 additional_message = self.get_openai_response()
                 check_function_call = additional_message.get("function_call")
 
-                #add assistant messgae if no further function call is required
+                #add assistant message if no further function call is required
                 if not check_function_call:
                     assistant_message = additional_message['content']
-                    self.add_message('assistant', assistant_message)
-                    usr.add_message(self.conversation_id, 'assistant', assistant_message)
-                
-                
-                
-                print(additional_message["content"])
-                additional_message['timestamp'] = str(dt.now())
-                assistant_message = additional_message['content']
-
-                self.add_message("assistant", assistant_message)
-
-            
+                    self.add_assistant_message(assistant_message, self.sources)
+                    
             
             act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
             return assistant_message, self.sources
     
         except Exception as e:
+            print(e)
             return "Unfortunatly there occured an error in the AI response.", []
 
 

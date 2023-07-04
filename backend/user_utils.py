@@ -14,9 +14,7 @@ user_mongo = db['users']
 
 
 def add_user(username, password_hash):
-    #add new user with no conversatoins user_id = cookie
-    
-    #user_id = generate_user_id()
+
     entry = {
         'user_id': username,
         'password_hash': password_hash,
@@ -50,19 +48,11 @@ def create_chat(user_id, user_prompt):
         conversations_mongo.insert_one(entry)
 
         title = generate_chat_title(user_prompt)
-        #title = "test"
-        #add conversation id to user
-        #user = user_mongo.find_one({'user_id': user_id})
-        #conversations = user['conversations']
-
-        # if conversations == None:
-        #     conversations_updated = [conversation_id]
-        # else:
-        #     conversations_updated = conversations.append(conversation_id)
     
         user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': {'conversation_id' : conversation_id, 'title': title}}})
         print("created new chat with id:" + conversation_id)
         return conversation_id, title
+
 
 def generate_chat_title(user_prompt):#
     
@@ -98,7 +88,7 @@ def add_assistant_message(conversation_id, content, sources):
     conversations_mongo.update_one({'conversation_id': conversation_id}, {'$push': {'messages': message}})
     print('added assistant message')
 
-    
+
 def add_function(conversation_id, function_name, content):
     message = {"role": 'function','function_name': function_name, "content": content}
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
@@ -115,57 +105,11 @@ def retrieve_conversation(conversation_id):
 
 
 
-
-
-
-
-
-# def get_past_cleaned_conversations(user_id):
-#     #get all conversation IDs
-#     user = user_mongo.find_one({'user_id': user_id})
-#     conversation_ids = user['conversations']
-#     print(conversation_ids)
-#     if conversation_ids:
-#         #get conversations for user_id and sort by time
-#         conversations = conversations_mongo.find({"conversation_id": {"$in": conversation_ids}})
-#         print(conversations)
-#         # conversations = conversations_mongo.find(conversation_ids)
-#         # conversations_list = list(conversations)
-
-#         #clear conversation from function and system messages
-#         cleared_conversations = []
-#         for conversation in conversations:
-#             cleared_conversation = {'conversation_id': conversation['conversation_id'], 'messages': []}
-#             for message in conversation['messages']:
-
-#                 if message["role"] == "system" or message["role"] == "function":
-#                     cleared_conversation['messages'].append(message)
-            
-#             cleared_conversations.append(cleared_conversation)
-
-#         #sorted_conversations = sorted(conversations, key=lambda x: x['datetime'])
-        
-#         return cleared_conversations
-#     return []
-
 def get_chat_ids(user_id):
     user = user_mongo.find_one({'user_id': user_id})
     conversation_ids = user['conversations']
-    # filteres_conversation_ids = []
-    # #filter conversations for empty converations
-    # conversations = conversations_mongo.find({'conversation_id': conversation_ids})
-    # print(str(conversations))
-    # for conversation in conversation_ids:
-    #     conv = conversations_mongo.find_one({'conversation_id' : conversation})
-    #     if conv is not None:
-    #         messages = conv['messages']
-            
-    #         if len(messages) > 1:
-    #             filteres_conversation_ids.append(conversation)
 
-
-    #order by last message!!
-
+    #sort chat IDs by Time!!
 
     return conversation_ids
 
