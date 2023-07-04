@@ -14,7 +14,7 @@ class EmailDatabaseDeleter:
         :param updated_cases: list of updated cases
         """
         for case in updated_cases:
-            mongodb_filter = {"metadata.case_id": str(case[0])}
+            mongodb_filter = {"metadata.source_id": str(case[0])}
             print(case[0])
             mongodb_chunk_ids = []
             for mongodb_chunk_id in self.mongodb_connection.find(mongodb_filter, {}):

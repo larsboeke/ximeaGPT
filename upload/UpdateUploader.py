@@ -25,23 +25,21 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 load_dotenv()
 
-class Uploader:
+
+class UpdateUploader:
 
     def __init__(self):
         # Load environment and set variables
-        
+
         openai.api_key = os.environ.get("OPENAI_API_KEY")
         self.EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 
-
     # Method to create embeddings using OpenAI API
-    def createEmbedding(self, chunk):#JSON als Input
+    def createEmbedding(self, chunk):  # JSON als Input
         chunkText = chunk['content']
-        chunkEmbedding = openai.Embedding.create(input = chunkText, model=self.EMBEDDING_MODEL)['data'][0]['embedding']
+        chunkEmbedding = openai.Embedding.create(input=chunkText, model=self.EMBEDDING_MODEL)['data'][0]['embedding']
 
         return chunkEmbedding
-
-
 
     # Upload created chunks to MongoDB and Pinecone
     def uploadChunk(self, chunk, index, col):
@@ -62,27 +60,33 @@ class Uploader:
         id_ = col.insert_one(chunk)
         id = str(id_.inserted_id)
 
-            #Emails and Tickets get uploaded to pastConversations Namespace
+        # Emails and Tickets get uploaded to pastConversations Namespace
         if (chunk['metadata']['type'] == 'email' or chunk['metadata']['type'] == 'ticket'):
             index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
-            #manuals get uploaded to manuals namespace
+            # manuals get uploaded to manuals namespace
         elif (chunk['metadata']['type'] == 'manuals'):
             index.upsert([(id, chunkEmbedding)], namespace='manuals')
 
-
-    def is_file_uploaded(self, source):
+    def is_file_uploaded(self, source, file_type):
         col = MongoDBConnectionProvider().initMongoDB()
+        type_to_key_map = {
+            'ticket': 'TicketID',
+            'manuals': 'source'
+        }
 
-
-        is_uploaded = col.count_documents({"metadata.source_id" : source}) != 0
-
+        key = type_to_key_map.get(file_type)
+        if key is not None:
+            is_uploaded = col.count_documents({"metadata." + key: source}) != 0
+        else:
+            is_uploaded = False
 
         return is_uploaded
 
     # Upload PDFs from given path
     def uploadPDF(self, path):
-        if self.is_file_uploaded(path) == False:
+        file_type = 'manuals'
+        if self.is_file_uploaded(path, file_type) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
             pdf = PDF(path=path)
@@ -98,7 +102,8 @@ class Uploader:
 
     # Upload Pagecontent from given URLs
     def uploadURL(self, url):
-        if self.is_file_uploaded(url) == False:
+        file_type = 'manuals'
+        if self.is_file_uploaded(url, file_type) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
 
@@ -113,36 +118,10 @@ class Uploader:
         else:
             print("File already uploaded")
 
-
-    def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.uploadCase, case, pinecone_connection, mongodb_connection): case for case in cases}
-            for future in as_completed(futures):
-                case = futures[future]
-                try:
-                    future.result()  # This will raise an exception if the uploadCase method failed.
-                    print(f"Case: {case} uploaded successfully!")
-                except Exception as exc:
-                    print(f"Case: {case} generated an exception: {exc}")
-
-
-    def uploadCase(self, case, pinecone_connection, mongodb_connection):
-        sql_connection = SQLConnectionProvider().create_connection()
-        emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
-        one_case = Case(str(case[0]), emails_for_one_case)
-        content = PlainTextFromCaseProvider().provide_full_content(one_case)
-        chunks = Chunker().data_to_chunks(content, one_case.metadata)
-        
-        for chunk in chunks:
-            self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
-
-        SQLDatabaseUpdater(sql_connection).update_case(case[0])
-        sql_connection[0].close()
-
     # Upload mails from SQL database
-    def uploadMails(self):
+    def upload_new_cases_and_updated_cases(self):
         """
-        Example of a function that uploads all cases from the database and updates
+        A function that uploads all new cases from the database and updates
         the database with the already uploaded cases
         """
         sql_connection = SQLConnectionProvider().create_connection()
@@ -150,45 +129,35 @@ class Uploader:
         mongodb_connection = MongoDBConnectionProvider().initMongoDB()
 
         updated_cases = CaseRepository(sql_connection).get_updated_cases()
-        all_cases = CaseRepository(sql_connection).get_all_cases()
         print("Cases to be updated: ", len(updated_cases))
-        if updated_cases != all_cases:
-            EmailDatabaseDeleter(pinecone_connection, mongodb_connection).deleteCases(updated_cases)
 
-        if updated_cases and updated_cases != []:
+        if updated_cases:
+            EmailDatabaseDeleter(pinecone_connection, mongodb_connection).deleteCases(updated_cases)
             for case in updated_cases:
                 emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
-                one_case = Case(str(case[0]), emails_for_one_case)
+                one_case = Case(case[0], emails_for_one_case)
                 content = PlainTextFromCaseProvider().provide_full_content(one_case)
                 chunks = Chunker().data_to_chunks(content, one_case.metadata)
+                print(chunks)
                 SQLDatabaseUpdater(sql_connection).update_case(case[0])
-                for chunk in chunks:
-                    self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
-                print("Case: " , case[0], " uploaded!")
-
-    def initialUploadMail(self):
-        sql_connection = SQLConnectionProvider().create_connection()
-        pinecone_connection = PineconeConnectionProvider().initPinecone()
-        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
-        all_cases = CaseRepository(sql_connection).get_all_cases()
-        self.upload_cases_parallel(all_cases, pinecone_connection, mongodb_connection)
-
 
     # Upload tickets from Deskpro API
-    def uploadTicket(self, TicketID):
-        if self.is_file_uploaded(str(TicketID)) == False:
-            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
-            pinecone_connection = PineconeConnectionProvider().initPinecone()
+    def uploadNewTicket(self, TicketID):
+        """
+        A function that uploads a new resolved ticket from the Deskpro API
+        :param TicketID: The ID of the ticket to be uploaded
+        """
+        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
 
-            ticket = Ticket(TicketID)
-            plainTicket = PlainTextProviderTicket().getText(ticket)
-            chunks = Chunker().data_to_chunks(plainTicket, ticket.metadata)
+        ticket = Ticket(TicketID)
+        plainTicket = PlainTextProviderTicket().getText(ticket)
+        chunks = Chunker().data_to_chunks(plainTicket, ticket.metadata)
 
-            for chunk in chunks:
-                self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
+        for chunk in chunks:
+            self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
-            print("uploaded ticket: " + str(TicketID))
-        else:
-            print("File already uploaded")
+        print("uploaded ticket: " + str(TicketID))
+
 
 
