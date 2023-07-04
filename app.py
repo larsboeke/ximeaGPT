@@ -142,18 +142,24 @@ def generate_backend_message(conversation_id, user_prompt):
 #recieve client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
-    print("AiResponse started")
-    #print(current_user.id)
-    chat_id = data['chat_id']
-    client_msg = data['text']
-    print(f"Client message: {client_msg}")
-    assistant_message, sources = generate_backend_message(chat_id, client_msg)
+    try:
+        print("AiResponse started")
+        #print(current_user.id)
+        chat_id = data['chat_id']
+        client_msg = data['text']
+        print(f"Client message: {client_msg}")
+        assistant_message, sources = generate_backend_message(chat_id, client_msg)
 
-    data = {'assistant_message': assistant_message, 'sources': sources}
-    print(f"Backend message: {assistant_message}")
-    #add sources here
-    # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', data)
+        data = {'assistant_message': assistant_message, 'sources': sources}
+        print(f"Backend message: {assistant_message}")
+        #add sources here
+        # Emit the updated chat document back to the client ADD SOURCES
+        socketio.emit('receive_response', data)
+    except Exception as e:
+        error_message = str(e)
+        print(f"ERROR MESSAGE: {error_message}")
+        socketio.emit('backend_error')
+
 
 @socketio.on('start_chat')
 def start_chat(user_id, user_message): 

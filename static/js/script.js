@@ -78,6 +78,7 @@ const showSources = (sources) => {
                                     <br><br>${sources[i].content}
                                 </div>
                             </div>`
+        
     }
     html_sources += `</section>`;
     const sourceChatDiv = createChatElement(html_sources, "backend");
@@ -109,7 +110,7 @@ const getChatResponse = (aiChatDiv) =>{
             showSources(sources);            
         }
         else{
-            console.log('There are no additionsl sources');            
+            console.log('There are no additional sources');            
         }
         timeElement.textContent = getCurrentTime();
         aiChatDiv.querySelector(".typing-animation").remove();
