@@ -1,103 +1,122 @@
-import Functions
+from agent import Functions
 import openai
 import os
 import json
+import backend.user_utils as usr
+from datetime import datetime as dt
+from backend import activity_utils as act
 
-def get_past_conversation(conversation_id):
-    return None
-
-class AIResponse:
+class AiResponse:
 
 
-    def __init__(self, conversation_id):
+    def __init__(self, conversation_id, user_prompt):
         
         self.conversation_id = conversation_id
-        self.conversation_history = [{"role": "system", "content": "You are a helpful assistant, helping out the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}]
+        self.conversation_history = usr.retrieve_conversation(conversation_id)
         self.functions = Functions.tools
+        self.user_prompt = user_prompt
+        self.sources = []
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
+        self.start_timestamp = dt.now()
+    
 
-        past_conversation = get_past_conversation(self.conversation_id)
-        if not past_conversation == None:
-        
-            self.conversation_history.append(past_conversation)
+ 
 
-        #print(self.conversation_history)
 
-    def add_message(self, role, content):
-        message = {"role": role, "content": content}
+    def add_user_message(self, content):
+        message = {"role": 'user', "content": content}
         self.conversation_history.append(message)
+        usr.add_message(self.conversation_id, 'user', content)
+
+    def add_assistant_message(self, content, sources):
+        message = {"role": 'assistant', 'content': content}
+        self.conversation_history.append(message)
+        usr.add_assistant_message(self.conversation_id, content, sources)
 
     def add_function(self, function_name, content):
         message = {"role": "function", "name": function_name, "content": content}
         self.conversation_history.append(message)
+        usr.add_function(self.conversation_id, function_name, content)
 
-    def add_promt_tokens(self, tokens):
-        self.prompt_tokens += tokens
-
-    def add_completion_tokens(self, tokens):
-        self.completion_tokens += tokens
-
-    def add_embedding_tokens(self, tokens):
-        self.embeddings_tokens += tokens
 
     def get_openai_response(self):
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0613",
-                messages= self.conversation_history,
-                functions= self.functions,
-                function_call="auto"
-            )
-            #promt_tokens = response["usage"]["prompt_tokens"]
-            #completion_tokens = response["usage"]["completion_tokens"]
+        max_attempts = 5
+        x = 0
+        while x < max_attempts:
 
-            #self.add_promt_tokens += promt_tokens
-            #self.add_completion_tokens += completion_tokens
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo-0613",
+                    messages= self.conversation_history,
+                    functions= self.functions,
+                    function_call="auto"
+                )
+                promt_tokens = response["usage"]["prompt_tokens"]
+                completion_tokens = response["usage"]["completion_tokens"]
 
-        except Exception as e:
-            print("Unable to generate ChatCompletion response")
-            print(f"Exception: {e}")
-            return e
-        return response["choices"][0]["message"]
+                self.prompt_tokens += promt_tokens
+                self.completion_tokens += completion_tokens
 
-    def chat_completion_request(self, prompt):
-        self.add_message("user", prompt)
+                return response["choices"][0]["message"]
+
+            except Exception as e:
+                print("Unable to generate ChatCompletion response")
+                print(f"Exception: {e}")
+                
+        
+        
+
+    def chat_completion_request(self):
+        
+        self.add_user_message(self.user_prompt)
         
         message = self.get_openai_response()
-        
+    
         check_function_call = message.get("function_call")
-        flag = False
+
+        if not check_function_call:
+            self.add_assistant_message(message['content'], [])
+
+        message['timestamp'] = str(dt.now())
+
+        assistant_message = message['content']
+        
         while check_function_call:
-            flag = True
 
             json_str = message["function_call"]["arguments"]
             data = json.loads(json_str)
+
             function_name = message["function_call"]["name"]
 
             if function_name == "get_context_tool":
                 print("Using get-context tool...")
-                function_response = Functions.getText(
+                function_response, sources, tokens = Functions.getText(
                     query = data["query"],
                     namespace="pastConversations"
                 )
-                self.add_embedding_tokens(tokens)
+                #append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                #app used tokens
+                self.embeddings_tokens += tokens
 
             elif function_name == "query_manuals":
                 print("Using query_manuals tool...")
-                function_response, tokens = Functions.getText(
+                function_response, sources, tokens = Functions.getText(
                     query = data["query"],
                     namespace="manuals"
                 )
-                self.add_embedding_tokens(tokens)
+                #append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                #app used tokens
+                self.embeddings_tokens += tokens
                 print(function_response)
-            elif function_name == "get_mysql":
-                print("Using sql_query tool...")
-                function_response = Functions.get_mysql(
-                    sqlquery = data["sqlquery"]
-                )
-                
+
+            elif function_name == "get_last_message":
+                pass
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
@@ -107,25 +126,20 @@ class AIResponse:
                 pass
 
             self.add_function(function_name, str(function_response))
-     
-            additional_response = self.get_openai_response()
-            
-            
-            additional_message = additional_response#["choices"][0]["message"]
-            print(additional_message["content"])
-            self.add_message("assistant", str(additional_message["content"]))
-
-            check_function_call = additional_message.get("function_call")
-        
-        if not flag:
-            print(message)
-
     
+            additional_message = self.get_openai_response()
+            check_function_call = additional_message.get("function_call")
+
+            #add assistant message if no further function call is required
+            if not check_function_call:
+                assistant_message = additional_message['content']
+                self.add_assistant_message(assistant_message, self.sources)
+                
+        
+        act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
+
+        return assistant_message, self.sources
 
 
-test = AIResponse("1234")
 
-while True:             
-    prompt = input("Ask a question...")
-    test.chat_completion_request(prompt)
 

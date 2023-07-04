@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>AI:lean Chatbot</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts Link For Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+    <script src="../static/js/script.js" defer></script><!--wait uptil the page has finished parsing before executing the script-->
+</head>
+<body>
+    <!--TO-DO: sidebar container-->
+    <div id="leftbox" class="history-container">
+        <div class = "nav-controls">
+            <button id="new-chat-btn" title="New chat">+ New chat</button>
+            <button id="hide-sidebar-btn" onclick="closeNav()" class="material-symbols-outlined" title="Hide sidebar">left_panel_close</button>
+        </div>
+        <div class="history">
+            <ul id="chat-list">
+                {% for chat in chats %}
+                    <li id="{{ chat.conversation_id }}"><span class="material-symbols-outlined">chat_bubble</span>{{ chat.title }}</li>
+                {% endfor %}
+                <!-- <li id="hdg68dj99"><span class="material-symbols-outlined">chat_bubble</span>Chat 1</li>
+                <li id="dfsbjf0976"><span class="material-symbols-outlined">chat_bubble</span>Chat 2</li> -->
+            </ul>
+        </div>    
+        <!-- <div class="user-info">
+            <span class="material-symbols-outlined">account_circle</span> 
+            <p id="user">test</p>
+        </div> -->
+    </div>
+        <!--CHAT CONTAINER-->
+        <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
+        <div id="chatbox" class="chat-container"></div>            
+        <!--Typing CONTAINER-->
+        <div id="input-panel"class ="typing-container">
+            <div class="typing-content">
+                <div class="typing-textarea">
+                    <textarea id="chat-input" placeholder="Enter your question here" required></textarea>
+                    <span id="send-btn" class="material-symbols-rounded">send</span>
+                </div>
+                <div class="typing-controls">
+                    <span id="delete-btn" class="material-symbols-rounded" title="Delete chat">delete</span>
+                    <span id="theme-btn" class="material-symbols-rounded" title="Change theme">light_mode</span>
+                    <label for="upload-btn" id="upload-label" class="material-symbols-outlined" title="Upload file">upload_file</label>
+                    <input id="upload-btn" type="file" accept=".pdf">                    
+                </div>
+                <div class="file-info"></div>
+                <p class="info">AI:lean Jun 15 Version. Demo Preview. AI:lean may produce inaccurate information. Your feedback will help us to improve.</p>
+            </div>
+        </div>
+
+        <!--TO-DO: sidebar container-->
+        <div id="rightbox" class="feedback-container">
+            <a href="javascript:void(0)" class="closeFeedbackbtn" onclick="closeFeedback()">&#10005;</a>
+            <div>
+            <form>    
+                <label class="feedback-checkbox">Unprecise answer
+                    <input type="checkbox" checked="checked">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Wrong answer
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Wrong sources
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="feedback-checkbox">Not complete
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <textarea id="feedback-text" placeholder="Additional Feedback?"></textarea>
+                <div class="feedback-buttons">
+                    <span id="delete-feedback-btn" class="material-symbols-rounded" title="Delete Feedback" onclick="deleteFeedback(this)">delete</span>
+                    <span id="send-feedback-btn" class="material-symbols-rounded" title="Send Feedback" onclick="negFeedback(this)">send</span>
+                </div>
+
+            </form>
+            </div>
+        </div>
+</body>
+</html>

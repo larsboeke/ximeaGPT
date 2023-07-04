@@ -1,0 +1,737 @@
+/* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+/*rather use Helvetica like on the XIMEA webpage?*/
+/* @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Rajdhani', sans-serif; 
+} */
+:root {
+    --text-color: #FFFFFF;
+    --icon-color: #ACACBE;
+    --icon-hover-bg: #5b5e71;
+    --placeholder-color: #dcdcdc;
+    --client-chat-bg: #343541;
+    --backend-chat-bg: #444654;
+    --client-chat-border: #343541;
+    --backend-chat-border: #444654;
+    --activ-color: #ffa500;
+    --activ-btn-bg: #ffd580;
+    --positiv-fdb: #249724;
+    --negativ-fdb: #b12727;
+    --stars-bg: #222;
+    }
+  .light-mode{
+    --text-color: #343541;
+    --icon-color: #a9a9bc;
+    --icon-hover-bg: #f1f1f3;
+    --placeholder-color: #6c6c6c;
+    --client-chat-bg: #FFFFFF;
+    --backend-chat-bg: #F7F7F8;
+    --client-chat-border: #FFFFFF;
+    --backend-chat-border: #F7F7F8;
+    --activ-color: #ffa500;
+    --stars-bg: #bcbaba;  
+  }
+  body {
+    background: var(--backend-chat-bg);
+    overflow-y: hidden; /* Hide vertical scrollbar */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+  }
+
+  /*Chat container styling*/
+  .chat-container{
+    max-height: 80vh;
+    padding-bottom: 150px;
+    overflow-y: auto;
+    position: relative;
+    caret-color: transparent;
+  }
+  .default-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 70vh;
+    padding: 0 10px;
+    text-align: center;
+    color: var(--text-color);
+  }
+  .default-text h1 {
+    font-size: 3.3rem;
+    color: var(--activ-color);
+  }
+  .default-text p{
+    margin-top: 10px;
+    font-size: 1.1rem;
+  }
+  /*custom scrollbar*/
+  :where(.chat-container,textarea,.history-container)::-webkit-scrollbar{
+    width: 6px;
+  }
+  :where(.chat-container, textarea,.history-container)::-webkit-scrollbar-track{
+    background: var(--backend-chat-bg);
+    border-radius: 25px;
+  }
+  :where(.chat-container, textarea,.history-container)::-webkit-scrollbar-thumb{
+    background: var(--icon-color);
+    border-radius: 25px;
+  }
+
+  .chat-container .chat{
+    padding: 25px 10px;
+    display: flex;
+    justify-content: center;
+    color: var(--text-color);
+  }
+  .chat .chat-content{
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .chat .chat-content .chat-controls span{
+    font-size: 1.3rem;
+    color: var(--icon-color);
+    visibility: hidden;
+  }
+  .chat .chat-controls span:hover{
+    transform: scale(1.3);
+    cursor: pointer;
+  }
+
+  #copy:hover {
+    color: var(--activ-color);
+  }
+
+  .chat:hover .chat-content:not(:has(.typing-animation, .error)) span{ /*hiding copy and fdb btn while loading and while error accurs*/
+    visibility: visible;
+  }
+
+  .chat .chat-details{
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .chat .chat-details img{
+    width: 35px;
+    height: 35px;
+    align-self: flex-start;
+    object-fit: cover;
+    border-radius: 2px;
+  }
+  .chat .chat-details p{
+    white-space: pre-wrap;
+    font-size: 1.05rem;
+    padding: 0 50px 0 25px;
+  }
+  .chat .chat-details .time{
+    font-size: 12px;
+    color: var(--icon-color);
+    align-self: flex-end;
+    justify-content: space-between;
+    position:absolute;
+    bottom: -25px;
+    margin-left: 65px;
+    width: 100%;
+  }
+
+  .chat .chat-details .time:hover{
+    color:var(--icon-color);
+    cursor: default;
+  }
+
+  
+  
+  .chat .chat-details p.error{
+    color: var(--activ-color)
+  }
+  .chat-controls{
+    display: flex;
+  }
+  .chat-controls span{
+    margin-left: 10px;
+    font-size: 1.4rem;
+    border-radius: 4px;
+  }
+  span.material-symbols-rounded{
+    user-select: none;
+    cursor: pointer;
+  }
+  /*#thumb-up:hover{
+    user-select: none;
+    cursor: pointer;
+    transform: scale(1.3);
+  }
+  #thumb-down:hover{
+    user-select: none;
+    cursor: pointer;
+    transform: scale(1.3);
+  }*/
+  .chat-container .chat.client{
+    background: var(--client-chat-bg);
+    border: 1px solid var(--client-chat-border)
+  }
+
+  .chat-container .chat.backend{
+    background: var(--backend-chat-bg);
+    border: 1px solid var(--backend-chat-border)
+  }
+
+  #accordion {
+    width: 75%;
+    color: var(--placeholder-color)
+  }
+
+  /* .menu {
+    border:1px solid var(--client-chat-border);
+    border-bottom:none;
+  }
+  
+   .menu:last-child {
+    border-bottom:1px solid var(--client-chat-border);
+  } */
+
+  .header {
+    display:flex;
+    padding:10px; 
+    cursor: pointer;
+  }
+  
+  .title {
+    flex:1;
+  }
+  
+  .icon {
+    width:20px;
+    font-weight: bold;
+  } 
+  
+   .content {
+    padding:10px;
+    display:none;
+    padding:10px;
+  } 
+
+  .content a{
+    color: var(--activ-color);
+  }
+  
+
+
+/*Typing animation DOTS*/
+  .typing-animation {
+    display: inline-flex;
+    padding-left: 25px;
+  }
+
+  .typing-animation .typing-dot{
+    height:7px;
+    width: 7px;
+    opacity: 0.7;
+    margin: 0 3px;
+    border-radius: 50%;
+    background: var(--activ-color);
+    animation: animateDots 1.5s var(--delay)ease-in-out infinite;
+  }
+  @keyframes animateDots {
+    0%, 44% {
+        transform: translateY(0px);
+    }
+    22% {
+        opacity: 0.2;
+        transform: translateY(-6px);
+    }
+    44% {
+        opacity: 0.2;
+    }
+}
+
+/*Typing animation TEXT*/
+/*TO-DO: message exceeds the boundaries of the chat container*/
+.typing-demo {
+    padding-left: 25px;
+    max-width: 100%;
+    width: fit-content;
+    animation: typing 2s steps(22,end), blink .5s step-end infinite alternate;
+    white-space: nowrap;
+    overflow: hidden;    
+    border-right: 3px solid;
+  }
+  
+  @keyframes typing {
+    from {
+      width: 0
+    }
+    to {
+        width: 100%;
+    }
+  }
+      
+  @keyframes blink {
+    50% {
+      border-color: transparent
+    }
+  }
+
+  /*Typing container styling*/
+  .typing-container{
+    position: fixed;
+    bottom:0;
+    width: 100%;
+    display:flex;
+    padding: 20px 10px;
+    justify-content: center;
+    background: var(--client-chat-bg);
+    border: 1px solid var(--backend-chat-border);
+  }
+  .typing-container .typing-content{
+    max-width: 950px;
+    width: 100%;
+    display:flex;
+    align-items:flex-end;
+  }
+  .typing-content .typing-textarea{
+    width: 100%;
+    display: flex;
+    position:relative;
+  }
+  .typing-textarea textarea{
+    width: 100%;
+    height: 55px;
+    border: none;
+    resize: none;
+    font-size: 1rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 15px 45px 15px 20px;
+    border-radius: 4px;
+    color: var(--text-color);
+    background: var(--backend-chat-bg);
+    outline: 1px solid var(--backend-chat-border);
+  }
+  .typing-textarea textarea::placeholder{
+    color: var(--placeholder-color);
+  }
+  .typing-textarea span{
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    visibility: hidden;
+  }
+  .typing-textarea textarea:valid ~ span{
+    visibility: visible;
+  }
+  .info{
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .typing-content span {
+    height: 55px;
+    width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-color);
+  }
+  .typing-content span:hover{
+    color: var(--activ-color);
+    cursor: pointer;
+  }
+  .typing-controls{
+    display: flex;
+  }
+  .typing-controls span{
+    margin-left: 7px;
+    font-size: 1.4rem;
+    border-radius: 4px;
+    background: var(--backend-chat-bg);
+    border: 1px solid var(--backend-chat-border)
+  }
+  .typing-controls span:hover{
+    color: var(--activ-color);
+    cursor: pointer;
+  }
+  input[type="file"]{
+    display: none;
+   }
+ .typing-controls label{
+  height: 55px;
+  width: 55px;
+  display: flex;
+  margin-left: 7px;
+  font-size: 1.4rem;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  background: var(--backend-chat-bg);
+  color: var(--icon-color);
+  border: 1px solid var(--backend-chat-border)
+ }
+ .typing-controls label:hover{
+  color: var(--activ-color);
+  cursor: pointer;
+ }
+ /*TO-DO: hangling of a long file name; in the center */
+ .file-info p{
+  color: var(--activ-color);
+  background: var(--activ-btn-bg);
+  margin-left: 7px;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  padding: 15px 15px 15px 15px;
+  font-weight: 700;
+ }
+
+/* Sidebar - History
+
+      /* The sidebar menu */
+      .history-container {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        left: 0;
+        background-color: var(--client-chat-bg); /* Black*/
+        background-color: var(--client-chat-bg); /* Black*/
+        overflow-x: hidden; /* Disable horizontal scroll */
+        padding-top: 25px; /* Place content 60px from the top */
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* The sidebar links */
+      .history-container a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
+
+      /* When you mouse over the navigation links, change their color */
+      .history-container a:hover {
+        color: #f1f1f1;
+      }
+
+      /* Position and style the close button (top right corner) */
+      .history-container .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+      }
+
+      .nav-controls {
+        display: flex;
+        width: 100%;
+      }
+
+      /* Position and style the new chat button (top left corner) */
+      .nav-controls button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: solid 0.5px rgba(255, 255, 255, 0.5);
+        background-color: var(--backend-chat-bg);
+        border-radius: 5px;
+        padding: 10px;
+        margin: 10px;
+        cursor: pointer; 
+        color:var(--icon-color);
+        border-color: var(--icon-hover-bg);
+      }
+      #new-chat-btn {
+        flex-basis: 80%;
+        font-size: 15px;
+      }
+      
+      #hide-sidebar-btn {
+        flex-basis: 20%;
+      }
+
+     .nav-controls button:hover{
+        color: var(--activ-color);
+        cursor: pointer;
+      }
+      .nav-controls button[disabled]:hover{
+        cursor: not-allowed;
+      }
+
+      .history{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: var(--icon-color);
+        border-radius: 5px;
+      }
+
+      .history li{
+        padding: 10px 10px;
+        margin: 10px 10px;
+    
+      }
+
+      .history li:hover{
+        cursor:pointer;
+        background-color: var(--backend-chat-border);
+        color: var(--activ-color)
+      }
+
+      .history span{
+        font-size: 20px;
+        margin-right: 10px;
+      }
+
+
+      /* .history-controls{
+        padding: 25px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+
+      .user-info{
+        color: var(--activ-color);
+        font-size: 18px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+      } */
+
+
+
+      /*.nav-controls span{
+        height: 55px;
+        width: 55px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--icon-color);
+        background-color: var(--backend-chat-bg);
+      }*/
+
+      /* The button used to open the sidebar */
+      #open-sidebar-btn {
+        /*font-size: 40px;
+        cursor: pointer;
+        background-color: #111;
+        color: white;
+        padding: 10px 10px;
+        border: none;*/
+        height: 55px;
+        width: 55px;
+        padding: 10px;
+        margin: 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--icon-color);
+        border: 1px solid var(--client-chat-border);
+        background: var(--client-chat-bg);
+      }
+
+      #open-sidebar-btn:hover {
+        color: var(--activ-color);
+      }
+
+      /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+      #chatbox {
+        transition: margin-left .5s; /* If you want a transition effect */
+        padding: 20px;
+      }
+      #input-panel {
+        transition: margin-left .5s; /* If you want a transition effect */
+        padding: 20px;
+      }
+
+
+
+/* Feedback Sidebar
+
+      /* The sidebar menu */
+      .feedback-container {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0;
+        right: 0;
+        background-color: var(--client-chat-bg); /* Black*/
+        overflow-x: hidden; /* Disable horizontal scroll */
+        padding-top: 10px;
+        transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+      }
+
+      /* The sidebar links */
+      .feedback-container a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: #818181;
+        display: block;
+        transition: 0.3s;
+      }
+
+      /* When you mouse over the navigation links, change their color */
+      .feedback-container a:hover {
+        color: #f1f1f1;
+        cursor: pointer;
+      }
+
+      .closeFeedbackbtn {
+        position: relative;
+        top: 0;
+        font-size: 36px;
+      }
+
+      /* Style page content - use this if you want to push the page content to the left when you open the feedback navigation */
+      #chatbox {
+        transition: margin-right .5s; /* If you want a transition effect */
+        padding: 20px;
+      }
+
+
+
+/* Feedbock Checkbox
+
+      /* The container */
+      .feedback-checkbox {
+        display: block;
+        position: relative;
+        padding-left: 35px;
+        margin-left: 25px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        color: var(--text-color);
+      }
+
+      /* Hide the browser's default checkbox */
+      .feedback-checkbox input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+      }
+
+      /* Create a custom checkbox */
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border-radius: 4px;
+      }
+
+      /* On mouse-over, add a grey background color */
+      .feedback-checkbox:hover input ~ .checkmark {
+        background-color: #ccc;
+      }
+
+      /* When the checkbox is checked, add a blue background */
+      .feedback-checkbox input:checked ~ .checkmark {
+        background-color: var(--activ-color);
+      }
+
+      /* Create the checkmark/indicator (hidden when not checked) */
+      .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+
+      /* Show the checkmark when checked */
+      .feedback-checkbox input:checked ~ .checkmark:after {
+        display: block;
+      }
+
+      /* Style the checkmark/indicator */
+      .feedback-checkbox .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+
+/* Feedback Textarea */
+
+      .feedback-container textarea {
+        width: 80%;
+        height: 200px;
+        border: none;
+        resize: none;
+        font-size: 1rem;
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 15px 20px 15px 20px;
+        margin: 15px 20px 15px 20px;
+        border-radius: 4px;
+        color: var(--text-color);
+        background: var(--backend-chat-bg);
+        outline: 1px solid var(--backend-chat-border);
+      }
+
+/* Feedback Buttons */
+
+  .feedback-buttons {
+    margin-top: 30px;
+  }
+
+  .feedback-buttons span{
+    height: 55px;
+    width: 55px;
+    display: inline;
+    align-items: center;
+    justify-content: center;
+    color: var(--icon-color);
+
+    padding: 14px 16px 14px 16px;
+    margin: 30px;
+    font-size: 1.4rem;
+    border-radius: 4px;
+    background: var(--backend-chat-bg);
+    border: 1px solid var(--backend-chat-border)
+  }
+
+  .feedback-buttons span:hover{
+    color: var(--activ-color);
+    cursor: pointer;
+  }
