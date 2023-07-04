@@ -13,17 +13,18 @@ user_mongo = db['users']
 
 
 
-def add_user():
+def add_user(username, password_hash):
     #add new user with no conversatoins user_id = cookie
     
-    user_id = generate_user_id()
+    #user_id = generate_user_id()
     entry = {
-        'user_id': user_id,
+        'user_id': username,
+        'password_hash': password_hash,
         'conversations': []
         }
     user_mongo.insert_one(entry)
 
-    return user_id
+    return username
 
 
 def generate_user_id():
@@ -46,13 +47,13 @@ def create_chat(user_id, user_prompt):
             'conversation_id': conversation_id,
             'messages': [{"role": "system", "content": "You are a helpful assistant, helping out the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
             }
-        test = conversations_mongo.insert_one(entry)
+        conversations_mongo.insert_one(entry)
 
         title = generate_chat_title(user_prompt)
         #title = "test"
         #add conversation id to user
-        # user = user_mongo.find_one({'user_id': user_id})
-        # conversations = user['conversations']
+        #user = user_mongo.find_one({'user_id': user_id})
+        #conversations = user['conversations']
 
         # if conversations == None:
         #     conversations_updated = [conversation_id]
@@ -155,6 +156,9 @@ def get_chat_ids(user_id):
             
     #         if len(messages) > 1:
     #             filteres_conversation_ids.append(conversation)
+
+
+    #order by last message!!
 
 
     return conversation_ids
