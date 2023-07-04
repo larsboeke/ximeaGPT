@@ -28,16 +28,16 @@ users_collection = db['users']
 chats_collection = db['chats']
 
 class User(UserMixin):
-    def __init__(self, username):
+    def __init__(self, username, password):
         self.id = username
-        #self.password = password
+        self.password = password
 
 @login_manager.user_loader
 def load_user(user_id):
     u = users_collection.find_one({"user_id": user_id})
     if not u:
         return None
-    return User(u['user_id']) # u['password_hash'])
+    return User(u['user_id'], u['password_hash'])
 
 @login_manager.request_loader
 def request_loader(request):
@@ -62,7 +62,7 @@ def login():
 
         if user and check_password_hash(user['password_hash'], password):
             print("username and pw match")
-            user_obj = User(user['user_id']) #, user['password_hash'])
+            user_obj = User(user['user_id'], user['password_hash'])
             login_user(user_obj)
             print(current_user.is_authenticated)
             return redirect(url_for('index'))
@@ -89,7 +89,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    return 'Logged out successfully!'
+    return render_template('login.html')
 
 @app.route('/')
 @login_required
@@ -143,7 +143,7 @@ def generate_backend_message(conversation_id, user_prompt):
 @socketio.on('send_message')
 def handle_message(data):
     print("AiResponse started")
-    print(current_user.id)
+    #print(current_user.id)
     chat_id = data['chat_id']
     client_msg = data['text']
     print(f"Client message: {client_msg}")
@@ -157,10 +157,10 @@ def handle_message(data):
 
 @socketio.on('start_chat')
 def start_chat(user_id, user_message): 
-    print(current_user.is_authenticated)
+    #print(current_user.is_authenticated)
     print("started chat")
      
-    chat_id, title = usr.create_chat(current_user.id, user_message)
+    chat_id, title = usr.create_chat(user_id, user_message)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
