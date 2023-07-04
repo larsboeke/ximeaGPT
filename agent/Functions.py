@@ -6,8 +6,8 @@ import mysql.connector
 import json
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
-from utils import create_connection
-from database_schema import database_3tables
+#from .utils import create_connection
+from .database_schema import database_3tables
 
 load_dotenv()
 
@@ -103,9 +103,9 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def get_mysql(sqlquery):
+"""def get_mysql(sqlquery):
     
-    connection, mycursor = create_connection()
+    #connection, mycursor = create_connection()
     try:
         mycursor.execute(sqlquery)      #Excecute Query Check for Errors
     except:
@@ -121,7 +121,7 @@ def get_mysql(sqlquery):
         "sqlquery": sqlquery,
         "database_response": myresult
     }
-    return json.dumps(query_info)
+    return json.dumps(query_info)"""
 
 def getText(query, namespace):
     index = initPinecone() #

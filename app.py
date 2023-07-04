@@ -4,11 +4,11 @@ from flask_login import current_user
 from flask_socketio import SocketIO, emit
 import flask
 import os
-import old_stuff.uploadData as uploadData
+#import old_stuff.uploadData as uploadData
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from agent.AIResponse import AiResponse
-import uploadData
+#import uploadData
 from pymongo import MongoClient
 import backend.user_utils as usr
 
@@ -211,7 +211,7 @@ def admin_feedback():
     return render_template('feedback.html')
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, port=5000, debug=True)
  
 
 
