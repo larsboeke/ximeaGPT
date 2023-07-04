@@ -64,8 +64,7 @@ const createChatElement = (html, className) => {
 }
 
 const showSources = (sources) => {
-    // const accordionList = document.createElement("section");
-    // accordionList.setAttribute('id', 'accordion');
+    //TO-DO: Addapt the output to tickets and emails
     let html_sources = `<section id="accordion">`;
     for (let i = 0; i < sources.length; i++){
         html_sources += `<div class="menu">
@@ -83,33 +82,6 @@ const showSources = (sources) => {
     html_sources += `</section>`;
     const sourceChatDiv = createChatElement(html_sources, "backend");
     chatContainer.appendChild(sourceChatDiv);
-    // const html_sources = `<section id="accordion">
-    //                                 <div class="menu">
-    //                                     <div class="header">
-    //                                         <div class="title"> &#128161 Source 1</div>
-    //                                         <span class="icon">&#x2228</span>
-    //                                     </div>
-    //                                     <div class="content">
-    //                                         <b>${sources[0].source.type}</b><br>
-    //                                         <a href="${sources[0].source.source}">${sources[0].source.source}</a><br><br>${sources[0].content}</div>
-    //                                 </div>
-    //                                 <div class="menu">
-    //                                 <div class="header">
-    //                                     <div class="title"> &#128161 Source 2</div>
-    //                                     <span class="icon">&#x2228</span>
-    //                                 </div>
-    //                                 <div class="content">${sources[1].source.source}<br>${sources[1].content}</div>
-    //                             </div>
-    //                             <div class="menu">
-    //                                 <div class="header">
-    //                                     <div class="title"> &#128161 Source 3</div>
-    //                                     <span class="icon">&#x2228</span>
-    //                                 </div>
-    //                                 <div class="content">${sources[2].source.source}<br>${sources[2].content}</div>
-    //                             </div>
-    //                          </section>`
-    // const sourceChatDiv = createChatElement(html_sources, "backend");
-    // chatContainer.appendChild(sourceChatDiv);
     for (let i = 0; i < sourcesHeaders.length; i++) {
         sourcesHeaders[i].addEventListener("click", () => {
             sourcesContents[i].style.display = sourcesContents[i].style.display == "block" ? "none" : "block";
@@ -206,7 +178,8 @@ const getCurrentTime = () =>{
 
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
-    var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    // var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    var userId = localStorage.getItem("username");
     var newChat = document.createElement('li');
     chatList.prepend(newChat);
     socket.emit('start_chat', userId, userMessage);

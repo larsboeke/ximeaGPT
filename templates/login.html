@@ -10,8 +10,17 @@
         <input type="username" id="username" name="username" required><br>
         <label for="password">Password:</label><br>
         <input type="password" id="password" name="password" required><br>
-        <input type="submit" value="Submit">
+        <input type="submit" id="submit-btn" value="Submit">
     </form>
     <p>If you don't have an account, register <a href="{{ url_for('register') }}">here</a>.</p>
+    <script>
+        const submitBtn = document.querySelector("#submit-btn");
+        const username = document.querySelector("#username");
+
+        submitBtn.addEventListener("click", () =>{
+            
+            localStorage.setItem("username", username.value);
+        });
+    </script>
 </body>
 </html>
