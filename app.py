@@ -183,6 +183,7 @@ def delete_chat(chat_id):
 def open_chat(chat_id):
     #chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
+    print(messages)
     socketio.emit('chat_opened', messages)
     
 

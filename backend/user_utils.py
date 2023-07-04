@@ -4,6 +4,7 @@ import os
 import json
 from uuid import uuid4
 from datetime import datetime as dt
+from datetime import timedelta
 
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
@@ -166,16 +167,36 @@ def get_chat_ids(user_id):
 def get_messages(chat_id):
     chat = conversations_mongo.find_one({'conversation_id': chat_id})
 
-    filteres_messages = []
+    #print(chat['messages'])
+    filtered_messages = []
     #print(chat['messages'])
 
-    if filteres_messages:
-    
-        for message in chat['messages']:
-            if message['role'] == 'user' or message['role'] == 'assistant':
-                filteres_messages.append(message)
+    messages = chat['messages']
 
-    return filteres_messages
+    print(messages[0]['role'])
+    # for item in messages:
+    #     if 'timestamp' in item:
+    #         item['timestamp'] += timedelta(days=1)
+    #         item['timestamp'] = item['timestamp'].isoformat()
+
+    # json_data = json.dumps(messages)
+    
+
+    for message in messages:
+        if message['role'] == 'user' or message['role'] == 'assistant':
+
+            if 'timestamp' in message:
+                message['timestamp'] = message['timestamp'].isoformat()
+
+            filtered_messages.append(message)
+
+    # for i in range(len(chat['messages'])):
+    #     print(chat['messages'][i]['role'])
+        
+    #     if json.dumps(chat['messages'][i]['role']) == ('user' or 'assistant'):
+    #         filtered_messages.append(json.dumps(chat['messages'][i])) 
+
+    return filtered_messages
 
 
 
