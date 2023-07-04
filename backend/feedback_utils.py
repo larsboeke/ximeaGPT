@@ -54,15 +54,24 @@ def reset_down_rating(chunk_id):
     feedback_mongo.update_one({"chunk_id": chunk_id}, {"$set": {"down_rating": 0}})
 
 
-def delete_chunk():
+def get_all_rated_chunks():
+    all_ratings = []
+    for chunk_id in get_all_chunk_ids():
+        all_ratings.append(get_rated_chunk(chunk_id))
+    return all_ratings
+
+def reset_all_down_ratings():
+    for chunk_id in get_all_chunk_ids():
+        reset_down_rating(chunk_id)
+
+
+def clear_feedback_db():
     pass
- 
 
-chunk_id = "64a3e1fb385ee30652778033"
+chunk_id = "64a3e1fb385ee30652778034"
 
-#add_feedback(chunk_id)
+
+add_feedback(chunk_id)
 #print(get_rated_chunk(chunk_id))
-print(get_all_chunk_ids())
-reset_down_rating(chunk_id)
-print(get_rating(chunk_id))
+print(get_all_rated_chunks())
 
