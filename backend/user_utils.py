@@ -99,7 +99,7 @@ def retrieve_conversation(conversation_id):
     print(conversation_id)
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})
     # Remove timestamps from messages
-    conversation = [{k: v for k, v in msg.items() if k != 'timestamp'} for msg in conversation['messages']]
+    conversation = [{k: v for k, v in msg.items() if k != 'timestamp' and k != 'sources'} for msg in conversation['messages']]
 
     return conversation
 

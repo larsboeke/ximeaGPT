@@ -42,100 +42,104 @@ class AiResponse:
 
 
     def get_openai_response(self):
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0613",
-                messages= self.conversation_history,
-                functions= self.functions,
-                function_call="auto"
-            )
-            promt_tokens = response["usage"]["prompt_tokens"]
-            completion_tokens = response["usage"]["completion_tokens"]
+        max_attempts = 5
+        x = 0
+        while x < max_attempts:
 
-            self.prompt_tokens += promt_tokens
-            self.completion_tokens += completion_tokens
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo-0613",
+                    messages= self.conversation_history,
+                    functions= self.functions,
+                    function_call="auto"
+                )
+                promt_tokens = response["usage"]["prompt_tokens"]
+                completion_tokens = response["usage"]["completion_tokens"]
 
-        except Exception as e:
-            print("Unable to generate ChatCompletion response")
-            print(f"Exception: {e}")
-            return e
+                self.prompt_tokens += promt_tokens
+                self.completion_tokens += completion_tokens
+
+                return response["choices"][0]["message"]
+
+            except Exception as e:
+                print("Unable to generate ChatCompletion response")
+                print(f"Exception: {e}")
+                
         
-        return response["choices"][0]["message"]
+        
 
     def chat_completion_request(self):
-        try:
-            self.add_user_message(self.user_prompt)
-            
-            message = self.get_openai_response()
         
-            check_function_call = message.get("function_call")
-
-            if not check_function_call:
-                self.add_assistant_message(message['content'], [])
-
-            message['timestamp'] = str(dt.now())
-
-            assistant_message = message['content']
-            
-            while check_function_call:
-
-                json_str = message["function_call"]["arguments"]
-                data = json.loads(json_str)
-
-                function_name = message["function_call"]["name"]
-
-                if function_name == "get_context_tool":
-                    print("Using get-context tool...")
-                    function_response, sources, tokens = Functions.getText(
-                        query = data["query"],
-                        namespace="pastConversations"
-                    )
-                    #append sources to sources attribute
-                    for source in sources:
-                        self.sources.append(source)
-                    #app used tokens
-                    self.embeddings_tokens += tokens
-
-                elif function_name == "query_manuals":
-                    print("Using query_manuals tool...")
-                    function_response, sources, tokens = Functions.getText(
-                        query = data["query"],
-                        namespace="manuals"
-                    )
-                    #append sources to sources attribute
-                    for source in sources:
-                        self.sources.append(source)
-                    #app used tokens
-                    self.embeddings_tokens += tokens
-                    print(function_response)
-
-                elif function_name == "get_last_message":
-                    pass
-
-                elif function_name == "get_database_schema":
-                    print("Using get_database_schema tool...")
-                    function_response = Functions.get_database_schema()
-
-                elif function_name == "query_product_database":
-                    pass
-
-                self.add_function(function_name, str(function_response))
+        self.add_user_message(self.user_prompt)
         
-                additional_message = self.get_openai_response()
-                check_function_call = additional_message.get("function_call")
-
-                #add assistant message if no further function call is required
-                if not check_function_call:
-                    assistant_message = additional_message['content']
-                    self.add_assistant_message(assistant_message, self.sources)
-                    
-            
-            act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
-
-            return assistant_message, self.sources
+        message = self.get_openai_response()
     
-        except Exception as e:
-            print(e)
-            return "Unfortunatly there occured an error in the AI response.", []
+        check_function_call = message.get("function_call")
+
+        if not check_function_call:
+            self.add_assistant_message(message['content'], [])
+
+        message['timestamp'] = str(dt.now())
+
+        assistant_message = message['content']
+        
+        while check_function_call:
+
+            json_str = message["function_call"]["arguments"]
+            data = json.loads(json_str)
+
+            function_name = message["function_call"]["name"]
+
+            if function_name == "get_context_tool":
+                print("Using get-context tool...")
+                function_response, sources, tokens = Functions.getText(
+                    query = data["query"],
+                    namespace="pastConversations"
+                )
+                #append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                #app used tokens
+                self.embeddings_tokens += tokens
+
+            elif function_name == "query_manuals":
+                print("Using query_manuals tool...")
+                function_response, sources, tokens = Functions.getText(
+                    query = data["query"],
+                    namespace="manuals"
+                )
+                #append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                #app used tokens
+                self.embeddings_tokens += tokens
+                print(function_response)
+
+            elif function_name == "get_last_message":
+                pass
+
+            elif function_name == "get_database_schema":
+                print("Using get_database_schema tool...")
+                function_response = Functions.get_database_schema()
+
+            elif function_name == "query_product_database":
+                pass
+
+            self.add_function(function_name, str(function_response))
+    
+            additional_message = self.get_openai_response()
+            check_function_call = additional_message.get("function_call")
+
+            #add assistant message if no further function call is required
+            if not check_function_call:
+                assistant_message = additional_message['content']
+                self.add_assistant_message(assistant_message, self.sources)
+                
+        
+        act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
+
+        return assistant_message, self.sources
+
+
 
 
