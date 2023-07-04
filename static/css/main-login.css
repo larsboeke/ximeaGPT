@@ -446,7 +446,7 @@ iframe {
   position: absolute;
   max-width: 70%;
   background-color: #fff;
-  border: 1px solid #c80000;
+  border: 2px solid #c80000;
   border-radius: 2px;
   padding: 4px 25px 4px 10px;
   top: 50%;
@@ -473,7 +473,8 @@ iframe {
 }
 
 .alert-validate::after {
-  content: "\f12a";
+  content: "\f1f0";
+  font-family: Material-Design-Iconic-Font;
   font-size: 16px;
   color: #c80000;
 

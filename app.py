@@ -13,7 +13,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route('/')
 def index():
-    return render_template('login.html')
+    return render_template('register.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():

@@ -48,6 +48,11 @@
             }
         }
         else {
+            if($(input).attr('name') == 'pass-repeat') {
+                if(document.getElementById("password-repeat-register").value != document.getElementById("password-register").value) {
+                    return false;
+                }
+            }
             if($(input).val().trim() == ''){
                 return false;
             }
