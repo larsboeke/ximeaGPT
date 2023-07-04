@@ -75,17 +75,17 @@ const showSources = (sources) => {
         if (sources[i].metadata.type == "manuals"){
             html_sources += `<div class="content">
                                 <b>From ${sources[i].metadata.type}</b><br>
-                                <a href="${sources[i].metadata.source}">${sources[i].metadata.source}</a>
+                                <a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
                                 <br><br>${sources[i].content}
                             </div>`;
         }
-        else if (sources[i].metadata.type == "tickets"){
+        else if (sources[i].metadata.type == "ticket"){
             html_sources += `<div class="content">
                                 <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.TicketID}</b><br>
                                 <br><br>${sources[i].content}
                             </div>`;
         }
-        else if (sources[i].metadata.type == "emails"){
+        else if (sources[i].metadata.type == "email"){
             html_sources += `<div class="content">
                                 <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.case_id}</b><br>
                                 <br><br>${sources[i].content}
