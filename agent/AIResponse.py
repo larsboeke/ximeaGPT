@@ -25,10 +25,10 @@ class AiResponse:
  
 
 
-    def add_message(self, role, content):
-        message = {"role": role, "content": content}
+    def add_user_message(self, content):
+        message = {"role": 'user', "content": content}
         self.conversation_history.append(message)
-        usr.add_message(self.conversation_id, role, content)
+        usr.add_message(self.conversation_id, 'user', content)
 
     def add_function(self, function_name, content):
         message = {"role": "function", "name": function_name, "content": content}
@@ -58,85 +58,88 @@ class AiResponse:
         return response["choices"][0]["message"]
 
     def chat_completion_request(self):
-        self.add_message("user", self.user_prompt)
+        try:
+            self.add_message("user", self.user_prompt)
+            
+            message = self.get_openai_response()
         
-        message = self.get_openai_response()
-    
-        check_function_call = message.get("function_call")
+            check_function_call = message.get("function_call")
 
-        if not check_function_call:
-            self.add_message('assistant', message['content'])
-
-        message['timestamp'] = str(dt.now())
-
-        assistant_message = message['content']
-           
-        while check_function_call:
-
-            json_str = message["function_call"]["arguments"]
-            data = json.loads(json_str)
-
-            function_name = message["function_call"]["name"]
-
-            if function_name == "get_context_tool":
-                print("Using get-context tool...")
-                function_response, sources, tokens = Functions.getText(
-                    query = data["query"],
-                    namespace="pastConversations"
-                )
-                #append sources to sources attribute
-                for source in sources:
-                    self.sources.append(source)
-                #app used tokens
-                self.embeddings_tokens += tokens
-
-            elif function_name == "query_manuals":
-                print("Using query_manuals tool...")
-                function_response, sources, tokens = Functions.getText(
-                    query = data["query"],
-                    namespace="manuals"
-                )
-                #append sources to sources attribute
-                for source in sources:
-                    self.sources.append(source)
-                #app used tokens
-                self.embeddings_tokens += tokens
-                print(function_response)
-
-            elif function_name == "get_last_message":
-                pass
-
-            elif function_name == "get_database_schema":
-                print("Using get_database_schema tool...")
-                function_response = Functions.get_database_schema()
-
-            elif function_name == "query_product_database":
-                pass
-
-            self.add_function(function_name, str(function_response))
-     
-            additional_message = self.get_openai_response()
-            check_function_call = additional_message.get("function_call")
-
-            #add assistant messgae if no further function call is required
             if not check_function_call:
+                self.add_message('assistant', message['content'])
+
+            message['timestamp'] = str(dt.now())
+
+            assistant_message = message['content']
+            
+            while check_function_call:
+
+                json_str = message["function_call"]["arguments"]
+                data = json.loads(json_str)
+
+                function_name = message["function_call"]["name"]
+
+                if function_name == "get_context_tool":
+                    print("Using get-context tool...")
+                    function_response, sources, tokens = Functions.getText(
+                        query = data["query"],
+                        namespace="pastConversations"
+                    )
+                    #append sources to sources attribute
+                    for source in sources:
+                        self.sources.append(source)
+                    #app used tokens
+                    self.embeddings_tokens += tokens
+
+                elif function_name == "query_manuals":
+                    print("Using query_manuals tool...")
+                    function_response, sources, tokens = Functions.getText(
+                        query = data["query"],
+                        namespace="manuals"
+                    )
+                    #append sources to sources attribute
+                    for source in sources:
+                        self.sources.append(source)
+                    #app used tokens
+                    self.embeddings_tokens += tokens
+                    print(function_response)
+
+                elif function_name == "get_last_message":
+                    pass
+
+                elif function_name == "get_database_schema":
+                    print("Using get_database_schema tool...")
+                    function_response = Functions.get_database_schema()
+
+                elif function_name == "query_product_database":
+                    pass
+
+                self.add_function(function_name, str(function_response))
+        
+                additional_message = self.get_openai_response()
+                check_function_call = additional_message.get("function_call")
+
+                #add assistant messgae if no further function call is required
+                if not check_function_call:
+                    assistant_message = additional_message['content']
+                    self.add_message('assistant', assistant_message)
+                    usr.add_message(self.conversation_id, 'assistant', assistant_message)
+                
+                
+                
+                print(additional_message["content"])
+                additional_message['timestamp'] = str(dt.now())
                 assistant_message = additional_message['content']
-                self.add_message('assistant', assistant_message)
-                usr.add_message(self.conversation_id, 'assistant', assistant_message)
+
+                self.add_message("assistant", assistant_message)
+
             
             
-            
-            print(additional_message["content"])
-            additional_message['timestamp'] = str(dt.now())
-            assistant_message = additional_message['content']
+            act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
-            self.add_message("assistant", assistant_message)
-
-        
-        
-        act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
-
-        return assistant_message, self.sources
+            return assistant_message, self.sources
     
+        except Exception as e:
+            return "Unfortunatly there occured an error in the AI response.", []
 
 

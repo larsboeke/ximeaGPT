@@ -54,7 +54,7 @@ tools = [get_context_tool, query_maunals]
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["test"]
+    col = db["prototype3"]
     return col, db
 
 
@@ -73,7 +73,7 @@ def getText(query, namespace):
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype2"]
+    col = db["prototype3"]
     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
     used_tokens = query_embedding["usage"]["total_tokens"]
 
