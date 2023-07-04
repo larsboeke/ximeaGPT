@@ -167,7 +167,6 @@ def start_chat(user_id, user_message):
     print("chat started")
     socketio.emit('chat_started', data)
 
-
 @socketio.on('delete_chat')
 def delete_chat(chat_id):
     ##Delete chat functionfrom User
