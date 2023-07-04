@@ -33,7 +33,12 @@
         </div> -->
     </div>
         <!--CHAT CONTAINER-->
-        <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
+        <div class="upper-controls">
+            <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
+            <span class="material-symbols-outlined">account_circle</span> 
+            <p id="username">Username</p>
+            <button id="logout" class="material-symbols-outlined" title="Logout">logout</button>
+        </div>
         <div id="chatbox" class="chat-container"></div>            
         <!--Typing CONTAINER-->
         <div id="input-panel"class ="typing-container">
@@ -79,7 +84,6 @@
                     <span id="delete-feedback-btn" class="material-symbols-rounded" title="Delete Feedback" onclick="deleteFeedback(this)">delete</span>
                     <span id="send-feedback-btn" class="material-symbols-rounded" title="Send Feedback" onclick="negFeedback(this)">send</span>
                 </div>
-
             </form>
             </div>
         </div>

@@ -534,16 +534,16 @@
         background-color: var(--backend-chat-bg);
       }*/
 
+      .upper-controls{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       /* The button used to open the sidebar */
-      #open-sidebar-btn {
-        /*font-size: 40px;
-        cursor: pointer;
-        background-color: #111;
-        color: white;
-        padding: 10px 10px;
-        border: none;*/
-        height: 55px;
-        width: 55px;
+      #open-sidebar-btn, #logout{
+        height: 50px;
+        width: 50px;
         padding: 10px;
         margin: 20px;
         border-radius: 4px;
@@ -556,9 +556,11 @@
         background: var(--client-chat-bg);
       }
 
-      #open-sidebar-btn:hover {
+      #open-sidebar-btn:hover, #logout:hover {
         color: var(--activ-color);
       }
+
+
 
       /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
       #chatbox {

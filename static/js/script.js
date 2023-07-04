@@ -81,13 +81,13 @@ const showSources = (sources) => {
         }
         else if (sources[i].metadata.type == "ticket"){
             html_sources += `<div class="content">
-                                <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.TicketID}</b><br>
+                                <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
             html_sources += `<div class="content">
-                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.case_id}</b><br>
+                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                             </div>`;
         }      
@@ -181,15 +181,6 @@ socket.on('chat_deleted', (data) =>{
     console.log('Chat deleted with ID:', deletedChatId);
 })
 
-
-// const getCurrentTime = () =>{
-//     let dateObject = new Date();
-//     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//     let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
-//     let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
-//     return cTime + ' ' + cDate;
-// }
-
 const parseTime = (timestamp) =>{
     //2023-07-04T11:19:16.115000 in 12:12:42 [4 Aug 2023]
     let dateObject = new Date(timestamp);
@@ -201,7 +192,6 @@ const parseTime = (timestamp) =>{
 
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
-    // var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     var userId = localStorage.getItem("username");
     var newChat = document.createElement('li');
     chatList.prepend(newChat);
