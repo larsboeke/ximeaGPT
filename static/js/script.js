@@ -71,16 +71,28 @@ const showSources = (sources) => {
                                 <div class="header">
                                     <div class="title"> &#128161 Source ${i+1}</div>
                                      <span class="icon">&#x2228</span>
-                                </div>
-                                <div class="content">
-                                    <b>${sources[i].source.type}</b><br>
-                                    <a href="${sources[i].source.source}">${sources[i].source.source}</a>
-                                    <br><br>${sources[i].content}
-                                </div>
-                            </div>`
-        
+                                </div>`;
+        if (sources[i].metadata.type == "manuals"){
+            html_sources += `<div class="content">
+                                <b>From ${sources[i].metadata.type}</b><br>
+                                <a href="${sources[i].metadata.source}">${sources[i].metadata.source}</a>
+                                <br><br>${sources[i].content}
+                            </div>`;
+        }
+        else if (sources[i].metadata.type == "tickets"){
+            html_sources += `<div class="content">
+                                <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.TicketID}</b><br>
+                                <br><br>${sources[i].content}
+                            </div>`;
+        }
+        else if (sources[i].metadata.type == "emails"){
+            html_sources += `<div class="content">
+                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.case_id}</b><br>
+                                <br><br>${sources[i].content}
+                            </div>`;
+        }      
     }
-    html_sources += `</section>`;
+    html_sources += `</div></section>`;
     const sourceChatDiv = createChatElement(html_sources, "backend");
     chatContainer.appendChild(sourceChatDiv);
     for (let i = 0; i < sourcesHeaders.length; i++) {
@@ -170,13 +182,13 @@ socket.on('chat_deleted', (data) =>{
 })
 
 
-const getCurrentTime = () =>{
-    let dateObject = new Date();
-    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
-    let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
-    return cTime + ' ' + cDate;
-}
+// const getCurrentTime = () =>{
+//     let dateObject = new Date();
+//     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+//     let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
+//     let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
+//     return cTime + ' ' + cDate;
+// }
 
 const parseTime = (timestamp) =>{
     //2023-07-04T11:19:16.115000 in 12:12:42 [4 Aug 2023]
