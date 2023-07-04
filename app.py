@@ -155,6 +155,9 @@ def handle_message(data):
     # Emit the updated chat document back to the client ADD SOURCES
     socketio.emit('receive_response', data)
 
+
+
+
 @socketio.on('start_chat')
 def start_chat(user_id, user_message): 
     #print(current_user.is_authenticated)
@@ -177,7 +180,6 @@ def delete_chat(chat_id):
 def open_chat(chat_id):
     #chat_id = data['chat_id']
     messages = usr.get_messages(chat_id)
-    print(messages)
     socketio.emit('chat_opened', messages)
     
 
