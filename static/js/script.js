@@ -112,7 +112,8 @@ const getChatResponse = (aiChatDiv) =>{
         else{
             console.log('There are no additional sources');            
         }
-        timeElement.textContent = getCurrentTime();
+        let timestamp = new Date();
+        timeElement.textContent = parseTime(timestamp);
         aiChatDiv.querySelector(".typing-animation").remove();
         socket.off('receive_response', receiveResponse);
     };
@@ -122,7 +123,7 @@ const getChatResponse = (aiChatDiv) =>{
         pElement.classList.add("error");
         pElement.textContent = "Oops! Something went wrong while retrieving the response. Please try again.";
         aiChatDiv.querySelector(".typing-animation").remove();
-        socket.off('receive_response', receiveResponse);
+        socket.off('receive_response', receiveResponse); 
     });
     //saving all chat HTML data(only last chat) as chat-hystory name in local storage
     localStorage.setItem('chat-history', chatContainer.innerHTML)
@@ -177,6 +178,15 @@ const getCurrentTime = () =>{
     return cTime + ' ' + cDate;
 }
 
+const parseTime = (timestamp) =>{
+    //2023-07-04T11:19:16.115000 in 12:12:42 [4 Aug 2023]
+    let dateObject = new Date(timestamp);
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
+    let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
+    return cTime + ' ' + cDate;
+};
+
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
     // var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
@@ -209,11 +219,12 @@ const handleUserMessage = () => {
                 'text': userMessage
             }
             socket.emit('send_message', data);
+            let timestamp = new Date();
             const html =`<div class="chat-content">
                             <div class="chat-details">
                                 <img src="../static/images/user_logo.png" alt="user-img">
                                 <p>${userMessage}</p>
-                                <span class="time">${getCurrentTime()}</span>
+                                <span class="time">${parseTime(timestamp)}</span>
                             </div>
                         </div>`;
             const userChatDiv = createChatElement(html, "client");
@@ -331,7 +342,7 @@ const loadChat = (messages) => {
                         <div class="chat-details">
                             <img src="../static/images/user_logo.png" alt="user-img">
                             <p>${message.content}</p>
-                            <span class="time">${message.time}</span>
+                            <span class="time">${parseTime(message.timestamp)}</span>
                         </div>
                     </div>`;
             const userChatDiv = createChatElement(html, "client");
@@ -342,7 +353,10 @@ const loadChat = (messages) => {
                         <div class="chat-details">
                             <img src="../static/images/user_logo.png" alt="chatbot-img">
                             <p>${message.content}</p>
-                            <span class="time">${message.time}</span>
+                            <span class="time">${parseTime(message.timestamp)}</span>
+                        </div>
+                        <div class="chat-controls">
+                        <span onclick="copyResponse(this)" id="copy" class="material-symbols-rounded">content_copy</span>
                         </div>
                     </div>`;
             const aiChatDiv = createChatElement(html, "backend");
@@ -351,6 +365,7 @@ const loadChat = (messages) => {
         }
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    newChatButton.disabled = false;
 };
 
 chatList.addEventListener("click", (event) =>{
