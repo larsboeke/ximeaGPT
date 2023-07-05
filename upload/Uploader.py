@@ -176,6 +176,7 @@ class Uploader:
 
     # Upload tickets from Deskpro API
     def uploadTicket(self, TicketID):
+        # remove is_file_uploaded after initial upload, not needed anymore then
         if self.is_file_uploaded(str(TicketID)) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()

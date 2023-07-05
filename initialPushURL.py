@@ -1,6 +1,5 @@
 from upload.Uploader import Uploader
-from data_package import manual_url_list
-
+from data_package.URL_Handler import url_list
 
 iter=0
 for url in manual_url_list.url_list:
