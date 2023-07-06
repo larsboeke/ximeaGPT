@@ -31,6 +31,14 @@
             }
         }
 
+        /*eingefuegt*/
+        if (check == true) {
+            const submitBtn = document.querySelector("#submit-btn");
+            const username = document.querySelector("#username");
+         
+            localStorage.setItem("username", username.value);
+        }
+
         return check;
     });
 
