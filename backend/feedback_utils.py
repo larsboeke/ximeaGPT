@@ -1,12 +1,16 @@
 import pymongo
 from datetime import datetime as dt
 from bson.objectid import ObjectId
+import pinecone
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
 db = client['admin']                            
 feedback_mongo = db["feedback"]
 db2 = client['XIMEAGPT']
 chunk_mongo = db2['prototype3']
+
+pinecone.init(api_key="YOUR_PINECONE_API_KEY")  # Replace with your Pinecone API key
+index = pinecone.Index(index_name="chunk_index")
 
 
 # entry = {
@@ -65,8 +69,12 @@ def reset_all_down_ratings():
         reset_down_rating(chunk_id)
 
 
-def clear_feedback_db():
-    pass
+def delete_chunk(chunk_id):
+    # Delete from MongoDB
+    chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
+
+    # Delete from Pinecone
+    index.delete(ids=[chunk_id])
 
 chunk_id = "64a3e1fb385ee30652778034"
 
