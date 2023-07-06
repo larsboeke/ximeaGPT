@@ -68,7 +68,10 @@ def generate_chat_title(user_prompt):#
     return title
 
 def delete_chat(user_id, chat_id):
-    pass
+    conversations_mongo.delete_one({'conversation_id': chat_id})
+    user_mongo.update_one({'user_id': user_id},{ '$pull': { 'conversations': { 'conversation_id': chat_id} }})
+    print(f"Conversation is deleted with following id", chat_id)
+
         
 def generate_chat_id():
     while True:

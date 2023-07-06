@@ -23,8 +23,6 @@
                 {% for chat in chats %}
                     <li id="{{ chat.conversation_id }}"><span class="material-symbols-outlined">chat_bubble</span>{{ chat.title }}</li>
                 {% endfor %}
-                <!-- <li id="hdg68dj99"><span class="material-symbols-outlined">chat_bubble</span>Chat 1</li>
-                <li id="dfsbjf0976"><span class="material-symbols-outlined">chat_bubble</span>Chat 2</li> -->
             </ul>
         </div>    
         <!-- <div class="user-info">
@@ -35,9 +33,9 @@
         <!--CHAT CONTAINER-->
         <div class="upper-controls">
             <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
-            <span class="material-symbols-outlined">account_circle</span> 
-            <p id="username">Username</p>
-            <button id="logout" class="material-symbols-outlined" title="Logout">logout</button>
+                <!-- <span class="material-symbols-outlined">account_circle</span> 
+                <p id="username">Username</p> -->
+                <button id="logout-btn" class="material-symbols-outlined" title="Logout"> logout</button>
         </div>
         <div id="chatbox" class="chat-container"></div>            
         <!--Typing CONTAINER-->

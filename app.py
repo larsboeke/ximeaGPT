@@ -76,12 +76,12 @@ def register():
         password = request.form.get('password')
 
         if users_collection.find_one({"user_id": username}):
+            return "Email already exists!"  # you would want to handle this better in a real-world app
+        else:            
             password_hash = generate_password_hash(password)
             usr.add_user(username, password_hash)
             print("registered user")
             return redirect(url_for('login'))
-        else:
-            return "Email already exists!"  # you would want to handle this better in a real-world app
 
     return render_template('register.html')
 
@@ -89,7 +89,8 @@ def register():
 @login_required
 def logout():
     logout_user()
-    return render_template('login.html')
+    return redirect(url_for('login'))
+
 
 @app.route('/')
 @login_required
@@ -104,7 +105,7 @@ def index():
         #     print(conversations)
         #     return render_template('chatbot.html', user_id=user_id, chats=conversations)
         print(current_user.id)
-        return render_template('chatbot.html', chats=conversations)
+        return render_template('chatbot.html', chats=conversations[::-1])
         
     else:
         return render_template('login.html')
@@ -171,10 +172,9 @@ def start_chat(user_id, user_message):
     socketio.emit('chat_started', data)
 
 @socketio.on('delete_chat')
-def delete_chat(chat_id):
-    ##Delete chat functionfrom User
-    chats_collection.delete_one({'_id': chat_id})
-    socketio.emit('chat_deleted', {'chat_id': chat_id})
+def delete_chat(username, chat_id):
+    ##Delete chat function from User
+    usr.delete_chat(username, chat_id)
 
 @socketio.on('open_chat')
 def open_chat(chat_id):
@@ -184,10 +184,11 @@ def open_chat(chat_id):
     
 
     
-@socketio.on('add_sources')
-def add_sources(data):
-    #array of chunks here
-    socketio.emit('sources_added')
+@socketio.on('rate_chunk')
+def rate_chunk(chunk_id):
+    print(f"You rated a chunk with id", chunk_id)
+    #here logic for rating a chunk
+
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
