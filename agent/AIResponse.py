@@ -1,4 +1,4 @@
-from agent import Functions
+from agent import Agent_functions
 import openai
 import os
 import json
@@ -13,7 +13,7 @@ class AiResponse:
         
         self.conversation_id = conversation_id
         self.conversation_history = usr.retrieve_conversation(conversation_id)
-        self.functions = Functions.tools
+        self.functions = Agent_functions.tools
         self.user_prompt = user_prompt
         self.sources = []
         self.prompt_tokens = 0
@@ -48,7 +48,7 @@ class AiResponse:
 
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-0613",
+                    model="gpt-3.5-turbo-16k",
                     messages= self.conversation_history,
                     functions= self.functions,
                     function_call="auto"
@@ -92,7 +92,7 @@ class AiResponse:
 
             if function_name == "get_context_tool":
                 print("Using get-context tool...")
-                function_response, sources, tokens = Functions.getText(
+                function_response, sources, tokens = Agent_functions.getText(
                     query = data["query"],
                     namespace="pastConversations"
                 )
@@ -104,7 +104,7 @@ class AiResponse:
 
             elif function_name == "query_manuals":
                 print("Using query_manuals tool...")
-                function_response, sources, tokens = Functions.getText(
+                function_response, sources, tokens = Agent_functions.getText(
                     query = data["query"],
                     namespace="manuals"
                 )
@@ -120,11 +120,12 @@ class AiResponse:
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
-                function_response = Functions.get_database_schema()
+                function_response = Agent_functions.get_database_schema()
 
             elif function_name == "query_product_database":
                 pass
 
+            print(check_function_call)
             self.add_function(function_name, str(function_response))
     
             additional_message = self.get_openai_response()

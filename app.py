@@ -12,7 +12,7 @@ from agent.AIResponse import AiResponse
 from pymongo import MongoClient
 import backend.user_utils as usr
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
