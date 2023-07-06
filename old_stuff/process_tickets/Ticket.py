@@ -9,7 +9,7 @@ class Ticket:
         self.WholeTicket = []
         self.fullTicketText = ""
         self.metadata ={},
-        self.ticketStartDate = None
+        self.ticket_start_date = None
         self.set_parameter()
 
     def set_parameter(self):

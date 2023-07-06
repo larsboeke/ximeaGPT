@@ -57,7 +57,7 @@ class Case:
             formatted_dates.append(formatted_dt)
         
         self.metadata = {"type": "email",
-                     "case_id": caseid,
+                     "source_id": caseid,
                      "activity_id": activityids,
                      "document_date": formatted_dates
                      }
