@@ -90,7 +90,7 @@ class AiResponse:
 
             function_name = message["function_call"]["name"]
 
-            if function_name == "get_context_tool":
+            if function_name == "query_past_conversations":
                 print("Using get-context tool...")
                 function_response, sources, tokens = Agent_functions.getText(
                     query = data["query"],

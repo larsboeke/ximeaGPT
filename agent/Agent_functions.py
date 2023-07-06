@@ -18,8 +18,8 @@ EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
 get_context_tool = {
-                "name": "get_context_tool",
-                "description": "Query past conversations based on embeddings to get similar contexts to answer the question",
+                "name": "query_past_conversations",
+                "description": "Get Context from past conversations that already happend with real customers to. ONLY USE THIS TOOL ONCE IN A QUERY",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -34,7 +34,7 @@ get_context_tool = {
 
 query_maunals = {
                 "name": "query_manuals",
-                "description": "Query manuals based on embeddings to get technical information",
+                "description": "Query technical manuals to get technical information. ONLY USE THIS TOOL ONCE IN A QUERY",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -81,7 +81,7 @@ get_last_message = "pass"
 
  
 
-tools = [get_context_tool, query_maunals, get_database_schema]
+tools = [get_context_tool, query_maunals]
 
 database_schema = """ 
 CREATE TABLE [dbo].[feature](
