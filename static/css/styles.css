@@ -171,12 +171,13 @@
     user-select: none;
     cursor: pointer;
     transform: scale(1.3);
-  }
+  }*/
   #thumb-down:hover{
     user-select: none;
     cursor: pointer;
     transform: scale(1.3);
-  }*/
+    color: #b12727;
+  } 
   .chat-container .chat.client{
     background: var(--client-chat-bg);
     border: 1px solid var(--client-chat-border)
@@ -535,13 +536,14 @@
       }*/
 
       .upper-controls{
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
       }
 
       /* The button used to open the sidebar */
-      #open-sidebar-btn, #logout{
+      #open-sidebar-btn, #logout-btn{
         height: 50px;
         width: 50px;
         padding: 10px;
@@ -555,8 +557,11 @@
         border: 1px solid var(--client-chat-border);
         background: var(--client-chat-bg);
       }
+      #logout-btn{
+        margin-left: auto;
+      }
 
-      #open-sidebar-btn:hover, #logout:hover {
+      #open-sidebar-btn:hover, #logout-btn:hover {
         color: var(--activ-color);
       }
 
