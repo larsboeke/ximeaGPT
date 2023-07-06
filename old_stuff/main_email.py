@@ -54,7 +54,7 @@ def upload_new_cases_and_updated_cases():
     print("Cases to be updated: ", len(updated_cases))
 
     if updated_cases:
-        EmailDatabaseDeleter(pinecone_connection, mongodb_connection).deleteCases(updated_cases)
+        EmailDatabaseDeleter(pinecone_connection, mongodb_connection, sql_connection).deleteCases(updated_cases)
         for case in updated_cases:
             emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
             one_case = Case(case[0], emails_for_one_case)

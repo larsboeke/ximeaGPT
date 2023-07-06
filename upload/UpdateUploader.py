@@ -132,14 +132,20 @@ class UpdateUploader:
         print("Cases to be updated: ", len(updated_cases))
 
         if updated_cases:
-            EmailDatabaseDeleter(pinecone_connection, mongodb_connection).deleteCases(updated_cases)
+            EmailDatabaseDeleter(pinecone_connection, mongodb_connection, sql_connection).delete_null_activities()
+            EmailDatabaseDeleter(pinecone_connection, mongodb_connection, sql_connection).deleteCases(updated_cases)
             for case in updated_cases:
                 emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
-                one_case = Case(case[0], emails_for_one_case)
+                one_case = Case(str(case[0]), emails_for_one_case)
                 content = PlainTextFromCaseProvider().provide_full_content(one_case)
                 chunks = Chunker().data_to_chunks(content, one_case.metadata)
-                print(chunks)
+                #print(chunks)
                 SQLDatabaseUpdater(sql_connection).update_case(case[0])
+                for chunk in chunks:
+                    self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
+
+                SQLDatabaseUpdater(sql_connection).update_case(case[0])
+                sql_connection[0].close()
 
     # Upload tickets from Deskpro API
     def uploadNewTicket(self, TicketID):

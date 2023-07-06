@@ -11,7 +11,8 @@ class PlainTextFromEmailProvider:
                              "Alles Gute", "In freundschaftlicher Verbundenheit", "Hochachtungsvoll",
                              "Beste Wünsche", "Auf Wiedersehen", "Bis bald", "Pass auf dich auf",
                              "Schönen Tag noch", "Mit Dank und besten Grüßen", "Herzlichst", "Liebevoll",
-                             "Mit freundlichem Gruß", "Gruß", "Beste Grüße", "LG", "MfG", "Thanks again and best regards"]
+                             "Mit freundlichem Gruß", "Gruß", "Beste Grüße", "LG", "MfG", "Thanks again and best regards",
+                             "Thank you and best wishes"]
         self.patterns = [r"From:.*?Subject:", r"Best regards.*?Subject:", r"Sincerely.*?Subject:",
                          r"Best regards.*?Subject:", r"Kind regards.*?Subject:", r"Regards.*?Subject:",
                          r"Best wishes.*?Subject:", r"Yours faithfully.*?Subject:", r"Yours sincerely.*?Subject:",
@@ -24,7 +25,7 @@ class PlainTextFromEmailProvider:
                          r"Pass auf dich auf.*?Subject:", r"Schönen Tag noch.*?Subject:", r"Mit Dank und besten Grüßen.*?Subject:",
                          r"Herzlichst.*?Subject:", r"Liebevoll.*?Subject:", r"Mit freundlichem Gruß.*?Subject:",
                          r"Gruß.*?Subject:", r"Beste Grüße.*?Subject:", r"LG.*?Subject:", r"MfG.*?Subject:",
-                         r"Thanks again and best regards.*?Subject:"]
+                         r"Thanks again and best regards.*?Subject:", r"Thank you and best wishes.*?Subject:"]
         self.from_to_subject_pattern = r"From:.*?Subject:"
         
 

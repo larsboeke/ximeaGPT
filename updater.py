@@ -8,10 +8,8 @@ def updating_loop(time_interval):
         UpdateUploader().upload_new_cases_and_updated_cases()
         print("All Emails uploaded!")
 
-        # get new resolved tickets and save to ticket_ids.py
-        # TODO: check if working
         new_ticket_ids = TicketRepository().get_new_ids(pages=TicketRepository().count_pages())
-
+        print("Tickets to be uploaded: ", new_ticket_ids)
         # Upload new manuals and update existing manuals
         if len(new_ticket_ids) > 0:
             for id in new_ticket_ids:

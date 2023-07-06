@@ -153,7 +153,7 @@ class Uploader:
         all_cases = CaseRepository(sql_connection).get_all_cases()
         print("Cases to be updated: ", len(updated_cases))
         if updated_cases != all_cases:
-            EmailDatabaseDeleter(pinecone_connection, mongodb_connection).deleteCases(updated_cases)
+            EmailDatabaseDeleter(pinecone_connection, mongodb_connection, sql_connection).deleteCases(updated_cases)
 
         if updated_cases and updated_cases != []:
             for case in updated_cases:

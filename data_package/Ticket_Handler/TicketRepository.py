@@ -4,7 +4,7 @@ import csv
 class TicketRepository:
 
     def __init__(self):
-        self.file_path_old_ids = 'old_ids.csv'
+        self.file_path_old_ids = 'data_package/Ticket_Handler/old_ids.csv'
         self.url = 'https://desk.ximea.com/api/v2/tickets'
         self.header = {'Accept': 'application/json',
                        "Authorization": "key 5:9ZJG366BBM9WZ8YPSTBXKPPW3"}
@@ -52,11 +52,15 @@ class TicketRepository:
 
         with open(self.file_path_old_ids, 'r') as f:
             reader = csv.reader(f)
-            old_ids = [int(row[0]) for row in reader]
+            for row in reader:
+                # Convert each item in the row to an integer and save it to the list.
+                old_ids = [int(item) for item in row]
 
+        print("old_ids: ", old_ids)
         new_plus_old_ids = self.fetch_all_ids(pages=pages)
-
+        print("new_plus_old_ids: ", new_plus_old_ids)
         # Finden Sie die Elemente in der Liste, die nicht in der CSV-Datei vorkommen
         new_ids = [id for id in new_plus_old_ids if id not in old_ids]
+        print("new_ids: ", new_ids)
 
         return new_ids
