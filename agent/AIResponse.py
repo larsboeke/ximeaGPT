@@ -51,7 +51,8 @@ class AiResponse:
                     model="gpt-3.5-turbo-16k",
                     messages= self.conversation_history,
                     functions= self.functions,
-                    function_call="auto"
+                    function_call="auto",
+                    temperature = 0
                 )
                 promt_tokens = response["usage"]["prompt_tokens"]
                 completion_tokens = response["usage"]["completion_tokens"]
@@ -115,15 +116,19 @@ class AiResponse:
                 self.embeddings_tokens += tokens
                 print(function_response)
 
-            elif function_name == "get_last_message":
-                pass
+            #elif function_name == "get_last_message":
+                #pass
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
                 function_response = Agent_functions.get_database_schema()
 
             elif function_name == "query_product_database":
-                pass
+                print("Using query_product_database tool...")
+                function_response = Agent_functions.query_product_database(
+                    sqlquery = data["sqlquery"]
+                )
+
 
             print(check_function_call)
             self.add_function(function_name, str(function_response))
