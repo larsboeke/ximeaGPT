@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback</title>
+    <style>
+        ul {
+            list-style-type: disc;
+        }
+        .indent {
+            margin-left: 20px;
+        }
+    </style>
 </head>
 <body>
     {% extends 'admin_panel.html' %}
@@ -14,12 +22,25 @@
         <p>the feedback dashboard is here</p>
     </div>
         
-    <!-- Add the specific content for the dashboard page -->
-    <input type="text" id="input-field" placeholder="Enter string here">
-    <button id="submit-btn">Submit</button>
     
 
     <button id="reset-feedback-btn">Reset all Feedback!</button>
+
+    <h1>Feedback</h1>
+    <ul>
+        {% for feedback in all_feedback %}
+            <li>
+                <h2>Chunk ID: {{ feedback.chunk_id }}</h2>
+                <div class="indent">
+                    <p>Down Rating: {{ feedback.down_rating }}</p>
+                    <p>Content: {{ feedback.content }}</p>
+                    <p>Type: {{ feedback.metadata.type }}</p>
+                    <p>Source ID: {{ feedback.metadata.source_id }}</p>
+                    <p>Order ID: {{ feedback.metadata.order_id }}</p>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
 
 
         <!-- Add the specific content for the dashboard page -->

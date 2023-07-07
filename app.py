@@ -210,7 +210,8 @@ def admin_upload():
 
 @app.route('/admin/feedback')
 def admin_feedback():
-    return render_template('feedback.html')
+    all_feedback = feedback.get_all_cleaned_rated_chunks()
+    return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
     socketio.run(app, port=5000, debug=True)
