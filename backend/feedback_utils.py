@@ -7,7 +7,7 @@ client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
 db = client['admin']                            
 feedback_mongo = db["feedback"]
 db2 = client['XIMEAGPT']
-chunk_mongo = db2['prototype3']
+chunk_mongo = db2['prototype4']
 
 pinecone.init(api_key="YOUR_PINECONE_API_KEY")  # Replace with your Pinecone API key
 index = pinecone.Index(index_name="chunk_index")
@@ -76,10 +76,34 @@ def delete_chunk(chunk_id):
     # Delete from Pinecone
     index.delete(ids=[chunk_id])
 
-chunk_id = "64a3e1fb385ee30652778034"
+def clean_chunk(data):
+    # Ensure the input is a list and has exactly two elements
+    if isinstance(data, list) and len(data) == 2:
+        dict1 = data[0]
+        dict2 = data[1][0] if isinstance(data[1], list) and len(data[1]) > 0 else {}
+
+        # Ensure both elements are dictionaries
+        if isinstance(dict1, dict) and isinstance(dict2, dict):
+            result = dict1.copy()  # Start with the first dictionary's keys and values
+            result.update(dict2)  # Adds the second dictionary's keys and values
+            return result
+
+    # If the data does not match the expected structure, return an empty dictionary
+    return {}
+
+"""chunk_id = "64a3e1fb385ee30652778034"
 
 
-add_feedback(chunk_id)
+add_feedback(chunk_id)"""
 #print(get_rated_chunk(chunk_id))
-print(get_all_rated_chunks())
 
+"""all_feedback = get_all_rated_chunks()
+print(all_feedback)
+#print(all_feedback)
+print("Merged:")"""
+
+def get_all_cleaned_rated_chunks():
+    cleaned_chunks = []
+    for chunk in get_all_rated_chunks():
+        cleaned_chunks.append(clean_chunk(chunk))
+    return cleaned_chunks
