@@ -32,7 +32,7 @@ get_context_tool = {
                 },
             }
 
-query_maunals = {
+query_manuals = {
                 "name": "query_manuals",
                 "description": "Query technical manuals to get technical information. ONLY USE THIS TOOL ONCE IN A QUERY",
                 "parameters": {
@@ -48,7 +48,7 @@ query_maunals = {
             }
 
 get_all = {
-                "name": "get_context_tool",
+                "name": "get_all",
                 "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
                 "parameters": {
                     "type": "object",
@@ -97,9 +97,9 @@ get_last_message = "pass"
  
 
 tools = [
-    get_all,
-    #get_context_tool,
-    #query_maunals,
+    #get_all,
+    get_context_tool,
+    query_manuals,
     get_database_schema,
     query_product_database]
 
