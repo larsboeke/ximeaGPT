@@ -323,6 +323,9 @@
   .typing-textarea textarea::placeholder{
     color: var(--placeholder-color);
   }
+  .typing-textarea textarea[disabled]:hover{
+    cursor: not-allowed;
+  }
   .typing-textarea span{
     position: absolute;
     right: 0;
