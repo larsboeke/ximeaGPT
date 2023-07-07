@@ -14,6 +14,7 @@ const chatList = document.getElementById("chat-list");
 const sourcesHeaders = document.getElementsByClassName("header");
 const sourcesContents = document.getElementsByClassName("content");
 const icons = document.getElementsByClassName("icon");
+const logoutButton = document.querySelector("#logout-btn");
 var positiveFeedback = new Boolean(false);
 var negativeFeedback = new Boolean(false);
 
@@ -63,8 +64,15 @@ const createChatElement = (html, className) => {
     return chatDiv;
 }
 
+const rateChunk = (thumbDown) =>{
+    thumbDown.style.color = "#b12727";
+    var chunk_id = thumbDown.parentElement.id;
+    localStorage.setItem('chunk_id', chunk_id);
+    console.log('You rated chunk with id', chunk_id);
+    socket.emit('rate_chunk', chunk_id);
+}
+
 const showSources = (sources) => {
-    //TO-DO: Addapt the output to tickets and emails
     let html_sources = `<section id="accordion">`;
     for (let i = 0; i < sources.length; i++){
         html_sources += `<div class="menu">
@@ -73,22 +81,25 @@ const showSources = (sources) => {
                                      <span class="icon">&#x2228</span>
                                 </div>`;
         if (sources[i].metadata.type == "manuals"){
-            html_sources += `<div class="content">
+            html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type}</b><br>
                                 <a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
                                 <br><br>${sources[i].content}
+                                <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
         }
         else if (sources[i].metadata.type == "ticket"){
-            html_sources += `<div class="content">
-                                <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.TicketID}</b><br>
+            html_sources += `<div "${sources[i].id}" class="content">
+                                <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
+                                <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
-            html_sources += `<div class="content">
-                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.case_id}</b><br>
+            html_sources += `<div "${sources[i].id}" class="content">
+                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
+                                <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
         }      
     }
@@ -99,7 +110,7 @@ const showSources = (sources) => {
         sourcesHeaders[i].addEventListener("click", () => {
             sourcesContents[i].style.display = sourcesContents[i].style.display == "block" ? "none" : "block";
             icons[i].innerHTML = sourcesContents[i].style.display == "block" ? "&#x2227" : "&#x2228";
-            chatContainer.scrollTo(0, chatContainer.scrollHeight);
+            sourcesContentsContainer.scrollTo(0, sourcesContents.scrollHeight);
         });
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
@@ -176,19 +187,10 @@ const showTypingAnimation = () => {
     
 }
 
-socket.on('chat_deleted', (data) =>{
-    var deletedChatId = data.chat_id;
-    console.log('Chat deleted with ID:', deletedChatId);
-})
-
-
-// const getCurrentTime = () =>{
-//     let dateObject = new Date();
-//     let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-//     let cDate = '[' + dateObject.getDate() + ' ' + months[dateObject.getMonth() + 1] + ' ' + dateObject.getFullYear() + ']';
-//     let cTime =  dateObject.getHours() + ":" + dateObject.getMinutes().toString().padStart(2,'0') + ":" + dateObject.getSeconds().toString().padStart(2,'0');
-//     return cTime + ' ' + cDate;
-// }
+// socket.on('chat_deleted', (data) =>{
+//     var deletedChatId = data.chat_id;
+//     console.log('Chat deleted with ID:', deletedChatId);
+// })
 
 const parseTime = (timestamp) =>{
     //2023-07-04T11:19:16.115000 in 12:12:42 [4 Aug 2023]
@@ -201,7 +203,6 @@ const parseTime = (timestamp) =>{
 
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
-    // var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
     var userId = localStorage.getItem("username");
     var newChat = document.createElement('li');
     chatList.prepend(newChat);
@@ -278,11 +279,22 @@ themeButton.addEventListener("click", () =>{
 deleteButton.addEventListener("click", () =>{
     //TO-DO: change confirm window to a centered pop-up window
     if(confirm("Are you sure that you want to delete the history of this chat?")){
-        socket.emit('delete_chat', localStorage.getItem('chat_id'));
+        var userId = localStorage.getItem('username');
+        var chatId = localStorage.getItem('chat_id');
+        socket.emit('delete_chat', userId, chatId);
+        chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
         fileInfo.remove();
         loadDefaultWindow(); 
+    }
+});
+
+logoutButton.addEventListener("click", () =>{
+    if(confirm("Are you sure that you want to logout?")){
+        socket.emit('logout');
+        localStorage.removeItem('username');
+        window.location.href = '/logout'; 
     }
 });
 
@@ -373,6 +385,9 @@ const loadChat = (messages) => {
                     </div>`;
             const aiChatDiv = createChatElement(html, "backend");
             chatContainer.appendChild(aiChatDiv);
+            if (message.sources.length !== 0){
+                showSources(message.sources);
+            }
             //sourses?
         }
     }
