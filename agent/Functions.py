@@ -49,6 +49,21 @@ query_maunals = {
                 },
             }
 
+get_all = {
+                "name": "get_context_tool",
+                "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query of the user, you want to find similar contexts to",
+                        },
+                    },
+                    "required": ["query"],
+                },
+            }
+
 get_mysql = {
             "name": "get_mysql",
             "description": "Get the result back from a valid sql query on a database. Use it when you are asked about an mysql query!",

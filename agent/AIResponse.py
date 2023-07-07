@@ -115,6 +115,19 @@ class AiResponse:
                 self.embeddings_tokens += tokens
                 print(function_response)
 
+            elif function_name == "query_all":
+                print("Using query_all tool...")
+                function_response, sources, tokens = Functions.getText(
+                    query=data["query"],
+                    namespace="manuals"
+                )
+                # append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                # app used tokens
+                self.embeddings_tokens += tokens
+                print(function_response)
+
             elif function_name == "get_last_message":
                 pass
 
