@@ -122,7 +122,7 @@ class AiResponse:
                 print("Using query_all tool...")
                 function_response, sources, tokens = Agent_functions.getText(
                     query=data["query"],
-                    namespace="manuals"
+                    namespace="pastConversations"
                 )
                 # append sources to sources attribute
                 for source in sources:
