@@ -108,4 +108,4 @@ def get_all_cleaned_rated_chunks():
         cleaned_chunks.append(clean_chunk(chunk))
     return cleaned_chunks
 
-print(get_all_cleaned_rated_chunks())
+#print(get_all_cleaned_rated_chunks())
