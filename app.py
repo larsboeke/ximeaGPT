@@ -11,6 +11,8 @@ from agent.AIResponse import AiResponse
 #import uploadData
 from pymongo import MongoClient
 import backend.user_utils as usr
+import backend.activity_utils as activity
+from datetime import datetime  
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
@@ -134,6 +136,7 @@ def upload():
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
+    print("CONVERSTION ID FOR QUERY: " + conversation_id)
     response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
     print("Conversation ID for query " + conversation_id)    
@@ -166,7 +169,11 @@ def start_chat(user_id, user_message):
     print("started chat")
      
     chat_id, title = usr.create_chat(user_id, user_message)
+<<<<<<< HEAD
     print("started chat with id" + chat_id)
+=======
+    print("CONVERSTION ID FOR NEW CHAT: " + chat_id)
+>>>>>>> 7f298c8e3ac3b14dc1096baab5984ff3c4f0d8a8
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
@@ -194,10 +201,17 @@ def rate_chunk(chunk_id):
 #Routing for the admin panel
 @app.route('/admin/dashboard')
 def admin_dashboard():
-    stat1 = 234
-    stat2 = 3
-    stat3 = 34
-    stat4 = 76
+    now = datetime.now()
+
+# create start_date and end_date with today's date but different time
+    start_time_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time_today = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    report = activity.generate_report(start_time_today, end_time_today)
+    stat1 = report['activity_cost']
+    stat2 = report['cost_per_message']
+    stat3 = report['activity_count']
+    stat4 = report['avg_response_time']
     return render_template('dashboard.html', stat1=stat1, stat2=stat2, stat3=stat3, stat4=stat4)
 
 @app.route('/admin/documents')
