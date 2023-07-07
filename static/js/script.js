@@ -216,7 +216,7 @@ const startNewChat = (userMessage) => {
         console.log('New chat started with ID:', chat_id); 
         console.log('New chat started with title:', title);  
     });
-    handleUserMessage(userMessage);
+    handleUserMessage();
 }
 
 const handleUserMessage = () => {

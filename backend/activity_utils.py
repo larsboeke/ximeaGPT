@@ -1,5 +1,5 @@
 import pymongo
-from datetime import datetime as dt
+import datetime as dt
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
 db = client['admin']                            
@@ -35,7 +35,7 @@ def get_avg_time_response(startdate, enddate):
         {
             '$group': {
                 '_id': None,
-                'total_time': {'$sum': {'$subtract': ['$end_timestamp', '$start_timestamp']}},
+                'total_time': {'$sum': {'$divide': [{'$subtract': ['$end_timestamp', '$start_timestamp']}, 1000]}},
                 'count': {'$sum': 1}
             }
         },
@@ -50,34 +50,42 @@ def get_avg_time_response(startdate, enddate):
     result = list(activity_mongo.aggregate(pipeline))
     if result:
         average_time = result[0]['average_time']
-        return average_time
+        avg_time_rounded = round(average_time, 2)
+        
+        return avg_time_rounded
     else:
         return None
 
+
 def get_activity_count(startdate, enddate):
     count = activity_mongo.count_documents(
-        {"timestamp": {"$gte": startdate, "$lte": enddate}}
+        {"start_timestamp": {"$gte": startdate, "$lte": enddate}}
     )
     return count
 
 def get_activity_cost(startdate, enddate):
-    result = activity_mongo.find(
-        [
-            {
-                "$match": {
-                    "timestamp": {"$gte": startdate, "$lte": enddate}
-                }
-            },
-            {
-                "$group": {
-                    "_id": None,
-                    "total_cost": {"$sum": "$cost"}
-                }
+    pipeline = [
+        {
+            "$match": {
+                "start_timestamp": {"$gte": startdate, "$lte": enddate}
             }
-        ]
-    )
-    total_cost = list(result)[0]["total_cost"]
-    return total_cost
+        },
+        {
+            "$group": {
+                "_id": None,
+                "total_cost": {"$sum": "$cost"}
+            }
+        }
+    ]
+
+    result = list(activity_mongo.aggregate(pipeline))
+    print(result)
+    if result:
+        total_cost = result[0]['total_cost']
+        rounded_total_cost = round(total_cost, 2)
+        return rounded_total_cost
+    else:
+        return None
 
 
 def get_graph_activity(startdate, enddate):
@@ -108,12 +116,22 @@ def generate_report(start_timestamp, end_timestamp):
     avg_response_time = get_avg_time_response(start_timestamp, end_timestamp)
     activity_count = get_activity_count(start_timestamp, end_timestamp)
     activity_cost = get_activity_cost(start_timestamp, end_timestamp)
+    cost_per_message = round(activity_cost/activity_count, 2)
     graph_data = get_graph_activity(start_timestamp, end_timestamp)
+
 
     report = {
         'avg_response_time' : avg_response_time,
         'activity_count' : activity_count,
         'activity_cost' : activity_cost,
+        'cost_per_message' : cost_per_message,
         'graph_data' : graph_data
     }
     return report
+
+start_date = dt.datetime(2023, 7, 1)
+end_date = dt.datetime.now()
+print(type(start_date))
+print(type(end_date))
+report = generate_report(start_date, end_date)
+print(report)
