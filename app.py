@@ -54,8 +54,8 @@ def login():
     if request.method == 'POST':
     
         username = request.form.get('username')
-
         password = request.form.get('password')
+        
         print(username, password)
         user = users_collection.find_one({"user_id": username})
     

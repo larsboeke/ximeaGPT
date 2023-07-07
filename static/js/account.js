@@ -49,12 +49,17 @@
     });
 
     function validate (input) {
-        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
-            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
-                return false;
-            }
-        }
-        else {
+        //Function that checks if username is a mail
+        //if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
+        //    if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+        //        return false;
+        //    }
+        //}
+        //if ($(input).attr('id') == 'username-register') {
+            //if 
+        //    return false;
+        //}
+        //else {
             if($(input).attr('name') == 'pass-repeat') {
                 if(document.getElementById("password-repeat-register").value != document.getElementById("password-register").value) {
                     return false;
@@ -63,7 +68,7 @@
             if($(input).val().trim() == ''){
                 return false;
             }
-        }
+        //}
     }
 
     function showValidate(input) {
