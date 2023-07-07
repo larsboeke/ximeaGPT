@@ -81,7 +81,7 @@ get_last_message = "pass"
 
  
 
-tools = [get_context_tool, query_maunals]
+tools = [get_context_tool, query_maunals, get_database_schema, query_product_database]
 
 database_schema = """ 
 CREATE TABLE [dbo].[feature](
