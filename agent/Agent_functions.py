@@ -47,8 +47,8 @@ query_manuals = {
                 },
             }
 
-get_all = {
-                "name": "get_all",
+query_all = {
+                "name": "query_all",
                 "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
                 "parameters": {
                     "type": "object",
@@ -97,9 +97,9 @@ get_last_message = "pass"
  
 
 tools = [
-    #get_all,
-    get_context_tool,
-    query_manuals,
+    query_all,
+    #get_context_tool,
+    #query_manuals,
     get_database_schema,
     query_product_database]
 
