@@ -61,12 +61,16 @@ class UpdateUploader:
         id = str(id_.inserted_id)
 
         # Emails and Tickets get uploaded to pastConversations Namespace
+        """
         if (chunk['metadata']['type'] == 'email' or chunk['metadata']['type'] == 'ticket'):
             index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
             # manuals get uploaded to manuals namespace
         elif (chunk['metadata']['type'] == 'manuals'):
             index.upsert([(id, chunkEmbedding)], namespace='manuals')
+        """
+        # Upload all to one namespace
+        index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
     def is_file_uploaded(self, source, file_type):
         col = MongoDBConnectionProvider().initMongoDB()

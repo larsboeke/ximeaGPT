@@ -47,6 +47,21 @@ query_maunals = {
                 },
             }
 
+get_all = {
+                "name": "get_context_tool",
+                "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query of the user, you want to find similar contexts to",
+                        },
+                    },
+                    "required": ["query"],
+                },
+            }
+
 get_database_schema = {
             "name": "get_database_schema",
             "description": "Get the schema of the transact-SQL database of XIMEA. ",
@@ -81,7 +96,12 @@ get_last_message = "pass"
 
  
 
-tools = [get_context_tool, query_maunals, get_database_schema, query_product_database]
+tools = [
+    get_all,
+    #get_context_tool,
+    #query_maunals,
+    get_database_schema,
+    query_product_database]
 
 database_schema = """ 
 CREATE TABLE [dbo].[feature](
