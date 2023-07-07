@@ -11,6 +11,7 @@ from agent.AIResponse import AiResponse
 #import uploadData
 from pymongo import MongoClient
 import backend.user_utils as usr
+import backend.feedback_utils as feedback
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
@@ -187,7 +188,7 @@ def open_chat(chat_id):
 @socketio.on('rate_chunk')
 def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
-    #here logic for rating a chunk
+    feedback.add_feedback(chunk_id)
 
     
 #Routing for the admin panel
