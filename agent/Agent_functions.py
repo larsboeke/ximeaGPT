@@ -81,7 +81,7 @@ get_last_message = "pass"
 
  
 
-tools = [get_context_tool, query_maunals]
+tools = [get_context_tool, query_maunals, query_product_database, get_database_schema]
 
 database_schema = """ 
 CREATE TABLE [dbo].[feature](
@@ -130,6 +130,12 @@ CREATE TABLE [dbo].[feature](
 	[web_download_type] [int] NULL
 ) ON [PRIMARY]
 
+3 rows from the feature table:
+id_feature	name_of_feature	gentl_name	api_name	datatype	tooltip	description	display_name	access_mode	visibility_level	type_of_value	maximum_values	minimum_values	increment_values	length	port	signature	unit	namespace	command_value	default_value	gentl_pmax	gentl_pmin	streamable	register	generate_register	handler_function	available_sk	lock_while_acq	cal_en	cal_rtg	xp_en	xp_ext_en	app_def	polling_time	string_is_path	supported_file_format	web_link	flags	p_selected	value_description	invalidates_all_params	web_download_type
+8	DeviceVendorName	DeviceVendorName		string	Indicates the name of the device vendor	This is a read only element. It is a text description that indicates the name of the device vendor	Vendor Name	RO	Beginner					32	Device			Standard						113		150					0	0						6819				
+9	DeviceModelName	DeviceModelName	XI_PRM_DEVICE_NAME	string	Indicates the model name of the device	This is a read only element. It is a text description that indicates the model name of the device.	Model Name	RO	Beginner					32	Device			Standard						113		195			1	SAL	0	0						6824				
+10	DeviceManufacturerInfo	DeviceManufacturerInfo		string	Provides additional information from the vendor about the device	This is a read only element. It is a string that provides additional information from the vendor about the camera.	Manufacturer Info	RO	Beginner					48	Device			Standard						113		192					0	0						6819				
+
 CREATE TABLE [dbo].[product_feature_relationship](
 	[id] [int] NULL,
 	[id_product] [int] NULL,
@@ -138,11 +144,23 @@ CREATE TABLE [dbo].[product_feature_relationship](
     FOREIGN KEY (id_feature) REFERENCES [dbo].[feature]([id_feature])
 ) ON [PRIMARY]
 
+3 rows from the product_feature_relationship table:
+id	id_product	id_feature
+18	1	8
+407	2	8
+409	4	8
+
 CREATE TABLE [dbo].[product](
 	[id_product] [int] NULL,
 	[name_of_product] [nvarchar](145) NULL,
 	[description] [nvarchar](500) NULL
 ) ON [PRIMARY]
+
+3 rows from the product table:
+id_product	name_of_product	description
+1	MR274CU_BH	
+2	MR16000MU	
+3	MR282CC_BH	
 """
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
@@ -174,11 +192,10 @@ def query_product_database(sqlquery):
     else:
         myresult = mycursor.fetchall()
         print(str(myresult))
-        print("Length from result!")
-        print(str(len(myresult)))
+    
         print("Length of tokens from result!")
         print(str(num_tokens_from_string(str(myresult))))
-        if len(myresult)> 200:
+        if num_tokens_from_string(str(myresult)) > 700:
             myresult = "The query you wrote returned too much data for you to handle. Please LIMIT the amount of data you get returned or rewrite the query!"
     query_info = {
         "sqlquery": sqlquery,

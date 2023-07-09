@@ -48,7 +48,7 @@ class AiResponse:
 
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k",
+                    model="gpt-4",
                     messages= self.conversation_history,
                     functions= self.functions,
                     function_call="auto",
