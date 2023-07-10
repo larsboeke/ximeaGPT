@@ -118,6 +118,21 @@ class AiResponse:
 
             #elif function_name == "get_last_message":
                 #pass
+            elif function_name == "query_all":
+                print("Using query_all tool...")
+                function_response, sources, tokens = Agent_functions.getText(
+                    query=data["query"],
+                    namespace="pastConversations"
+                )
+                # append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                # app used tokens
+                self.embeddings_tokens += tokens
+                print(function_response)
+
+            elif function_name == "get_last_message":
+                pass
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
@@ -125,9 +140,10 @@ class AiResponse:
 
             elif function_name == "query_product_database":
                 print("Using query_product_database tool...")
-                function_response = Agent_functions.query_product_database(
+                function_response = Agent_functions.query_product_database( # Eventually add sources!
                     sqlquery = data["sqlquery"]
                 )
+                #self.sources.append(source)
 
 
             print(check_function_call)

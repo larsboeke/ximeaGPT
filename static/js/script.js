@@ -49,6 +49,7 @@ const loadDefaultWindow = () => {
     
     chatContainer.innerHTML = defaultText;
     newChatButton.disabled = true;
+    chatInput.disabled = false;
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -138,6 +139,7 @@ const getChatResponse = (aiChatDiv) =>{
         let timestamp = new Date();
         timeElement.textContent = parseTime(timestamp);
         aiChatDiv.querySelector(".typing-animation").remove();
+        chatInput.disabled = false;
         socket.off('receive_response', receiveResponse);
     };
     socket.on('receive_response', receiveResponse);
@@ -163,6 +165,7 @@ const copyResponse = (copyBtn) => {
 }
 
 const showTypingAnimation = () => {
+    chatInput.disabled = true;
     const html =`<div class="chat-content">
                     <div class="chat-details">
                         <img src="../static/images/gpt_logo.png" alt="chatbot-img">
@@ -204,20 +207,21 @@ const parseTime = (timestamp) =>{
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
     var userId = localStorage.getItem("username");
-    var newChat = document.createElement('li');
-    chatList.prepend(newChat);
     socket.emit('start_chat', userId, userMessage);
     socket.on('chat_started', (data) =>{
         chat_id = data['chat_id']
         title = data['title']
         localStorage.setItem('chat_id', chat_id);
+        var newChat = document.createElement('li');
+        chatList.prepend(newChat);
         newChat.id = chat_id;
         newChat.textContent = title;
         console.log('New chat started with ID:', chat_id); 
         console.log('New chat started with title:', title);  
     });
-    handleUserMessage(userMessage);
+    handleUserMessage();
 }
+
 
 const handleUserMessage = () => {
     userMessage = chatInput.value.trim();

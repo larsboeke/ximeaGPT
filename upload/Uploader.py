@@ -62,13 +62,16 @@ class Uploader:
         id_ = col.insert_one(chunk)
         id = str(id_.inserted_id)
 
-            #Emails and Tickets get uploaded to pastConversations Namespace
+        #Emails and Tickets get uploaded to pastConversations Namespace
+        """
         if (chunk['metadata']['type'] == 'email' or chunk['metadata']['type'] == 'ticket'):
             index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
             #manuals get uploaded to manuals namespace
         elif (chunk['metadata']['type'] == 'manuals'):
             index.upsert([(id, chunkEmbedding)], namespace='manuals')
+        """
+        index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
 
     def is_file_uploaded(self, source):
