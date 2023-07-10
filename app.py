@@ -191,8 +191,22 @@ def open_chat(chat_id):
 @socketio.on('rate_chunk')
 def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
-    #here logic for rating a chunk
+    feedback.add_feedback(chunk_id)
 
+
+@socketio.on('reset_all_feedback')
+def handle_reset_all_feedback():
+    feedback.reset_all_down_ratings()
+
+@socketio.on('reset_feedback')
+def handle_reset_feedback(chunk_id):
+    print(f"You reseted feedback of chunk with id", chunk_id)
+    feedback.reset_down_rating(chunk_id)
+
+@socketio.on('delete_chunk')
+def handle_delete_chunk(chunk_id):
+    print(f"You deleted chunk with id", chunk_id)
+    feedback.delete_chunk(chunk_id)
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
@@ -220,7 +234,8 @@ def admin_upload():
 
 @app.route('/admin/feedback')
 def admin_feedback():
-    return render_template('feedback.html')
+    all_feedback = feedback.get_all_cleaned_rated_chunks()
+    return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
     socketio.run(app, port=5000, debug=True)

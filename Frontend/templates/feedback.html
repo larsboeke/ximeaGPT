@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
+    <script src="../../static/js/feedback.js?v=123" defer></script>
     <title>Feedback</title>
+    <style>
+        ul {
+            list-style-type: disc;
+        }
+        .indent {
+            margin-left: 20px;
+        }
+        .title-with-buttons {
+            display: flex;
+            align-items: center;
+        }
+        .title-with-buttons button {
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
     {% extends 'admin_panel.html' %}
@@ -11,13 +28,34 @@
     {% block content %}
     <div class="main-title">
         <h1>Feedback</h1>
-        <p>the feedback dashboard is here</p>
     </div>
         
-        
-        <!-- Add the specific content for the dashboard page -->
-    {% endblock %}
+    <button id="reset-all-feedback-btn">Reset all Feedback!</button>
 
+    <ul>
+        {% for feedback in all_feedback %}
+            <li>
+                <div id = "{{feedback.chunk_id}}" class="title-with-buttons">
+                    <h2>Chunk ID: {{ feedback.chunk_id }}</h2>
+                    <button class="reset-feedback-btn">Reset Feedback</button>
+                    <button class="delete-chunk-btn">Delete chunk</button>
+                </div>
+                <div class="indent">
+                    <p>Down Rating: {{ feedback.down_rating }}</p>
+                    <details>
+                        <summary>View details</summary>
+                        <p>Content: {{ feedback.content }}</p>
+                        <p>Type: {{ feedback.metadata.type }}</p>
+                        <p>Source ID: {{ feedback.metadata.source_id }}</p>
+                        <p>Order ID: {{ feedback.metadata.order_id }}</p>
+                    </details>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Add the specific content for the dashboard page -->
+    {% endblock %}
     
 </body>
 </html>  

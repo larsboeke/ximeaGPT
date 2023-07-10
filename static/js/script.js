@@ -419,7 +419,6 @@ chatList.addEventListener("click", (event) =>{
 });
 
 newChatButton.addEventListener("click", loadDefaultWindow);
-    
     //chatContainer.innerHTML = '';
 //     const historyControlsDiv = document.createElement("div");
 //     historyControlsDiv.classList.add("history-controls");
