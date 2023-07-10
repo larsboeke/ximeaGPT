@@ -119,7 +119,13 @@ get_last_message = "pass"
 
  
 
-tools = [get_context_tool, query_maunals, query_product_database]#, get_database_schema]
+tools = [
+    query_all,
+    #get_context_tool,
+    #query_manuals,
+    #get_database_schema,
+    query_product_database]
+#, get_database_schema]
 
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
