@@ -13,11 +13,8 @@ from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime  
-<<<<<<< HEAD
 from upload.Uploader import Uploader
-=======
 import backend.feedback_utils as feedback
->>>>>>> 1ce807f4f442c19f6244b55cbcd7f78599d73fb9
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -185,7 +182,6 @@ def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
     feedback.add_feedback(chunk_id)
 
-<<<<<<< HEAD
 def generate_report(startdate, enddate):
     start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
     end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -216,7 +212,6 @@ def upload_text(text):
 def upload_text(url):
     Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
-=======
 
 @socketio.on('reset_all_feedback')
 def handle_reset_all_feedback():
@@ -231,7 +226,6 @@ def handle_reset_feedback(chunk_id):
 def handle_delete_chunk(chunk_id):
     print(f"You deleted chunk with id", chunk_id)
     feedback.delete_chunk(chunk_id)
->>>>>>> 1ce807f4f442c19f6244b55cbcd7f78599d73fb9
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
