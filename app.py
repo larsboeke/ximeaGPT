@@ -13,6 +13,8 @@ from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime  
+import backend.feedback_utils as feedback
+
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
