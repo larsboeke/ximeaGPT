@@ -13,7 +13,11 @@ from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime  
+<<<<<<< HEAD
 from upload.Uploader import Uploader
+=======
+import backend.feedback_utils as feedback
+>>>>>>> 1ce807f4f442c19f6244b55cbcd7f78599d73fb9
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -58,8 +62,8 @@ def login():
     if request.method == 'POST':
     
         username = request.form.get('username')
-
         password = request.form.get('password')
+        
         print(username, password)
         user = users_collection.find_one({"user_id": username})
     
@@ -80,7 +84,7 @@ def register():
         password = request.form.get('password')
 
         if users_collection.find_one({"user_id": username}):
-            return "Email already exists!"  # you would want to handle this better in a real-world app
+            return render_template('register.html', usernameExists= "Username already exists")
         else:            
             password_hash = generate_password_hash(password)
             usr.add_user(username, password_hash)
@@ -179,8 +183,9 @@ def open_chat(chat_id):
 @socketio.on('rate_chunk')
 def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
-    #here logic for rating a chunk
+    feedback.add_feedback(chunk_id)
 
+<<<<<<< HEAD
 def generate_report(startdate, enddate):
     start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
     end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -211,6 +216,22 @@ def upload_text(text):
 def upload_text(url):
     Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
+=======
+
+@socketio.on('reset_all_feedback')
+def handle_reset_all_feedback():
+    feedback.reset_all_down_ratings()
+
+@socketio.on('reset_feedback')
+def handle_reset_feedback(chunk_id):
+    print(f"You reseted feedback of chunk with id", chunk_id)
+    feedback.reset_down_rating(chunk_id)
+
+@socketio.on('delete_chunk')
+def handle_delete_chunk(chunk_id):
+    print(f"You deleted chunk with id", chunk_id)
+    feedback.delete_chunk(chunk_id)
+>>>>>>> 1ce807f4f442c19f6244b55cbcd7f78599d73fb9
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
@@ -228,7 +249,8 @@ def admin_upload():
     return render_template('upload.html')
 @app.route('/admin/feedback')
 def admin_feedback():
-    return render_template('feedback.html')
+    all_feedback = feedback.get_all_cleaned_rated_chunks()
+    return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
     socketio.run(app, port=5000, debug=True)
