@@ -76,7 +76,7 @@ def register():
         password = request.form.get('password')
 
         if users_collection.find_one({"user_id": username}):
-            return "Email already exists!"  # you would want to handle this better in a real-world app
+            return render_template('register.html', usernameExists= "Username already exists")
         else:            
             password_hash = generate_password_hash(password)
             usr.add_user(username, password_hash)

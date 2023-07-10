@@ -49,27 +49,33 @@
     });
 
     function validate (input) {
-        //Function that checks if username is a mail
-        //if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
-        //    if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
-        //        return false;
-        //    }
-        //}
-        //if ($(input).attr('id') == 'username-register') {
-            //if 
-        //    return false;
-        //}
-        //else {
+        /*#Function that checks if username is a mail
+        if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
+            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+                return false;
+            }
+        }
+        else {*/
+            // [Checks if the repeat password is the same]
             if($(input).attr('name') == 'pass-repeat') {
                 if(document.getElementById("password-repeat-register").value != document.getElementById("password-register").value) {
                     return false;
                 }
             }
+            // [Checks if the input is empty]
             if($(input).val().trim() == ''){
+                //Sets Alert message for the Register Username if blank
+                document.getElementById("divUsername").setAttribute("data-validate", "Enter username")
                 return false;
             }
         //}
     }
+    // [Function that shows alert when username exists]
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById("divUsername").getAttribute("data-validate") == "Username already exists") {
+            showValidate(document.getElementById("username-register"));
+        }
+    }, false);
 
     function showValidate(input) {
         var thisAlert = $(input).parent();
