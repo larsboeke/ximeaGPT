@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activityCount = document.querySelector('#activity_count');
   const avgResponseTime = document.querySelector('#avg_response_time');
 
+
   $(() => {
     var currentDate = $.datepicker.formatDate("dd.mm.yy", new Date());
     var startDate = $("#startdate").datepicker({
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       numberOfMonths: 1,
       firstDay: 1,
       onSelect: (dateText, inst) => {
-        console.log("To:", inst);
+        console.log("To:", dateText);
       }
     });
     $("#startdate").attr("placeholder", currentDate);
@@ -47,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  
     // Apex Charts initialization code here
     const loadChart = ()=>{
       var options = {
@@ -167,5 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     //   var chart = new ApexCharts(document.querySelector("#chart"), options);
     //   chart.render();
+
+
       
   });

@@ -123,10 +123,10 @@ def upload():
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
-    #print("CONVERSTION ID FOR QUERY: " + conversation_id)
+    print("CONVERSTION ID FOR QUERY: " + conversation_id)
     response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
-    #print("Conversation ID for query " + conversation_id)    
+    print("Conversation ID for query " + conversation_id)    
     return assistant_message, sources
 
 
@@ -201,6 +201,15 @@ def update_stats(startdate, enddate):
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
     socketio.emit('updated_stats', stats)
 
+@socketio.on('upload_text')
+def upload_text(text):
+    #Textuploader here
+    print(f"Following text is uploaded {text}")
+
+@socketio.on('upload_url')
+def upload_text(url):
+    #URLuploader here
+    print(f"Following url is uploaded {url}")
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')

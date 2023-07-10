@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload</title>
+    <script src="../static/js/upload.js" defer></script>
 </head>
 <body>
 {% extends 'admin_panel.html' %}
@@ -47,7 +48,7 @@
                 </div>                     -->
                 <div class="typing-textarea">
                     <textarea id="text-input" placeholder="Enter your text here..." required></textarea>
-                    <button class="btn">Upload Text</button>
+                    <button id="text-input-btn" class="btn">Upload Text</button>
                 </div>
             </div>
         </div>
@@ -66,7 +67,7 @@
                 </div>                 -->
                 <div class="typing-textarea">
                     <textarea id="url-input" placeholder="Enter your URL here..." required></textarea>
-                    <button class="btn">Upload URL</button>
+                    <button id="url-upload-btn" class="btn">Upload URL</button>
                 </div>
             </div>
         </div>
