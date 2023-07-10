@@ -55,7 +55,7 @@ def get_rated_chunk(chunk_id):
 
 
 def reset_down_rating(chunk_id):
-    feedback_mongo.update_one({"chunk_id": chunk_id}, {"$set": {"down_rating": 0}})
+    feedback_mongo.delete_one({"chunk_id": chunk_id})  #Optionel -> Nicht Deleten sonder auf 0 setzen!
 
 
 def get_all_rated_chunks():
@@ -72,7 +72,7 @@ def reset_all_down_ratings():
 def delete_chunk(chunk_id):
     # Delete from MongoDB
     chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
-
+    feedback_mongo.delete_one({"chunk_id": chunk_id})
     # Delete from Pinecone
     index.delete(ids=[chunk_id])
 
