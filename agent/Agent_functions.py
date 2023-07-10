@@ -70,7 +70,7 @@ get_context_tool = {
                 },
             }
 
-query_maunals = {
+query_manuals = {
                 "name": "query_manuals",
                 "description": "Query technical manuals to get technical information. ONLY USE THIS TOOL ONCE IN A QUERY",
                 "parameters": {
@@ -79,6 +79,21 @@ query_maunals = {
                         "query": {
                             "type": "string",
                             "description": "The query of the user, you want to gather technical information about",
+                        },
+                    },
+                    "required": ["query"],
+                },
+            }
+
+query_all = {
+                "name": "query_all",
+                "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query of the user, you want to find similar contexts to",
                         },
                     },
                     "required": ["query"],

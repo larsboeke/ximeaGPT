@@ -7,7 +7,6 @@ import openai
 import pinecone
 import pymongo
 import os
-#import pyodbc
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -42,6 +41,20 @@ class queryManuals(BaseTool):
     def _run(self, query: str):
         #queries in "manuals" namespace
         context = getText(query, "maunals")
+
+        return context
+
+    def _arun(self, query: str):
+        return NotImplementedError("This tool does not support async.")
+
+class queryAll(BaseTool):
+    name = "query All"
+    description = "Use this tool if you want to query everything."
+
+
+    def _run(self, query: str):
+        #queries in "pastConversations" namespace
+        context = getText(query, "pastConversations")
 
         return context
 
@@ -95,8 +108,9 @@ conversational_memory = ConversationBufferWindowMemory(
 
 #List of Tools
 tools = [
-    getContextTool(),
-    queryManuals(),  #queryPDB()
+    #getContextTool(),
+    #queryManuals(),  #queryPDB()
+    queryAll()
     ]
 
 #initialize agent

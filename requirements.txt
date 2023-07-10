@@ -15,4 +15,4 @@ pinecone-client
 flask
 flask_socketio
 werkzeug
-Flask-Keberos
+flask_login
