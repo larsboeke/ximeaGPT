@@ -8,15 +8,12 @@ const fileInfo = document.querySelector(".file-info");
 const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
 const socket = io.connect('http://localhost:5000');
-const thumbUp = document.querySelector("#thumb-up");
 const thumbDown = document.querySelector("#thumb-down");
 const chatList = document.getElementById("chat-list");
 const sourcesHeaders = document.getElementsByClassName("header");
 const sourcesContents = document.getElementsByClassName("content");
 const icons = document.getElementsByClassName("icon");
 const logoutButton = document.querySelector("#logout-btn");
-var positiveFeedback = new Boolean(false);
-var negativeFeedback = new Boolean(false);
 
 
 
@@ -143,15 +140,6 @@ const getChatResponse = (aiChatDiv) =>{
         socket.off('receive_response', receiveResponse);
     };
     socket.on('receive_response', receiveResponse);
-    // TO-DO add a socket.emit('error') on the server side
-    socket.on('backend_error', () => {
-        pElement.classList.add("error");
-        pElement.textContent = "Oops! Something went wrong while retrieving the response. Please try again.";
-        aiChatDiv.querySelector(".typing-animation").remove();
-        socket.off('receive_response', receiveResponse); 
-    });
-    //saving all chat HTML data(only last chat) as chat-hystory name in local storage
-    localStorage.setItem('chat-history', chatContainer.innerHTML)
     //automatic scrolldown
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
@@ -189,11 +177,6 @@ const showTypingAnimation = () => {
     getChatResponse(aiChatDiv);
     
 }
-
-// socket.on('chat_deleted', (data) =>{
-//     var deletedChatId = data.chat_id;
-//     console.log('Chat deleted with ID:', deletedChatId);
-// })
 
 const parseTime = (timestamp) =>{
     //2023-07-04T11:19:16.115000 in 12:12:42 [4 Aug 2023]
@@ -258,21 +241,6 @@ const handleUserMessage = () => {
         alert("Please type something in...");
     }   
 };
-// Add an event listener to the button
-// document.getElementById('new-chat-btn').addEventListener('click', function() {
-//     // Retrieve the user ID from the stored cookies
-//     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
-
-//     // Emit the 'start_chat' event to the server with the user ID
-//     socket.emit('user_id', userId);
-//   });
-  
-  // Listen for the 'chat_started' event from the server
-//   socket.on('chat_started', function(data) {
-//     var chatId = data.chat_id;
-//     // Handle the newly generated chat ID
-//     console.log('New chat started with ID:', chatId);
-//   });
 
 themeButton.addEventListener("click", () =>{
     document.body.classList.toggle("light-mode");
@@ -281,7 +249,6 @@ themeButton.addEventListener("click", () =>{
 })
 
 deleteButton.addEventListener("click", () =>{
-    //TO-DO: change confirm window to a centered pop-up window
     if(confirm("Are you sure that you want to delete the history of this chat?")){
         var userId = localStorage.getItem('username');
         var chatId = localStorage.getItem('chat_id');
@@ -392,7 +359,6 @@ const loadChat = (messages) => {
             if (message.sources.length !== 0){
                 showSources(message.sources);
             }
-            //sourses?
         }
     }
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
@@ -412,109 +378,16 @@ chatList.addEventListener("click", (event) =>{
         });
       }
     localStorage.setItem('chat_id', chatId);
-    // socket.emit('open_chat', chatId);
-    // socket.on('chat_opened', (messages) =>{
-    //     console.log(messages);
-    // });
 });
 
 newChatButton.addEventListener("click", loadDefaultWindow);
     
-    //chatContainer.innerHTML = '';
-//     const historyControlsDiv = document.createElement("div");
-//     historyControlsDiv.classList.add("history-controls");
-//     history.appendChild(historyControlsDiv);
-
-//     const pElement = document.createElement("p");
-//     pElement.textContent = "New Chat Started";
-//     historyControlsDiv.appendChild(pElement);
-//     console.log('New Chat Started');
-//     var userId = document.cookie.replace(/(?:(?:^|.*;\s*)ailean_user_id\s*=\s*([^;]*).*$)|^.*$/, "$1");
-//     socket.emit('start_chat', userId);
-//     socket.on('chat_started', function(chat_id) {
-//     pElement.p = chat_id;
-//     console.log('New chat started with ID:', chat_id);
-//   });
-
-
-
-
-
-
-
-
-// Sidebar Close and Open Button
-    /* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
-    function openNav() {
-        document.getElementById("leftbox").style.width = "250px";
-        document.getElementById("chatbox").style.marginLeft = "250px";
-    }
-
-    /* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
-    function closeNav() {
-        document.getElementById("leftbox").style.width = "0";
-        document.getElementById("chatbox").style.marginLeft = "0";
-    }
-
-//TO-DO: New Chat
-//Save in Cache -> save in database with id
-//Delete old chat
-//Move the Chats in the history
-
-const posFeedback = (thumbUpBtn) => {
-    changeColorThumb('up', thumbUpBtn);
+function openNav() {
+    document.getElementById("leftbox").style.width = "250px";
+    document.getElementById("chatbox").style.marginLeft = "250px";
 }
 
-const negFeedback = (sendFeedbackBtn) => {
-    const thumbDownBtn = sendFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
-    changeColorThumb('downSend', thumbDownBtn);
-    //thumbDownBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChildren.firstElementChildren.lastElementChildren.lastElementChildren.);
-
-}
-
-const deleteFeedback = (deleteFeedbackBtn) => {
-    const thumbDeleteBtn = deleteFeedbackBtn.parentElement.parentElement.parentElement.parentElement.previousElementSibling.previousElementSibling.lastElementChild.firstElementChild.lastElementChild.lastElementChild;
-    changeColorThumb('downDelete', thumbDeleteBtn);
-}
-
-function changeColorThumb(thumb, thumbBtn) {
-
-    if(thumb == 'up') {
-        if (positiveFeedback == false) {
-            thumbBtn.style.color = "#249724";
-            positiveFeedback = true;
-            if (negativeFeedback == true) {
-                thumbBtn.nextElementSibling.style.color = "#ACACBE";
-                negativeFeedback = false;
-            }
-        } else {
-            thumbBtn.style.color = "#ACACBE";
-            positiveFeedback = false;
-        }
-    } else if (thumb == 'downSend') {
-        thumbBtn.style.color = "#b12727";
-        negativeFeedback = true;
-        if (positiveFeedback == true) {
-            thumbBtn.previousElementSibling.style.color = "#ACACBE";
-            positiveFeedback = false;
-        }
-    } else if (thumb == 'downDelete') {
-        thumbBtn.style.color = "#ACACBE";
-        thumbBtn.previousElementSibling.style.color = "#ACACBE";
-        positiveFeedback = false;
-        negativeFeedback = false;
-    } else {
-
-    }
-
-}
-
-const openFeedbackBar = () => {
-    document.getElementById("rightbox").style.width = "250px";
-    document.getElementById("chatbox").style.marginRight = "250px";
-}
-
-function closeFeedback() {
-    document.getElementById("rightbox").style.width = "0";
-    document.getElementById("chatbox").style.marginRight = "0";
+function closeNav() {
+    document.getElementById("leftbox").style.width = "0";
+    document.getElementById("chatbox").style.marginLeft = "0";
 }

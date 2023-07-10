@@ -123,10 +123,10 @@ def upload():
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
-    print("CONVERSTION ID FOR QUERY: " + conversation_id)
+    #print("CONVERSTION ID FOR QUERY: " + conversation_id)
     response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
-    print("Conversation ID for query " + conversation_id)    
+    #print("Conversation ID for query " + conversation_id)    
     return assistant_message, sources
 
 
