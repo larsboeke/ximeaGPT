@@ -13,6 +13,7 @@ from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime  
+from upload.Uploader import Uploader
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -208,7 +209,7 @@ def upload_text(text):
 
 @socketio.on('upload_url')
 def upload_text(url):
-    #URLuploader here
+    Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
     
 #Routing for the admin panel
@@ -225,7 +226,6 @@ def admin_documents():
 @app.route('/admin/upload')
 def admin_upload():
     return render_template('upload.html')
-
 @app.route('/admin/feedback')
 def admin_feedback():
     return render_template('feedback.html')
