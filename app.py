@@ -100,7 +100,7 @@ def index():
     if current_user.is_authenticated:
     # Check if the user has a cookie
         conversations = usr.get_chat_ids(current_user.id)
-        print(conversations)
+        #print(conversations)
         # if 'ailean_user_id' in request.cookies:
         #     user_id = request.cookies.get('ailean_user_id')
         #     conversations = usr.get_chat_ids(user_id)

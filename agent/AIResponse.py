@@ -48,7 +48,7 @@ class AiResponse:
 
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo-16k",
+                    model="gpt-4",
                     messages= self.conversation_history,
                     functions= self.functions,
                     function_call="auto",
@@ -118,6 +118,21 @@ class AiResponse:
 
             #elif function_name == "get_last_message":
                 #pass
+            elif function_name == "query_all":
+                print("Using query_all tool...")
+                function_response, sources, tokens = Agent_functions.getText(
+                    query=data["query"],
+                    namespace="pastConversations"
+                )
+                # append sources to sources attribute
+                for source in sources:
+                    self.sources.append(source)
+                # app used tokens
+                self.embeddings_tokens += tokens
+                print(function_response)
+
+            elif function_name == "get_last_message":
+                pass
 
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
