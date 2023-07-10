@@ -125,9 +125,10 @@ class AiResponse:
 
             elif function_name == "query_product_database":
                 print("Using query_product_database tool...")
-                function_response = Agent_functions.query_product_database(
+                function_response = Agent_functions.query_product_database( # Eventually add sources!
                     sqlquery = data["sqlquery"]
                 )
+                #self.sources.append(source)
 
 
             print(check_function_call)
