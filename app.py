@@ -169,11 +169,7 @@ def start_chat(user_id, user_message):
     print("started chat")
      
     chat_id, title = usr.create_chat(user_id, user_message)
-<<<<<<< HEAD
     print("started chat with id" + chat_id)
-=======
-    print("CONVERSTION ID FOR NEW CHAT: " + chat_id)
->>>>>>> 7f298c8e3ac3b14dc1096baab5984ff3c4f0d8a8
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
