@@ -13,6 +13,7 @@ from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime  
+from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
 
 
@@ -100,26 +101,12 @@ def logout():
 @login_required
 def index():
     if current_user.is_authenticated:
-    # Check if the user has a cookie
-        conversations = usr.get_chat_ids(current_user.id)
-        #print(conversations)
-        # if 'ailean_user_id' in request.cookies:
-        #     user_id = request.cookies.get('ailean_user_id')
-        #     conversations = usr.get_chat_ids(user_id)
-        #     print(conversations)
-        #     return render_template('chatbot.html', user_id=user_id, chats=conversations)
-        print(current_user.id)
-        return render_template('chatbot.html', chats=conversations[::-1])
-        
+       conversations = usr.get_chat_ids(current_user.id)
+       print(conversations)
+       print(current_user.id)
+       return render_template('chatbot.html', chats=conversations[::-1])     
     else:
         return render_template('login.html')
-        
-        # else:
-        #     user_id = usr.add_user()
-        #     response = flask.make_response()
-        #     response.set_cookie('ailean_user_id', user_id)
-        #     #conversations = usr.get_chat_ids(user_id)
-        #     return response, render_template('chatbot.html', user_id=user_id)
 
 
 
@@ -171,7 +158,7 @@ def start_chat(user_id, user_message):
     print("started chat")
      
     chat_id, title = usr.create_chat(user_id, user_message)
-    print("started chat with id" + chat_id)
+    print("CONVERSTION ID FOR NEW CHAT: " + chat_id)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
@@ -195,6 +182,36 @@ def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
     feedback.add_feedback(chunk_id)
 
+def generate_report(startdate, enddate):
+    start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
+    print(f"Selected daterange: from {start_time_today} to {end_time_today}")
+
+    report = activity.generate_report(start_time_today, end_time_today)
+    activity_cost = report['activity_cost']
+    cost_per_message = report['cost_per_message']
+    activity_count = report['activity_count']
+    avg_response_time = report['avg_response_time']
+    graph_data = report['graph_data']
+    print(f"GRAPHDATA: {graph_data}")
+    return activity_cost, cost_per_message, activity_count, avg_response_time
+
+@socketio.on('update_stats')
+def update_stats(startdate, enddate):
+    print(f"Selected daterange JS: from {startdate} to {enddate}")
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
+    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
+    socketio.emit('updated_stats', stats)
+
+@socketio.on('upload_text')
+def upload_text(text):
+    #Textuploader here
+    print(f"Following text is uploaded {text}")
+
+@socketio.on('upload_url')
+def upload_text(url):
+    Uploader().uploadURL(url)
+    print(f"Following url is uploaded {url}")
 
 @socketio.on('reset_all_feedback')
 def handle_reset_all_feedback():
@@ -214,17 +231,8 @@ def handle_delete_chunk(chunk_id):
 @app.route('/admin/dashboard')
 def admin_dashboard():
     now = datetime.now()
-
-# create start_date and end_date with today's date but different time
-    start_time_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_time_today = now.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-    report = activity.generate_report(start_time_today, end_time_today)
-    stat1 = report['activity_cost']
-    stat2 = report['cost_per_message']
-    stat3 = report['activity_count']
-    stat4 = report['avg_response_time']
-    return render_template('dashboard.html', stat1=stat1, stat2=stat2, stat3=stat3, stat4=stat4)
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(now, now)    
+    return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
 
 @app.route('/admin/documents')
 def admin_documents():
@@ -233,7 +241,6 @@ def admin_documents():
 @app.route('/admin/upload')
 def admin_upload():
     return render_template('upload.html')
-
 @app.route('/admin/feedback')
 def admin_feedback():
     all_feedback = feedback.get_all_cleaned_rated_chunks()
