@@ -95,7 +95,7 @@ const showSources = (sources) => {
         }
         else if (sources[i].metadata.type == "email"){
             html_sources += `<div "${sources[i].id}" class="content">
-                                <b>From ${sources[i].source.type} with CaseID ${sources[i].metadata.source_id}</b><br>
+                                <b>From ${sources[i].metadata.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
@@ -123,11 +123,12 @@ const getChatResponse = (aiChatDiv) =>{
     aiChatDiv.querySelector(".chat-details").appendChild(timeElement);
 
     const receiveResponse = (data) => {
+        console.log("getChatResponse: receiveResponse: received!")
         backend_msg = data['assistant_message'];
         sources = data['sources'];
         pElement.textContent = backend_msg.trim();
         if (sources.length !== 0){
-            console.log('You have following sources:', sources);
+            console.log('getChatResponse: receiveResponse: You have following sources:', sources);
             showSources(sources);            
         }
         else{
