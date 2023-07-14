@@ -102,7 +102,7 @@ def logout():
 def index():
     if current_user.is_authenticated:
        conversations = usr.get_chat_ids(current_user.id)
-       print(conversations)
+       #print(conversations)
        print(current_user.id)
        return render_template('chatbot.html', chats=conversations[::-1])     
     else:

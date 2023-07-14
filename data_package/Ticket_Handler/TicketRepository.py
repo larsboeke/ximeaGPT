@@ -24,17 +24,18 @@ class TicketRepository:
         Method that saves all the resolved Ticket ID's in specified csv file
         """
         all_ids = []
-
+        print("Number of ticket pages to be parsed: ", pages)
         for i in range(1, pages + 1):
             params = {"page": i}
             response = requests.get(
                 url=self.url, headers=self.header, params=params).json()
-            print(str(i), "request done")
+            print(f"\r{str(i)} ticket pages parsed", end="")
             number_elements = response['meta']['pagination']['count']
 
             for j in range(0, number_elements):
                 if response['data'][j]['status'] == 'resolved':
                     all_ids.append(response['data'][j]['id'])
+        print()
 
         # schreibe all_ids mit komma getrennt in csv datei
         with open(self.file_path_old_ids, 'w', newline='') as f:
@@ -56,11 +57,10 @@ class TicketRepository:
                 # Convert each item in the row to an integer and save it to the list.
                 old_ids = [int(item) for item in row]
 
-        print("old_ids: ", old_ids)
+        #print("old_ids: ", old_ids)
         new_plus_old_ids = self.fetch_all_ids(pages=pages)
-        print("new_plus_old_ids: ", new_plus_old_ids)
+        #print("new_plus_old_ids: ", new_plus_old_ids)
         # Finden Sie die Elemente in der Liste, die nicht in der CSV-Datei vorkommen
         new_ids = [id for id in new_plus_old_ids if id not in old_ids]
-        print("new_ids: ", new_ids)
 
         return new_ids
