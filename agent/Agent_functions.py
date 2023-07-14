@@ -138,7 +138,7 @@ tools = [
     query_all,
     #get_context_tool,
     #query_manuals,
-    #get_database_schema,
+    get_database_schema,
     query_product_database]
 #, get_database_schema]
 
