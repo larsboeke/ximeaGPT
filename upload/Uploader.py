@@ -36,7 +36,13 @@ class Uploader:
 
 
     # Method to create embeddings using OpenAI API
-    def createEmbedding(self, chunk):#JSON als Input
+    def createEmbedding(self, chunk):
+        """
+        Creates an embedding for a chunk
+        :param chunk:
+        :return chunkEmbedding: created embedding
+        """
+        #JSON als Input
         chunkText = chunk['content']
         chunkEmbedding = openai.Embedding.create(input = chunkText, model=self.EMBEDDING_MODEL)['data'][0]['embedding']
 
@@ -46,6 +52,12 @@ class Uploader:
 
     # Upload created chunks to MongoDB and Pinecone
     def uploadChunk(self, chunk, index, col):
+        """
+        Uploads a chunk to pinecone and mongodb
+        :param chunk: chunk to upload
+        :param index: pinecone_connection
+        :param col: mongodb_connection
+        """
         # Try Create embedding x times (due to APIERROR)
         max_attempts = 5
         for attempt in range(max_attempts):
@@ -76,6 +88,11 @@ class Uploader:
 
 
     def is_file_uploaded(self, source):
+        """
+        Checks if a file is already uploaded
+        :param source:
+        :return is_uploaded:
+        """
         col = MongoDBConnectionProvider().initMongoDB()
 
 
@@ -86,6 +103,10 @@ class Uploader:
 
     # Upload PDFs from given path
     def uploadPDF(self, path):
+        """
+        Uploads a pdf to pinecone and mongodb
+        :param path:
+        """
         if self.is_file_uploaded(path) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
@@ -102,6 +123,10 @@ class Uploader:
 
     # Upload Pagecontent from given URLs
     def uploadURL(self, url):
+        """
+        Uploads a url to pinecone and mongodb
+        :param url:
+        """
         if self.is_file_uploaded(url) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
@@ -118,6 +143,10 @@ class Uploader:
             print("File already uploaded")
 
     def uploadText(self, text):
+        """
+        Uploads a text to pinecone and mongodb
+        :param text:
+        """
         mongodb_connection = MongoDBConnectionProvider().initMongoDB()
         pinecone_connection = PineconeConnectionProvider().initPinecone()
 
@@ -131,6 +160,12 @@ class Uploader:
 
 
     def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
+        """
+        Uploads a list of cases (for emails) to pinecone and mongodb using parallel processing
+        :param cases: email cases to upload
+        :param pinecone_connection:
+        :param mongodb_connection:
+        """
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = {executor.submit(self.uploadCase, case, pinecone_connection, mongodb_connection): case for case in cases}
             for future in as_completed(futures):
@@ -143,6 +178,12 @@ class Uploader:
 
 
     def uploadCase(self, case, pinecone_connection, mongodb_connection):
+        """
+        Uploads a case (for emails) to pinecone and mongodb
+        :param case: email case to upload
+        :param pinecone_connection:
+        :param mongodb_connection:
+        """
         sql_connection = SQLConnectionProvider().create_connection()
         emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
         one_case = Case(str(case[0]), emails_for_one_case)
@@ -155,34 +196,11 @@ class Uploader:
         SQLDatabaseUpdater(sql_connection).update_case(case[0])
         sql_connection[0].close()
 
-    # Upload mails from SQL database
-    def uploadMails(self):
-        """
-        Example of a function that uploads all cases from the database and updates
-        the database with the already uploaded cases
-        """
-        sql_connection = SQLConnectionProvider().create_connection()
-        pinecone_connection = PineconeConnectionProvider().initPinecone()
-        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
-
-        updated_cases = CaseRepository(sql_connection).get_updated_cases()
-        all_cases = CaseRepository(sql_connection).get_all_cases()
-        print("Cases to be updated: ", len(updated_cases))
-        if updated_cases != all_cases:
-            EmailDatabaseDeleter(pinecone_connection, mongodb_connection, sql_connection).deleteCases(updated_cases)
-
-        if updated_cases and updated_cases != []:
-            for case in updated_cases:
-                emails_for_one_case = EmailRepository(sql_connection).get_emails_for_case(case[0])
-                one_case = Case(str(case[0]), emails_for_one_case)
-                content = PlainTextFromCaseProvider().provide_full_content(one_case)
-                chunks = Chunker().data_to_chunks(content, one_case.metadata)
-                SQLDatabaseUpdater(sql_connection).update_case(case[0])
-                for chunk in chunks:
-                    self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
-                print("Case: " , case[0], " uploaded!")
 
     def initialUploadMail(self):
+        """
+        Uploads initially all emails from the database to pinecone and mongodb
+        """
         sql_connection = SQLConnectionProvider().create_connection()
         pinecone_connection = PineconeConnectionProvider().initPinecone()
         mongodb_connection = MongoDBConnectionProvider().initMongoDB()
@@ -192,6 +210,10 @@ class Uploader:
 
     # Upload tickets from Deskpro API
     def uploadTicket(self, TicketID):
+        """
+        Uploads a ticket to pinecone and mongodb
+        :param TicketID:
+        """
         # remove is_file_uploaded after initial upload, not needed anymore then
         if self.is_file_uploaded(str(TicketID)) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()

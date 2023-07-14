@@ -22,20 +22,36 @@ class Ticket:
 
 
     def get_TicketID(self):
+        """
+        Returns the TicketID
+        :return TicketID::
+        """
         return self.TicketID
     
     def get_metadata(self):
+        """
+        Returns the metadata
+        :return metadata:::
+        """
         return self.metadata
 
     def set_NumberOfMessages(self):
+        """
+        This method sets the number of messages in a ticket
+        """
         self.metadata["number_of_messages"] = self.TicketContent[0]['meta']['pagination']['total']
     
     def set_ticketStartDate(self):
+        """
+        This method sets the ticket start date
+        """
         self.metadata["ticket_start_date"] = self.TicketContent[0]['data'][0]['date_created']
     
     def set_TicketContent(self):
-        """Methode gibt eine Liste zurück, die Dictionaries beinhaltet. 
-        Jedes Dictionary beinhaltet den Inhalt einer Ticketseite """
+        """
+        method returns a list containing dictionaries.
+        Each dictionary contains the content of a ticket page
+        """
 
         # Anfrage an die API
         url = f'https://desk.ximea.com/api/v2/tickets/{self.metadata["source_id"]}/messages'

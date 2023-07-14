@@ -5,6 +5,10 @@ class DatabaseCleaner:
         self.mongodb_connection = mongodb_connection
         self.pinecone_connection = pinecone_connection
     def delete_chunk(self, chunk_id):
+        """
+        Deletes a chunk from Pinecone and MongoDB
+        :param chunk_id:
+        """
         # Delete from MongoDB
         self.mongodb_connection.delete_one({"_id": ObjectId(chunk_id)})
         # Delete from Pinecone
@@ -12,6 +16,9 @@ class DatabaseCleaner:
         print(f"Deleted chunk {chunk_id} from Pinecone and MongoDB")
 
     def delete_short_chunks(self):
+        """
+        Deletes chunks with less than 100 characters
+        """
         query = {
             "$expr": { "$lt": [{ "$strLenCP": "$content" }, 100] },
             "metadata.type": "email"
@@ -25,6 +32,9 @@ class DatabaseCleaner:
 
 
     def remove_duplicates_from_databases(self):
+        """
+        Removes duplicates from Pinecone and MongoDB
+        """
         pipeline = [
             {
                 "$match": {

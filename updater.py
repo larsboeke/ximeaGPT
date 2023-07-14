@@ -6,6 +6,10 @@ from data_package.Pinecone_Connection_Provider.PineconeConnectionProvider import
 from data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider import MongoDBConnectionProvider
 
 def updating_loop(time_interval):
+    """
+    Loop to update the databases with new emails and tickets
+    :param time_interval:
+    """
     while True:
         mongodb_connection = MongoDBConnectionProvider().initMongoDB()
         pinecone_connection = PineconeConnectionProvider().initPinecone()

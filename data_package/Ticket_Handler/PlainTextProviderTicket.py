@@ -4,9 +4,12 @@ import re
 
 class PlainTextProviderTicket:
 
-    
-
     def convert_html_to_text(self, data):
+        """
+        Converts HTML to text
+        :param data: HTML data
+        :return data: text data
+        """
         if isinstance(data, str):
             # HTML-Tags in normalen Text umwandeln
             soup = BeautifulSoup(data, 'html.parser')
@@ -27,6 +30,11 @@ class PlainTextProviderTicket:
 
 
     def getText(self, ticket: Ticket):
+        """
+        Returns the text of a ticket
+        :param ticket:
+        :return text: text of the ticket
+        """
         text = ""
         countmessage = 0
         for page in range(0, len(ticket.TicketContent)):

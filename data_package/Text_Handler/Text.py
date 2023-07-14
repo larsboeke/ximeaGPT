@@ -7,4 +7,8 @@ class Text:
                          }
     
     def get_metadata(self):
+        """
+        Returns the metadata of the text
+        :return metadata:
+        """
         return self.metadata

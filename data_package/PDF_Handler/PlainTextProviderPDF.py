@@ -8,7 +8,11 @@ import re
 class PlainTextProviderPDF:
 
     def get_text(self, pdf:PDF):
-
+        """
+        Returns the plain text of the PDF
+        :param pdf:
+        :return text:
+        """
         path = pdf.get_path()
         # Download the PDF file
         response = requests.get(path)
