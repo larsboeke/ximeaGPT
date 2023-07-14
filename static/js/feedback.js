@@ -1,4 +1,4 @@
-const socket = io.connect('http://localhost:5000');
+const socket = io.connect();
 const resetAllFeedback = document.querySelector("#reset-all-feedback-btn");
 const resetChunkFeedbacks = document.querySelectorAll(".reset-feedback-btn");
 const deleteChunks = document.querySelectorAll(".delete-chunk-btn");

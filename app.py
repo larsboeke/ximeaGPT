@@ -15,10 +15,12 @@ import backend.activity_utils as activity
 from datetime import datetime  
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
+from flask_cors import CORS
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # configure Flask-Login
@@ -247,7 +249,7 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000, debug=True)
+    socketio.run(app, port=5001, debug=False, host='0.0.0.0')
  
 
 
