@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  const socket = io.connect('http://localhost:5000');
+  const socket = io.connect();
   const activityCosts = document.querySelector("#activity_cost");
   const costsPerMessage = document.querySelector('#cost_per_message');
   const activityCount = document.querySelector('#activity_count');
