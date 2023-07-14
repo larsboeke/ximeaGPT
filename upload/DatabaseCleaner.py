@@ -8,8 +8,8 @@ class DatabaseCleaner:
         # Delete from MongoDB
         self.mongodb_connection.delete_one({"_id": ObjectId(chunk_id)})
         # Delete from Pinecone
-        print(f"deleted chunk {chunk_id} from pinecone")
         self.pinecone_connection.delete(ids=[chunk_id], namespace="pastConversations")
+        print(f"Deleted chunk {chunk_id} from Pinecone and MongoDB")
 
     def delete_short_chunks(self):
         query = {

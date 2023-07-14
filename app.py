@@ -207,8 +207,8 @@ def update_stats(startdate, enddate):
 
 @socketio.on('upload_text')
 def upload_text(text):
-    #Textuploader here
-    print(f"Following text is uploaded {text}")
+    Uploader().uploadText(text)
+    print(f"Following text is uploaded: '{text}'")
 
 @socketio.on('upload_url')
 def upload_text(url):

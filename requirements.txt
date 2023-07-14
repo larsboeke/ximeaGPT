@@ -16,3 +16,4 @@ flask
 flask_socketio
 werkzeug
 flask_login
+flask_cors

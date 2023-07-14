@@ -22,6 +22,7 @@ from data_package.URL_Handler.PlainTextProviderURL import PlainTextProviderURL
 from data_package.Ticket_Handler.Ticket import Ticket
 from data_package.Ticket_Handler.PlainTextProviderTicket import PlainTextProviderTicket
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from data_package.Text_Handler.Text import Text
 
 load_dotenv()
 
@@ -115,6 +116,18 @@ class Uploader:
             print("uploaded " + url)
         else:
             print("File already uploaded")
+
+    def uploadText(self, text):
+        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+
+        text1 = Text()
+        chunks = Chunker().data_to_chunks(text, text1.get_metadata())
+        print(chunks)
+        for chunk in chunks:
+            self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
+
+        print("uploaded text")
 
 
     def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
