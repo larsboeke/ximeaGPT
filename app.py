@@ -127,10 +127,10 @@ def upload():
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
-    print("CONVERSTION ID FOR QUERY: " + conversation_id)
+    print("generate_backend_message: CONVERSTION ID FOR QUERY: " , conversation_id)
     response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
-    print("Conversation ID for query " + conversation_id)    
+    print("generate_backend_message: Conversation ID for query " , conversation_id)    
     return assistant_message, sources
 
 
@@ -138,15 +138,15 @@ def generate_backend_message(conversation_id, user_prompt):
 #recieve client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
-    print("AiResponse started")
+    print("Socket: send_message: AiResponse started")
     #print(current_user.id)
     chat_id = data['chat_id']
     client_msg = data['text']
-    print(f"Client message: {client_msg}")
+    print(f"Socket: send_message: Client message: {client_msg}")
     assistant_message, sources = generate_backend_message(chat_id, client_msg)
 
     data = {'assistant_message': assistant_message, 'sources': sources}
-    print(f"Backend message: {assistant_message}")
+    print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
     socketio.emit('receive_response', data)
@@ -157,10 +157,10 @@ def handle_message(data):
 @socketio.on('start_chat')
 def start_chat(user_id, user_message): 
     #print(current_user.is_authenticated)
-    print("started chat")
+    print("Socket: shart_chat: started")
      
     chat_id, title = usr.create_chat(user_id, user_message)
-    print("CONVERSTION ID FOR NEW CHAT: " + chat_id)
+    print("Socket: shart_chat: CONVERSTION ID FOR NEW CHAT: " + chat_id)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
