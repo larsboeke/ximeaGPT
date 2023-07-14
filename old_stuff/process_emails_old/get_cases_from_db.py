@@ -1,7 +1,7 @@
 from .sql_connection import create_connection
 
 # Get all cases from Ximea, containing a unique list of UUIDs
-# TODO: Test if it is working
+
 def get_all_cases():
     connection, cursor = create_connection()
     query = "SELECT DISTINCT [regardingobjectid] from [AI:Lean].[dbo].[CrmEmails]"
