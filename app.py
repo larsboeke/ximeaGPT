@@ -20,6 +20,7 @@ from flask_cors import CORS
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
+app.config['UPLOAD_DIRECTORY'] = 'uploads_pdf_files/'
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -122,7 +123,13 @@ def upload():
         return "No selected file", 400
 
     file_name = secure_filename(file.filename)
+
+    if file:
+        upload_pdf(file=file)
+
     return f"File '{file_name}' uploaded successfully."
+
+
 
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
@@ -211,9 +218,18 @@ def upload_text(text):
     print(f"Following text is uploaded: '{text}'")
 
 @socketio.on('upload_url')
-def upload_text(url):
+def upload_url(url):
     Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
+
+@socketio.on('upload_pdf')
+def upload_pdf(file):
+    temp_path = os.path.join(
+        app.config['UPLOAD_DIRECTORY'],
+        secure_filename(file.filename)
+    )
+    file.save(temp_path)
+    Uploader().uploadPDF_local(path=temp_path)
 
 @socketio.on('reset_all_feedback')
 def handle_reset_all_feedback():
