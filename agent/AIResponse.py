@@ -41,7 +41,7 @@ class AiResponse:
         usr.add_function(self.conversation_id, function_name, content)
 
 
-    def get_openai_response(self):
+    def get_openai_response(self, call_type = "auto"):
         max_attempts = 5
         x = 0
         while x < max_attempts:
@@ -51,7 +51,7 @@ class AiResponse:
                     model="gpt-4",
                     messages= self.conversation_history,
                     functions= self.functions,
-                    function_call="auto",
+                    function_call=call_type,
                     temperature = 0
                 )
                 promt_tokens = response["usage"]["prompt_tokens"]
@@ -76,49 +76,17 @@ class AiResponse:
         message = self.get_openai_response()
     
         check_function_call = message.get("function_call")
-
-        if not check_function_call:
-            self.add_assistant_message(message['content'], [])
-
         message['timestamp'] = str(dt.now())
 
         assistant_message = message['content']
-        
-        while check_function_call:
-
+        if not check_function_call:
+            self.add_assistant_message(message['content'], [])
+        elif check_function_call:
             json_str = message["function_call"]["arguments"]
             data = json.loads(json_str)
-
             function_name = message["function_call"]["name"]
 
-            if function_name == "query_past_conversations":
-                print("Using get-context tool...")
-                function_response, sources, tokens = Agent_functions.getText(
-                    query = data["query"],
-                    namespace="pastConversations"
-                )
-                #append sources to sources attribute
-                for source in sources:
-                    self.sources.append(source)
-                #app used tokens
-                self.embeddings_tokens += tokens
-
-            elif function_name == "query_manuals":
-                print("Using query_manuals tool...")
-                function_response, sources, tokens = Agent_functions.getText(
-                    query = data["query"],
-                    namespace="manuals"
-                )
-                #append sources to sources attribute
-                for source in sources:
-                    self.sources.append(source)
-                #app used tokens
-                self.embeddings_tokens += tokens
-                print(function_response)
-
-            #elif function_name == "get_last_message":
-                #pass
-            elif function_name == "query_all":
+            if function_name == "query_all":
                 print("Using query_all tool...")
                 function_response, sources, tokens = Agent_functions.getText(
                     query=data["query"],
@@ -129,39 +97,22 @@ class AiResponse:
                     self.sources.append(source)
                 # app used tokens
                 self.embeddings_tokens += tokens
-                print(function_response)
-
-            elif function_name == "get_last_message":
-                pass
-
-            elif function_name == "get_database_schema":
-                print("Using get_database_schema tool...")
-                function_response = Agent_functions.get_database_schema()
 
             elif function_name == "query_product_database":
                 print("Using query_product_database tool...")
                 function_response = Agent_functions.query_product_database( # Eventually add sources!
                     sqlquery = data["sqlquery"]
                 )
-                #self.sources.append(source)
-
-
+            elif function_name == "get_database_schema":
+                print("Using get_database_schema tool...")
+                function_response = Agent_functions.get_database_schema()
+            print(function_response)
             print(check_function_call)
             self.add_function(function_name, str(function_response))
     
-            additional_message = self.get_openai_response()
-            check_function_call = additional_message.get("function_call")
-
-            #add assistant message if no further function call is required
-            if not check_function_call:
-                assistant_message = additional_message['content']
-                self.add_assistant_message(assistant_message, self.sources)
-                
-        
+            message_response_to_function = self.get_openai_response(call_type="none")
+            assistant_message = message_response_to_function['content']
+            self.add_assistant_message(assistant_message, self.sources)
         act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
         return assistant_message, self.sources
-
-
-
-
