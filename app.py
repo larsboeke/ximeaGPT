@@ -16,6 +16,7 @@ from datetime import datetime
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
 from flask_cors import CORS
+import shutil
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -129,6 +130,9 @@ def upload():
         app.config['UPLOAD_DIRECTORY'],
         secure_filename(file.filename))
     file.save(temp_path)
+    Uploader().uploadPDF_local(temp_path)
+    shutil.rmtree(app.config['UPLOAD_DIRECTORY'])
+    os.mkdir(app.config['UPLOAD_DIRECTORY'])
     return f"File '{file_name}' uploaded successfully."
 
 #react to client message
