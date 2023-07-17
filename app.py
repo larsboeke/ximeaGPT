@@ -219,7 +219,7 @@ def upload_text(text):
     print(f"Following text is uploaded: '{text}'")
 
 @socketio.on('upload_url')
-def upload_text(url):
+def upload_url(url):
     Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
 
