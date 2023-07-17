@@ -3,8 +3,6 @@ const sendButton = document.querySelector("#send-btn");
 const chatContainer = document.querySelector(".chat-container");
 const themeButton = document.querySelector("#theme-btn");
 const deleteButton = document.querySelector("#delete-btn");
-const uploadButton = document.querySelector("#upload-btn");
-const fileInfo = document.querySelector(".file-info");
 const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
 const socket = io.connect();
@@ -269,53 +267,6 @@ logoutButton.addEventListener("click", () =>{
         window.location.href = '/logout'; 
     }
 });
-
-async function uploadFile(file){
-    try{
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch('upload',{
-            method: 'POST',
-            body: formData
-        });
-        if (response.ok){
-            const infoElement = document.createElement('p');
-            infoElement.textContent = `${file.name}`;
-            fileInfo.append(infoElement)
-            console.log("File was uploaded succesfully")
-        } else{
-            throw new Error(`Error uploading the file: ${response.statusText}`);
-        }
-    } catch(error){
-        console.error('Error', error)
-    }
-}
-
-uploadButton.addEventListener("change", (event)=> {
-    const file = event.target.files[0]; // Get the selected file
-
-     if (file && file.type === "application/pdf"){//MIME type
-        //const formData = new FormData(); // Create a new FormData instance
-        //formData.append("file", file); // Append the file to the form data
-
-        uploadFile(file);
-
-        console.log("File selected:", file.name);
-        console.log("File size:", (file.size / 1024).toFixed(1));
-
-        //TO-DO: only one file can be selected.
-
-        const infoElement = document.createElement('p');
-        infoElement.textContent = `${file.name}`;
-        fileInfo.append(infoElement)
-    }
-    else{
-        alert("Please select a PDF file.")
-    }
-})
-
-
-
 
 //Adjustig the textarea hight to fit the content
 chatInput.addEventListener("input", () =>{
