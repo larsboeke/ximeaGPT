@@ -25,3 +25,5 @@ urlUploadButton.addEventListener("click", () => {
         alert("Please type something in");
     }
 });
+
+// TODO: Anbindung des PDF Uploads ans Frontend implementieren
