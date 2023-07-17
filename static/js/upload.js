@@ -1,4 +1,4 @@
-const socket = io.connect('http://localhost:5000');
+const socket = io.connect();
 const textUploadButton = document.querySelector("#text-input-btn");
 const text = document.querySelector("#text-input");
 const urlUploadButton = document.querySelector("#url-upload-btn");

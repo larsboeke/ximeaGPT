@@ -74,7 +74,7 @@ def delete_chunk(chunk_id):
     chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
     feedback_mongo.delete_one({"chunk_id": chunk_id})
     # Delete from Pinecone
-    index.delete(ids=[chunk_id])
+    index.delete(ids=[chunk_id], namespace="pastConversations")
 
 def clean_chunk(data):
     # Ensure the input is a list and has exactly two elements

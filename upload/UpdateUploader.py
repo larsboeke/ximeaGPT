@@ -36,6 +36,11 @@ class UpdateUploader:
 
     # Method to create embeddings using OpenAI API
     def createEmbedding(self, chunk):  # JSON als Input
+        """
+        Creates an embedding for a chunk
+        :param chunk:
+        :return chunkEmbedding: created embedding
+        """
         chunkText = chunk['content']
         chunkEmbedding = openai.Embedding.create(input=chunkText, model=self.EMBEDDING_MODEL)['data'][0]['embedding']
 
@@ -43,6 +48,13 @@ class UpdateUploader:
 
     # Upload created chunks to MongoDB and Pinecone
     def uploadChunk(self, chunk, index, col):
+        """
+        Uploads a chunk to pinecone and mongodb
+        :param chunk:
+        :param index: pinecone_connection
+        :param col: mongodb_connection
+        :return:
+        """
         # Try Create embedding x times (due to APIERROR)
         max_attempts = 5
         for attempt in range(max_attempts):
@@ -73,6 +85,12 @@ class UpdateUploader:
         index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
 
     def is_file_uploaded(self, source, file_type):
+        """
+        Checks if a file is already uploaded
+        :param source:
+        :param file_type:
+        :return is_uploaded:
+        """
         col = MongoDBConnectionProvider().initMongoDB()
         type_to_key_map = {
             'ticket': 'TicketID',
@@ -89,6 +107,10 @@ class UpdateUploader:
 
     # Upload PDFs from given path
     def uploadPDF(self, path):
+        """
+        Uploads a PDF from a given path
+        :param path:
+        """
         file_type = 'manuals'
         if self.is_file_uploaded(path, file_type) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
@@ -106,6 +128,10 @@ class UpdateUploader:
 
     # Upload Pagecontent from given URLs
     def uploadURL(self, url):
+        """
+        Uploads a URL from a given URL
+        :param url:
+        """
         file_type = 'manuals'
         if self.is_file_uploaded(url, file_type) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()

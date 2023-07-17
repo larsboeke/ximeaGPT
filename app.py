@@ -15,10 +15,12 @@ import backend.activity_utils as activity
 from datetime import datetime  
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
+from flask_cors import CORS
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # configure Flask-Login
@@ -102,7 +104,7 @@ def logout():
 def index():
     if current_user.is_authenticated:
        conversations = usr.get_chat_ids(current_user.id)
-       print(conversations)
+       #print(conversations)
        print(current_user.id)
        return render_template('chatbot.html', chats=conversations[::-1])     
     else:
@@ -125,10 +127,10 @@ def upload():
 #react to client message
 def generate_backend_message(conversation_id, user_prompt):
     #create airesponse object and request chat completion
-    print("CONVERSTION ID FOR QUERY: " + conversation_id)
+    print("generate_backend_message: CONVERSTION ID FOR QUERY: " , conversation_id)
     response_request = AiResponse(conversation_id, user_prompt)
     assistant_message, sources = response_request.chat_completion_request()
-    print("Conversation ID for query " + conversation_id)    
+    print("generate_backend_message: Conversation ID for query " , conversation_id)    
     return assistant_message, sources
 
 
@@ -136,15 +138,15 @@ def generate_backend_message(conversation_id, user_prompt):
 #recieve client messages and send response
 @socketio.on('send_message')
 def handle_message(data):
-    print("AiResponse started")
+    print("Socket: send_message: AiResponse started")
     #print(current_user.id)
     chat_id = data['chat_id']
     client_msg = data['text']
-    print(f"Client message: {client_msg}")
+    print(f"Socket: send_message: Client message: {client_msg}")
     assistant_message, sources = generate_backend_message(chat_id, client_msg)
 
     data = {'assistant_message': assistant_message, 'sources': sources}
-    print(f"Backend message: {assistant_message}")
+    print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
     socketio.emit('receive_response', data)
@@ -155,10 +157,10 @@ def handle_message(data):
 @socketio.on('start_chat')
 def start_chat(user_id, user_message): 
     #print(current_user.is_authenticated)
-    print("started chat")
+    print("Socket: shart_chat: started")
      
     chat_id, title = usr.create_chat(user_id, user_message)
-    print("CONVERSTION ID FOR NEW CHAT: " + chat_id)
+    print("Socket: shart_chat: CONVERSTION ID FOR NEW CHAT: " + chat_id)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
@@ -205,8 +207,8 @@ def update_stats(startdate, enddate):
 
 @socketio.on('upload_text')
 def upload_text(text):
-    #Textuploader here
-    print(f"Following text is uploaded {text}")
+    Uploader().uploadText(text)
+    print(f"Following text is uploaded: '{text}'")
 
 @socketio.on('upload_url')
 def upload_text(url):
@@ -247,7 +249,7 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000, debug=True)
+    socketio.run(app, port=5001, debug=False, host='0.0.0.0')
  
 
 
