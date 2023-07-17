@@ -64,7 +64,6 @@ const createChatElement = (html, className) => {
 
 const rateChunk = (thumbDown) =>{
     thumbDown.style.color = "#b12727";
-    //TODO: chunk_id wird nicht richtig gesetzt, currently empty string
     var chunk_id = thumbDown.parentElement.id;
     localStorage.setItem('chunk_id', chunk_id);
     console.log('You rated chunk with id', chunk_id);

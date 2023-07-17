@@ -26,4 +26,4 @@ urlUploadButton.addEventListener("click", () => {
     }
 });
 
-// TODO: Anbindung des PDF Uploads ans Frontend implementieren und urls checken
+// TODO: Anbindung des PDF Uploads ans Frontend implementieren
