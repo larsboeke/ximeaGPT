@@ -1,4 +1,5 @@
 from bson.objectid import ObjectId
+import time
 
 class DatabaseCleaner:
     def __init__(self, mongodb_connection, pinecone_connection):
@@ -64,3 +65,35 @@ class DatabaseCleaner:
                 for duplicate in document['documents']:
                     if duplicate['_id'] != document['documents'][0]['_id']:
                         self.delete_chunk(str(duplicate['_id']))
+
+
+    def remove_substrings_from_database(self):
+        not_unique_content_ids = []
+        docs = self.mongodb_connection.find()
+        contents = [(doc['_id'], doc['content']) for doc in docs]
+        print(len(contents))
+        start_time = time.time()
+        for i in range(len(contents)):
+            substring_found = False
+            for j in range(len(contents)):
+                if i != j and contents[i][1] in contents[j][1]:
+                    substring_found = True
+                    break
+            if substring_found:
+                not_unique_content_ids.append(contents[i][0])
+
+            elapsed_time = time.time() - start_time
+            remaining_time = elapsed_time / (i + 1) * (len(contents) - (i + 1))
+            print(
+                f"\r{str(round((i + 1) / len(contents) * 100, 2))}% checked, approx. remaining time: {round(remaining_time / 60, 2)} minutes",
+                end="")
+
+            teil_strings_c = []
+            for teil_string in not_unique_content_ids:
+                # convert into str
+                teil_string = str(teil_string)
+                teil_strings_c.append(teil_string)
+
+            for teil_string in teil_strings_c:
+                DatabaseCleaner(mongodb_connection=self.mongodb_connection,
+                                pinecone_connection=self.pinecone_connection).delete_chunk(teil_string)
