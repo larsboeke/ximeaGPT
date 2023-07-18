@@ -44,7 +44,7 @@ def create_chat(user_id, user_prompt):
         #add conversation entry to conversatoin collection
         entry = {
             'conversation_id': conversation_id,
-            'messages': [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers based on Context gathered by the functions but try to use them as little as possible"}] 
+            'messages': [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
             }
         conversations_mongo.insert_one(entry)
 
