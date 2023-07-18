@@ -31,8 +31,10 @@
             }
         }
 
+
         /*Function from Lorenz*/
         if (check == true) {
+            console.log("Checked true")
             const submitBtn = document.querySelector("#submit-btn");
             const username = document.querySelector("#username");
             localStorage.setItem("username", username.value);

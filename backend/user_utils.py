@@ -4,6 +4,7 @@ import os
 import json
 from uuid import uuid4
 from datetime import datetime as dt
+from flask import Flask, render_template, jsonify, request, make_response, redirect, url_for
 
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
@@ -43,23 +44,26 @@ def create_chat(user_id, user_prompt):
         #add conversation entry to conversatoin collection
         entry = {
             'conversation_id': conversation_id,
-            'messages': [{"role": "system", "content": "You are a helpful assistant, helping out the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
+            'messages': [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers based on Context gathered by the functions but try to use them as little as possible"}] 
             }
         conversations_mongo.insert_one(entry)
 
         title = generate_chat_title(user_prompt)
     
-        user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': {'conversation_id' : conversation_id, 'title': title}}})
+        print(user_id)
+        print(conversation_id)
+        
+        test = user_mongo.update_one({'user_id': user_id}, {'$push': {'conversations': {'conversation_id' : conversation_id, 'title': title}}})
+        print(test)
         print("created new chat with id:" + conversation_id)
         return conversation_id, title
 
 
 def generate_chat_title(user_prompt):#
     
-    gpt_prompt = f"Write a discritive Title about the follwing User Message Topic. DO NOT RESPONDE WITH MORE THAN 4 WORDS USER PROMPT: {user_prompt} "
     response = openai.ChatCompletion.create(
         model = 'gpt-3.5-turbo',
-        messages = [{'role': 'system', 'content': 'Your are a assiatant that generates descripütive Titles Titles of Chats based on the first USer Message. ONLY CREATE TITLES THAT CONTAIN LESS THAN 4 WORDS.'},
+        messages = [{'role': 'system', 'content': 'Your are a assiatant that generates descriptive Titlesof Chats based on the first User Message. ONLY CREATE TITLES THAT CONTAIN LESS THAN 3 WORDS. DO NOT USE MORE THAN THREE WORDS!'},
                     {'role': 'user', 'content': user_prompt}]
     )
 
@@ -71,7 +75,6 @@ def delete_chat(user_id, chat_id):
     conversations_mongo.delete_one({'conversation_id': chat_id})
     user_mongo.update_one({'user_id': user_id},{ '$pull': { 'conversations': { 'conversation_id': chat_id} }})
     print(f"Conversation is deleted with following id", chat_id)
-
         
 def generate_chat_id():
     while True:
