@@ -208,13 +208,13 @@ def generate_report(startdate, enddate):
     avg_response_time = report['avg_response_time']
     graph_data = report['graph_data']
     print(f"GRAPHDATA: {graph_data}")
-    return activity_cost, cost_per_message, activity_count, avg_response_time
+    return activity_cost, cost_per_message, activity_count, avg_response_time, graph_data
 
 @socketio.on('update_stats')
 def update_stats(startdate, enddate):
     print(f"Selected daterange JS: from {startdate} to {enddate}")
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
-    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
+    activity_cost, cost_per_message, activity_count, avg_response_time, graph_data = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
+    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
     socketio.emit('updated_stats', stats)
 
 @socketio.on('upload_text')
@@ -245,8 +245,8 @@ def handle_delete_chunk(chunk_id):
 @app.route('/admin/dashboard')
 def admin_dashboard():
     now = datetime.now()
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(now, now)    
-    return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
+    activity_cost, cost_per_message, activity_count, avg_response_time, graph_data = generate_report(now, now)    
+    return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time, graph_data = graph_data)
 
 @app.route('/admin/documents')
 def admin_documents():
@@ -255,6 +255,7 @@ def admin_documents():
 @app.route('/admin/upload')
 def admin_upload():
     return render_template('upload.html')
+
 @app.route('/admin/feedback')
 def admin_feedback():
     all_feedback = feedback.get_all_cleaned_rated_chunks()

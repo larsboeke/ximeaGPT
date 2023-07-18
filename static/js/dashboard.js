@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const costsPerMessage = document.querySelector('#cost_per_message');
   const activityCount = document.querySelector('#activity_count');
   const avgResponseTime = document.querySelector('#avg_response_time');
+  let chart = null;
+
 
 
   $(() => {
@@ -39,59 +41,72 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  
+  const updateChart = (graphData) => {
+    chart.updateSeries([{ data: graphData.count }]);
+    chart.updateOptions({ xaxis: { categories: graphData.timestamp } });
+  };
+
+      // Apex Charts initialization code here
+      const loadChart = ()=>{
+        var options = {
+          series: [{
+          name: "API calls",
+          data: [31, 40, 28, 51, 42, 109, 100]
+        }],
+          chart: {
+          type: 'area',
+          height: 350,
+          background:'transparent',
+          zoom: { enabled: false },
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        xaxis: {
+          type: 'datetime',
+          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+        },
+        tooltip: {
+          x: {
+            format: 'dd/MM/yy HH:mm'
+          },
+        },
+        theme: {
+          mode: 'dark',
+          palette: 'palette1',
+          monochrome: {
+            enabled: true,
+            color: '#f18701',
+            shadeTo: 'light',
+            shadeIntensity: 0.65
+           }}
+        };
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+      };
+
+
   socket.on('updated_stats', (stats) =>{
     activityCosts.textContent = stats['activity_cost'];
     costsPerMessage.textContent = stats['cost_per_message'];
     activityCount.textContent = stats['activity_count'];
     avgResponseTime.textContent = stats['avg_response_time'];
-    //loadChart();
+    if (chart) {
+      updateChart(stats['graph_data']);
+    } else {
+      loadChart();
+    }
   });
 
 
-    // Apex Charts initialization code here
-    const loadChart = ()=>{
-      var options = {
-        series: [{
-        name: "API calls",
-        data: [31, 40, 28, 51, 42, 109, 100]
-      }],
-        chart: {
-        type: 'area',
-        height: 350,
-        background:'transparent',
-        zoom: { enabled: false },
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth'
-      },
-      xaxis: {
-        type: 'datetime',
-        categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
-      },
-      tooltip: {
-        x: {
-          format: 'dd/MM/yy HH:mm'
-        },
-      },
-      theme: {
-        mode: 'dark',
-        palette: 'palette1',
-        monochrome: {
-          enabled: true,
-          color: '#f18701',
-          shadeTo: 'light',
-          shadeIntensity: 0.65
-         }}
-      };
 
-      var chart = new ApexCharts(document.querySelector("#chart"), options);
-      chart.render();
+  
 
-    };
-    loadChart();
+
     // var options = {
     //     series: [{
     //     name: 'Total Costs',

@@ -187,7 +187,8 @@ const parseTime = (timestamp) =>{
 };
 
 const startNewChat = (userMessage) => {
-    chatContainer.innerHTML = "";
+    document.querySelector(".default-text").remove();
+    //chatContainer.innerHTML = "";
     var userId = localStorage.getItem("username");
     socket.emit('start_chat', userId, userMessage);
     socket.on('chat_started', (data) =>{
@@ -199,9 +200,10 @@ const startNewChat = (userMessage) => {
         newChat.id = chat_id;
         newChat.textContent = title;
         console.log('New chat started with ID:', chat_id); 
-        console.log('New chat started with title:', title);  
+        console.log('New chat started with title:', title);
+        handleUserMessage();  
     });
-    handleUserMessage();
+    
 }
 
 
@@ -213,6 +215,7 @@ const handleUserMessage = () => {
             startNewChat(userMessage);         
         }
         else{
+            console.log('SENDING MESSAGE......');
             var data = {
                 'chat_id': localStorage.getItem('chat_id'),
                 'text': userMessage
@@ -255,7 +258,6 @@ deleteButton.addEventListener("click", () =>{
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
-        fileInfo.remove();
         loadDefaultWindow(); 
     }
 });

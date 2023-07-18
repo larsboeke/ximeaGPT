@@ -128,8 +128,7 @@ class Uploader:
         Uploads a pdf to pinecone and mongodb using the admin panel
         :param path:
         """
-        file_type = 'manuals'
-        if self.is_file_uploaded(path, file_type) == False:
+        if self.is_file_uploaded(path) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
             pdf = PDF(path=path)

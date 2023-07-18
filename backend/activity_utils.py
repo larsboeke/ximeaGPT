@@ -1,5 +1,6 @@
 import pymongo
 import datetime as dt
+from datetime import datetime
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
 db = client['admin']                            
@@ -89,16 +90,22 @@ def get_activity_cost(startdate, enddate):
 
 
 def get_graph_activity(startdate, enddate):
-    result = activity_mongo.aggregate(
-        [
+    #agregation by time when the selected daterange is 24 hours
+    if startdate.date() == enddate.date(): 
+        pipeline = [
             {
                 "$match": {
-                    "timestamp": {"$gte": startdate, "$lte": enddate}
+                    "start_timestamp": {"$gte": startdate, "$lte": enddate}
                 }
             },
             {
                 "$group": {
-                    "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
+                    "_id": {
+                        "year": {"$year": "$start_timestamp"},
+                        "month": {"$month": "$start_timestamp"},
+                        "day": {"$dayOfMonth": "$start_timestamp"},
+                        "hour": {"$hour": "$start_timestamp"}
+                    },
                     "count": {"$sum": 1}
                 }
             },
@@ -106,9 +113,69 @@ def get_graph_activity(startdate, enddate):
                 "$sort": {"_id": 1}
             }
         ]
-    )
-    graph_data = [{"date": entry["_id"], "count": entry["count"]} for entry in result]
-    return graph_data
+    #agregation by days when the selected daterange is more than one day
+    else:
+        pipeline = [
+            {
+                "$match": {
+                    "start_timestamp": {"$gte": startdate, "$lte": enddate}
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$start_timestamp"},
+                        "month": {"$month": "$start_timestamp"},
+                        "day": {"$dayOfMonth": "$start_timestamp"}
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$sort": {"_id": 1}
+            }
+        ]
+
+    result = activity_mongo.aggregate(pipeline)
+
+    timestamp = []
+    count = []
+
+    for entry in result:
+         timestamp_dict = entry["_id"]
+         timestamp_obj = datetime(
+            timestamp_dict["year"],
+            timestamp_dict["month"],
+            timestamp_dict["day"],
+            timestamp_dict.get("hour", 0)
+        )
+         #convertion to ISO date format 
+         timestamp.append(timestamp_obj.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+         count.append(entry["count"])
+
+    #graph_data = [{"timestamp": timestamp, "count": count} for entry in result]
+
+    return {"timestamp": timestamp, "count": count}
+    # result = activity_mongo.aggregate(
+    #     [
+    #         {
+    #             "$match": {
+    #                 "timestamp": {"$gte": startdate, "$lte": enddate}
+    #             }
+    #         },
+    #         {
+    #             "$group": {
+    #                 "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
+    #                 "count": {"$sum": 1}
+    #             }
+    #         },
+    #         {
+    #             "$sort": {"_id": 1}
+    #         }
+    #     ]
+    # )
+    # graph_data = [{"date": entry["_id"], "count": entry["count"]} for entry in result]
+    #return graph_data
 
 
 
