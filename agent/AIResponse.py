@@ -101,11 +101,8 @@ class AiResponse:
                     self.sources.append(source)
                 # app used tokens
                 self.embeddings_tokens += tokens
-<<<<<<< agent/AIResponse.py
                 query_counter += 1
-=======
                 print(function_response)
->>>>>>> agent/AIResponse.py
 
             elif function_name == "get_last_message":
                 pass
@@ -115,12 +112,10 @@ class AiResponse:
                 function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
                     product = data["product"]
                 )
-<<<<<<< agent/AIResponse.py
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
                 function_response = Agent_functions.get_database_schema()
 
-=======
                 print(function_response)
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
@@ -131,7 +126,6 @@ class AiResponse:
 
 
             print(check_function_call)
->>>>>>> agent/AIResponse.py
             self.add_function(function_name, str(function_response))
 
             function_call_counter += 1
