@@ -22,8 +22,6 @@ class AiResponse:
         self.start_timestamp = dt.now()
     
 
- 
-
 
     def add_user_message(self, content):
         message = {"role": 'user', "content": content}
@@ -41,14 +39,14 @@ class AiResponse:
         usr.add_function(self.conversation_id, function_name, content)
 
 
-    def get_openai_response(self, call_type = "auto"):
+    def get_openai_response(self, call_type):
         max_attempts = 5
         x = 0
         while x < max_attempts:
 
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-4",
+                    model="gpt-3.5-turbo-16k",
                     messages= self.conversation_history,
                     functions= self.functions,
                     function_call=call_type,
@@ -73,7 +71,7 @@ class AiResponse:
         
         self.add_user_message(self.user_prompt)
         
-        message = self.get_openai_response()
+        message = self.get_openai_response("auto")
     
         check_function_call = message.get("function_call")
         message['timestamp'] = str(dt.now())
@@ -81,23 +79,33 @@ class AiResponse:
         assistant_message = message['content']
         if not check_function_call:
             self.add_assistant_message(message['content'], [])
-        elif check_function_call:
+
+        function_call_counter = 0
+        function_call_limit = 1
+        query_counter = 1
+
+        while function_call_counter < function_call_limit and check_function_call:  
+ 
             json_str = message["function_call"]["arguments"]
             data = json.loads(json_str)
             function_name = message["function_call"]["name"]
 
-            if function_name == "query_all":
-                print("Using query_all tool...")
+            if function_name == "query_unstructured_data":
+                print("Using query_unstructured_data tool...")
                 function_response, sources, tokens = Agent_functions.getText(
                     query=data["query"],
-                    namespace="pastConversations"
+                    counter = query_counter
                 )
                 # append sources to sources attribute
                 for source in sources:
                     self.sources.append(source)
                 # app used tokens
                 self.embeddings_tokens += tokens
+<<<<<<< agent/AIResponse.py
+                query_counter += 1
+=======
                 print(function_response)
+>>>>>>> agent/AIResponse.py
 
             elif function_name == "get_last_message":
                 pass
@@ -107,6 +115,12 @@ class AiResponse:
                 function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
                     product = data["product"]
                 )
+<<<<<<< agent/AIResponse.py
+            elif function_name == "get_database_schema":
+                print("Using get_database_schema tool...")
+                function_response = Agent_functions.get_database_schema()
+
+=======
                 print(function_response)
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
@@ -117,11 +131,23 @@ class AiResponse:
 
 
             print(check_function_call)
+>>>>>>> agent/AIResponse.py
             self.add_function(function_name, str(function_response))
+
+            function_call_counter += 1
+
+            #call response with functions if counter is lower than function call limit, otherwise force respose without functions
+            if function_call_counter == function_call_limit:
+                message_response_to_function = self.get_openai_response(call_type="none")
+            
+            elif function_call_counter < function_call_limit:
+                message_response_to_function = self.get_openai_response(call_type="auto")
     
-            message_response_to_function = self.get_openai_response(call_type="none")
+            
             assistant_message = message_response_to_function['content']
             self.add_assistant_message(assistant_message, self.sources)
+      
+
         act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
         return assistant_message, self.sources
