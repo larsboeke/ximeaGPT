@@ -215,6 +215,9 @@ def getText(query, counter):
     filtered_query_embedding = query_embedding['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
     
+    matches_content = []
+    matches_sources = []
+    
     namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
     for namespace, borders in namespaces:
 
@@ -229,8 +232,7 @@ def getText(query, counter):
 
         
         #get matches from mongoDB for IDs
-        matches_content = []
-        matches_sources = []
+
         print(pinecone_results)
         for id in unique_pinecone_results:
             idToFind = ObjectId(id['id'])
