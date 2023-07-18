@@ -5,6 +5,7 @@ import json
 import backend.user_utils as usr
 from datetime import datetime as dt
 from backend import activity_utils as act
+import tiktoken
 
 class AiResponse:
 
@@ -19,6 +20,7 @@ class AiResponse:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
+        self.conversation_history_token = 0
         self.start_timestamp = dt.now()
     
 
@@ -100,28 +102,60 @@ class AiResponse:
                 print(function_response)
 
             elif function_name == "get_last_message":
-                pass
+                print("Using get_last_message tool...")
+                function_response = Agent_functions.get_last_message( # Eventually add sources!
+                    product = data["product"]
+                )
+                # self.sources.append("Conversation History")
+                print(function_response)
 
             elif function_name == "query_feature_of_product_pdb":
                 print("Using query_feature_of_product_pdb tool...")
                 function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
-                    product = data["product"]
+                    product = data["product"], query = data["query"]
                 )
+
                 print(function_response)
-            elif function_name == "query_data_of_feature_of_product_pdb":
-                print("Using query_data_of_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+
+            elif function_name == "query_data_of_category_feature_of_product_pdb":
+                print("Using query_data_of_category_feature_of_product_pdb tool...")
+                function_response = Agent_functions.query_data_of_category_feature_of_product_pdb( # Eventually add sources!
                     product=data["product"], feature=data["feature"], category=data["category"]
                 )
                 print(function_response)
 
+            elif function_name == "query_data_of_feature_of_product_pdb":
+                print("Using query_data_of_feature_of_product_pdb tool...")
+                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                    product=data["product"], feature=data["feature"]
+                )
+                print(function_response)
 
+            print("!11111111111111111111111111111111111111111111111111111111111111111111111!")
             print(check_function_call)
             self.add_function(function_name, str(function_response))
     
             message_response_to_function = self.get_openai_response(call_type="none")
             assistant_message = message_response_to_function['content']
             self.add_assistant_message(assistant_message, self.sources)
+            
+            print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
+            print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
+
+            conv_his_token = num_tokens_from_string(str(self.conversation_history[1]), "cl100k_base")
+            print(f"Token of History {conv_his_token}")
+            
+            # if conv_his_token > 4000:
+            #    self.prompt_tokens = self.prompt_tokens - num_tokens_from_string(self.conversation_history[1], "cl100k_base")
+            #    self.conversation_history.pop(1)
+            #    print("Dropped one")
+
         act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
         return assistant_message, self.sources
+
+def num_tokens_from_string(string: str, encoding_name: str) -> int:
+    """Returns the number of tokens in a text string."""
+    encoding = tiktoken.get_encoding(encoding_name)
+    num_tokens = len(encoding.encode(string))
+    return num_tokens

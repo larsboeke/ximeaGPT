@@ -17,44 +17,6 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
-database_schema = """ 
-CREATE TABLE [dbo].[feature](
-	[id_feature] [int] NULL,
-	[name_of_feature] [nvarchar](45) NULL,
-	
-	[description] [nvarchar](245) NULL,
-	[display_name] [nvarchar](245) NULL,
-	
-) ON [PRIMARY]
-
-
-CREATE TABLE [dbo].[product_feature_relationship](
-	[id] [int] NULL,
-	[id_product] [int] NULL,
-	[id_feature] [int] NULL,
-    FOREIGN KEY (id_product) REFERENCES [dbo].[product]([id_product]),
-    FOREIGN KEY (id_feature) REFERENCES [dbo].[feature]([id_feature])
-) ON [PRIMARY]
-
-3 rows from the product_feature_relationship table:
-id	id_product	id_feature
-18	1	8
-407	2	8
-409	4	8
-
-CREATE TABLE [dbo].[product](
-	[id_product] [int] NULL,
-	[name_of_product] [nvarchar](145) NULL,
-	[description] [nvarchar](500) NULL
-) ON [PRIMARY]
-
-3 rows from the product table:
-id_product	name_of_product	description
-1	MR274CU_BH	
-2	MR16000MU	
-3	MR282CC_BH	
-"""
-
 get_context_tool = {
                 "name": "query_past_conversations",
                 "description": "Get Context from past conversations that already happend with real customers to. ONLY USE THIS TOOL ONCE IN A QUERY",
@@ -111,14 +73,41 @@ query_feature_of_product_pdb = {
                             "type": "string",
                             "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
                         },
+                        "query": {
+                            "type": "string",
+                            "description": "The query of the user, you want to find similar contexts to",
+                        },
                     },
                     "required": ["product"],
                 },
             }
 
+# query_data_of_category_feature_of_product_pdb = {
+#                 "name": "query_data_of_category_feature_of_product_pdb",
+#                 "description": "Query for the data of a category of a specific feature of a product in XIMEA'S product database",
+#                 "parameters": {
+#                     "type": "object",
+#                     "properties": {
+#                         "product" : {
+#                             "type": "string",
+#                             "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
+#                         },
+#                         "feature" : {
+#                             "type": "string",
+#                             "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
+#                         },
+#                         "category" : {
+#                             "type": "string",
+#                             "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
+#                         },
+#                     },
+#                     "required": ["product", "feature", "category"],
+#                 },
+#             }
+
 query_data_of_feature_of_product_pdb = {
                 "name": "query_data_of_feature_of_product_pdb",
-                "description": "Query for the data of a category of a specific feature of a product in XIMEA'S product database",
+                "description": "Query for all data of a specific feature of a product in XIMEA'S product database",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -131,16 +120,18 @@ query_data_of_feature_of_product_pdb = {
                             "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
                         },
                         "category" : {
-                            "type": "string",
-                            "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
+                             "type": "string",
+                             "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
                         },
                     },
-                    "required": ["product", "feature", "category"],
+                    "required": ["product", "feature"],
                 },
             }
 
-get_last_message = "pass"
-
+get_last_message = {
+                "name": "get_last_message",
+                "description": "Query the conversation history to get old messages",   
+            }
 
 
 
@@ -148,10 +139,37 @@ tools = [
     query_all,
     query_feature_of_product_pdb,
     query_data_of_feature_of_product_pdb,
-
+    # query_data_of_category_feature_of_product_pdb,
 ]
 
-def query_data_of_feature_of_product_pdb(product, feature, category):
+def get_last_message():
+    return ""
+
+def query_data_of_feature_of_product_pdb(product, feature, category="*"):
+    print(product)
+    query = f"""
+            SELECT *
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
+            """
+    
+    connection, mycursor = create_connection()
+    try:
+        mycursor.execute(query)
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
+
+        print(str(myresult))
+
+    return myresult
+
+# def query_data_of_category_feature_of_product_pdb(product, feature, category):
     print(product)
     query = f"""
             SELECT f.[{category}]
@@ -173,9 +191,9 @@ def query_data_of_feature_of_product_pdb(product, feature, category):
 
     return myresult
 
-def query_feature_of_product_pdb(product):
+def query_feature_of_product_pdb(product, query):
     print(product)
-    query = f"""
+    sql_query = f"""
             SELECT f.name_of_feature
             FROM [AI:Lean].[dbo].[feature] f 
             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
@@ -186,23 +204,17 @@ def query_feature_of_product_pdb(product):
             """
     connection, mycursor = create_connection()
     try:
-        mycursor.execute(query)
+        mycursor.execute(sql_query)
     except:
         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
     else:
         myresult = mycursor.fetchall()
-        print(str(myresult))
 
-        # messages=[
-        #     {"role": "user", "content": f"T-SQL query: {query}, Answer: {myresult}"},
-        #     {"role": "system", "content": f"Your are a helpfull assistent who will turn a T-SQL query and it answer into a text."}
-        # ]
-    
-        # response = openai.ChatCompletion.create(
-        #     model="gpt-4",
-        #     messages=messages,
-        # )
-        # myresult = response["choices"][0]["message"]
+        # if myresult == []:
+        #     print("--------------------------NONE----------------- SQL RESPONSE")
+        #     myresult = getText(query, namespace="pastConversations")
+        
+        print(str(myresult))
 
     return myresult
 
@@ -227,8 +239,6 @@ def initMongo():
     db = client["XIMEAGPT"]                   
     col = db["prototype4"]
     return col, db
-
-
         
 def initPinecone():
     #init pinecone
