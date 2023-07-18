@@ -257,7 +257,6 @@ deleteButton.addEventListener("click", () =>{
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
         window.location.href = '/';
-        //loadDefaultWindow(); 
     }
 });
 
