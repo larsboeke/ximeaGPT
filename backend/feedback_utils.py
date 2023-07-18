@@ -1,9 +1,8 @@
 import pymongo
 from datetime import datetime as dt
 from bson.objectid import ObjectId
-from ..data_package.Pinecone_Connection_Provider import PineconeConnectionProvider
-from ..data_package.MongoDB_Connection_Provider import MongoDBConnectionProvider
-
+import data_package.Pinecone_Connection_Provider.PineconeConnectionProvider as PineconeConnectionProvider
+import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 
 chunk_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
 feedback_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
@@ -107,6 +106,3 @@ def get_all_cleaned_rated_chunks():
     return cleaned_chunks
 
 #print(get_all_cleaned_rated_chunks())
-
-index.delete(ids=["64a4003e8334c0a8ff7793d4"], namespace="pastConversations")
-print("deleted")
