@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request, make_response, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from flask_login import current_user
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import flask
 import os
 #import old_stuff.uploadData as uploadData
@@ -76,6 +76,21 @@ def login():
 
     return render_template('login.html')
 
+@socketio.on('connect')
+def on_connect():
+    # user_id = request.args.get('username')
+    # print(user_id)
+    # if user_id:
+    join_room(current_user.id)
+    print(f"User {current_user.id} connected.")
+
+
+@socketio.on('disconnect')
+def on_disconnect(user_id):
+
+    leave_room(user_id)
+    print(f"User {user_id} disconnected.")
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -149,7 +164,7 @@ def handle_message(data):
     print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', data)
+    socketio.emit('receive_response', data, room=current_user.id)
 
 
 
@@ -174,8 +189,9 @@ def delete_chat(username, chat_id):
 @socketio.on('open_chat')
 def open_chat(chat_id):
     #chat_id = data['chat_id']
+    join_room(chat_id)
     messages = usr.get_messages(chat_id)
-    socketio.emit('chat_opened', messages)
+    socketio.emit('chat_opened', messages, room=chat_id)
     
 
     

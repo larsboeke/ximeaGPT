@@ -16,6 +16,10 @@ const icons = document.getElementsByClassName("icon");
 const logoutButton = document.querySelector("#logout-btn");
 
 
+// // Emit the user ID to the server when the connection is established
+// socket.on('connect', () => {
+//   socket.emit('user_connected', { user_id: user_id });
+// });
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
