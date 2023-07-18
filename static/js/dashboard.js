@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const costsPerMessage = document.querySelector('#cost_per_message');
   const activityCount = document.querySelector('#activity_count');
   const avgResponseTime = document.querySelector('#avg_response_time');
-  let chart = null;
 
 
 
@@ -48,11 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
       // Apex Charts initialization code here
-      const loadChart = ()=>{
+      const loadChart = (graphData)=>{
         var options = {
           series: [{
           name: "API calls",
-          data: [31, 40, 28, 51, 42, 109, 100]
+          data: graphData.count
         }],
           chart: {
           type: 'area',
@@ -68,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         xaxis: {
           type: 'datetime',
-          categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+          categories: graphData.timestamp
         },
         tooltip: {
           x: {
@@ -85,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
             shadeIntensity: 0.65
            }}
         };
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
       };
 
@@ -95,13 +94,14 @@ document.addEventListener("DOMContentLoaded", () => {
     costsPerMessage.textContent = stats['cost_per_message'];
     activityCount.textContent = stats['activity_count'];
     avgResponseTime.textContent = stats['avg_response_time'];
-    if (chart) {
-      updateChart(stats['graph_data']);
-    } else {
-      loadChart();
-    }
+    updateChart(stats['graph_data']);
   });
 
+  socket.emit('load_chart');
+  socket.on('loaded_chart', (graphData) =>{
+    loadChart(graphData);
+    console.log('LOADED A GRAPH FOR TODAY.....');
+});
 
 
   
