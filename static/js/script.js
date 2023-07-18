@@ -256,7 +256,8 @@ deleteButton.addEventListener("click", () =>{
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
-        loadDefaultWindow(); 
+        window.location.href = '/';
+        //loadDefaultWindow(); 
     }
 });
 
@@ -336,7 +337,9 @@ chatList.addEventListener("click", (event) =>{
     localStorage.setItem('chat_id', chatId);
 });
 
-newChatButton.addEventListener("click", loadDefaultWindow);
+newChatButton.addEventListener("click", () => {
+    window.location.href = '/';
+});
     
 function openNav() {
     document.getElementById("leftbox").style.width = "250px";
