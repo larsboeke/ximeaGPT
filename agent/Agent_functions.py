@@ -1,11 +1,11 @@
 import pymongo
 import pinecone
 import openai
-import pymssql
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 import tiktoken
+import pyodbc
 
 load_dotenv()
 
@@ -223,8 +223,19 @@ def create_connection():
     username = 'AI:Lean'
     password = 'NbIxyuc5b!4'
 
-    connection = pymssql.connect(server, username, password, database)
+    # Define connection string
+    conn_str = (
+        r'DRIVER={ODBC Driver 17 for SQL Server};'
+        r'SERVER=' + server + ';'
+        r'DATABASE=' + database + ';'
+        r'UID=' + username + ';'
+        r'PWD=' + password + ';'
+    )
+
+    # Create connection
+    connection = pyodbc.connect(conn_str)
     cursor = connection.cursor()
+    
     return connection, cursor
 
 def initMongo():

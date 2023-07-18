@@ -5,7 +5,7 @@ utils
 pandas
 scikit-learn
 beautifulsoup4
-pymssql
+pyodbc
 tiktoken
 pymongo
 python-dotenv
@@ -17,4 +17,3 @@ flask_socketio
 werkzeug
 flask_login
 flask_cors
-shutil

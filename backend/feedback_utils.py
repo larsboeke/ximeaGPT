@@ -1,16 +1,14 @@
 import pymongo
 from datetime import datetime as dt
 from bson.objectid import ObjectId
-import pinecone
+from ..data_package.Pinecone_Connection_Provider import PineconeConnectionProvider
+from ..data_package.MongoDB_Connection_Provider import MongoDBConnectionProvider
 
-client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
-db = client['admin']                            
-feedback_mongo = db["feedback"]
-db2 = client['XIMEAGPT']
-chunk_mongo = db2['prototype4']
 
-pinecone.init(api_key="YOUR_PINECONE_API_KEY")  # Replace with your Pinecone API key
-index = pinecone.Index(index_name="chunk_index")
+chunk_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
+feedback_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
+index = PineconeConnectionProvider.PineconeConnectionProvider().initPinecone()
+
 
 
 # entry = {
@@ -109,3 +107,6 @@ def get_all_cleaned_rated_chunks():
     return cleaned_chunks
 
 #print(get_all_cleaned_rated_chunks())
+
+index.delete(ids=["64a4003e8334c0a8ff7793d4"], namespace="pastConversations")
+print("deleted")

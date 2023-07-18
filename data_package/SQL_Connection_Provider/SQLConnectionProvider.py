@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 import os
-import pymssql
+import pyodbc
 
-load_dotenv()  # load environment variables from .env file #sd
+load_dotenv()  # load environment variables from .env file
 
 class SQLConnectionProvider:
     def __init__(self):
@@ -17,7 +17,13 @@ class SQLConnectionProvider:
         Create a connection to the SQL Server database
         :return connection, cursor: connection and cursor objects
         """
-        connection = pymssql.connect(self.server, self.username, self.password, self.database)
+        connection = pyodbc.connect(
+            'DRIVER={ODBC Driver 17 for SQL Server};'
+            'SERVER=' + self.server + ';'
+            'DATABASE=' + self.database + ';'
+            'UID=' + self.username + ';'
+            'PWD=' + self.password
+        )
         cursor = connection.cursor()
         return connection, cursor
 
