@@ -19,7 +19,7 @@ GPT_MODEL = os.environ.get("GPT_MODEL")
 
 get_context_tool = {
                 "name": "query_past_conversations",
-                "description": "Get Context from past conversations that already happend with real customers to. ONLY USE THIS TOOL ONCE IN A QUERY",
+                "description": "Get Context from past conversations that already happend with real customers to.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -34,7 +34,7 @@ get_context_tool = {
 
 query_manuals = {
                 "name": "query_manuals",
-                "description": "Query technical manuals to get technical information. ONLY USE THIS TOOL ONCE IN A QUERY",
+                "description": "Query technical manuals to get technical information.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -48,8 +48,8 @@ query_manuals = {
             }
 
 query_all = {
-                "name": "query_all",
-                "description": "Query past conversations and manuals based on embeddings to get similar contexts to answer the question",
+                "name": "query_unstructured_data",
+                "description": "Query unstructed data to get context from past conversations with customers and technical manuals.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -179,8 +179,11 @@ def query_data_of_feature_of_product_pdb(product, feature):
     else:
         myresult = mycursor.fetchall()
         print(str(myresult))
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
-    return myresult
 
 def query_feature_of_product_pdb(product):
     print(product)
@@ -201,13 +204,20 @@ def query_feature_of_product_pdb(product):
     else:
         myresult = mycursor.fetchall()
 
-        # if myresult == []:
-        #     print("--------------------------NONE----------------- SQL RESPONSE")
-        #     myresult = getText(query, namespace="pastConversations")
-
-        print(str(myresult))
-
-    return myresult
+        # messages=[
+        #     {"role": "user", "content": f"T-SQL query: {query}, Answer: {myresult}"},
+        #     {"role": "system", "content": f"Your are a helpfull assistent who will turn a T-SQL query and it answer into a text."}
+        # ]
+    
+        # response = openai.ChatCompletion.create(
+        #     model="gpt-4",
+        #     messages=messages,
+        # )
+        # myresult = response["choices"][0]["message"]
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
     """Returns the number of tokens in a text string."""
@@ -240,7 +250,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def getText(query, namespace):
+def getText(query, counter):
     index = initPinecone() #
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -251,29 +261,35 @@ def getText(query, namespace):
 
     filtered_query_embedding = query_embedding['data'][0]['embedding']
     #queries pinecone in namespace "manuals"
-    pinecone_results = index.query([filtered_query_embedding], top_k=3, include_metadata=True, namespace=namespace)
-    #validIds = []
-        # try:
-    #     for id in ids:
-    #         if id['score'] > float(0):  #parameter anpassen
-    #             validIds.append(id)
-    # except:
-    #     print("Pinecone query failed")
-
-
-    #get matches from mongoDB for IDs
+    
     matches_content = []
     matches_sources = []
-    print(pinecone_results)
-    for id in pinecone_results['matches']:
-        idToFind = ObjectId(id['id'])
-        match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
-        print(match)
-        # print(match['content'])
-        matches_content.append(match['content'])
     
-        source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
-        matches_sources.append(source)
+    namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
+    for namespace, borders in namespaces:
+
+        pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
+        unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
+        
+        print("")
+        print(namespace)
+        print("")
+        print(unique_pinecone_results)
+ 
+
+        
+        #get matches from mongoDB for IDs
+
+        print(pinecone_results)
+        for id in unique_pinecone_results:
+            idToFind = ObjectId(id['id'])
+            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
+            print(match)
+            # print(match['content'])
+            matches_content.append(match['content'])
+        
+            source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
+            matches_sources.append(source)
 
 
     return matches_content, matches_sources, used_tokens

@@ -36,10 +36,16 @@ class PlainTextProviderPDF:
 
         return text
 
+    def get_text_local(self, pdf: PDF):
+        """get the text of a local stored pdf or one that was uploaded by a user"""
 
-# path = manuals.pdf_list[0]
-# pdf = PDF(path=path)
-# plainString = PlainTextProviderPDF().get_text(pdf)
-# chunks = Chunker().data_to_chunks(plainString, pdf.get_metadata())
-# print(chunks)
-# print(chunks[0])
+        path = pdf.get_path()
+        loader = PyPDFLoader(path)
+        # split into pages
+        pages = loader.load_and_split()
+        text = ""
+        for page in pages:
+            text += page.page_content
+            text += "/n"
+
+        return text
