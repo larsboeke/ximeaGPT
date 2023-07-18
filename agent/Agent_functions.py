@@ -73,10 +73,6 @@ query_feature_of_product_pdb = {
                             "type": "string",
                             "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
                         },
-                        "query": {
-                            "type": "string",
-                            "description": "The query of the user, you want to find similar contexts to",
-                        },
                     },
                     "required": ["product"],
                 },
@@ -119,18 +115,13 @@ query_data_of_feature_of_product_pdb = {
                             "type": "string",
                             "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
                         },
-                        "category" : {
-                             "type": "string",
-                             "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
-                        },
                     },
                     "required": ["product", "feature"],
                 },
             }
 
 get_last_message = {
-                "name": "get_last_message",
-                "description": "Query the conversation history to get old messages",   
+                "pass"   
             }
 
 
@@ -143,9 +134,9 @@ tools = [
 ]
 
 def get_last_message():
-    return ""
+    pass
 
-def query_data_of_feature_of_product_pdb(product, feature, category="*"):
+def query_data_of_feature_of_product_pdb(product, feature):
     print(product)
     query = f"""
             SELECT *
@@ -191,9 +182,9 @@ def query_data_of_feature_of_product_pdb(product, feature, category="*"):
 
     return myresult
 
-def query_feature_of_product_pdb(product, query):
+def query_feature_of_product_pdb(product):
     print(product)
-    sql_query = f"""
+    query = f"""
             SELECT f.name_of_feature
             FROM [AI:Lean].[dbo].[feature] f 
             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
@@ -204,7 +195,7 @@ def query_feature_of_product_pdb(product, query):
             """
     connection, mycursor = create_connection()
     try:
-        mycursor.execute(sql_query)
+        mycursor.execute(query)
     except:
         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
     else:
@@ -213,7 +204,7 @@ def query_feature_of_product_pdb(product, query):
         # if myresult == []:
         #     print("--------------------------NONE----------------- SQL RESPONSE")
         #     myresult = getText(query, namespace="pastConversations")
-        
+
         print(str(myresult))
 
     return myresult

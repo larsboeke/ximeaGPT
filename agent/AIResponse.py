@@ -102,27 +102,24 @@ class AiResponse:
                 print(function_response)
 
             elif function_name == "get_last_message":
-                print("Using get_last_message tool...")
-                function_response = Agent_functions.get_last_message( # Eventually add sources!
-                    product = data["product"]
-                )
+                pass
                 # self.sources.append("Conversation History")
                 print(function_response)
 
             elif function_name == "query_feature_of_product_pdb":
                 print("Using query_feature_of_product_pdb tool...")
                 function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
-                    product = data["product"], query = data["query"]
+                    product = data["product"]
                 )
 
                 print(function_response)
 
-            elif function_name == "query_data_of_category_feature_of_product_pdb":
-                print("Using query_data_of_category_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_data_of_category_feature_of_product_pdb( # Eventually add sources!
-                    product=data["product"], feature=data["feature"], category=data["category"]
-                )
-                print(function_response)
+            # elif function_name == "query_data_of_category_feature_of_product_pdb":
+            #     print("Using query_data_of_category_feature_of_product_pdb tool...")
+            #     function_response = Agent_functions.query_data_of_category_feature_of_product_pdb( # Eventually add sources!
+            #         product=data["product"], feature=data["feature"], category=data["category"]
+            #     )
+            #     print(function_response)
 
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
@@ -131,7 +128,6 @@ class AiResponse:
                 )
                 print(function_response)
 
-            print("!11111111111111111111111111111111111111111111111111111111111111111111111!")
             print(check_function_call)
             self.add_function(function_name, str(function_response))
     
@@ -144,7 +140,7 @@ class AiResponse:
 
             conv_his_token = num_tokens_from_string(str(self.conversation_history[1]), "cl100k_base")
             print(f"Token of History {conv_his_token}")
-            
+
             # if conv_his_token > 4000:
             #    self.prompt_tokens = self.prompt_tokens - num_tokens_from_string(self.conversation_history[1], "cl100k_base")
             #    self.conversation_history.pop(1)
