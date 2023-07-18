@@ -96,5 +96,23 @@ class DatabaseCleaner:
             teil_strings_c.append(teil_string)
 
         for teil_string in teil_strings_c:
-            DatabaseCleaner(mongodb_connection=self.mongodb_connection,
-                            pinecone_connection=self.pinecone_connection).delete_chunk(teil_string)
+            self.delete_chunk(teil_string)
+
+
+    def remove_table_of_contents_manuals(self):
+        """
+        Deletes table of contents for the manuals from Pinecone and MongoDB since they are redundant
+        """
+        query = {
+                  "metadata.type": "manuals",
+                    "content": {
+                    "$regex": "\\.\\.\\.\\.\\.\\.\\.",
+                    "$options": "i"
+                  }
+                }
+        result = self.mongodb_connection.find(query)
+        chunks = [document for document in result]
+        print("Deleting redundant table of contents of manuals: ", len(chunks))
+
+        for chunk in chunks:
+            self.delete_chunk(str(chunk['_id']))
