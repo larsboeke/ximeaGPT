@@ -86,10 +86,10 @@ def on_connect():
 
 
 @socketio.on('disconnect')
-def on_disconnect(user_id):
+def on_disconnect():
 
-    leave_room(user_id)
-    print(f"User {user_id} disconnected.")
+    leave_room(current_user.id)
+    print(f"User {current_user.id} disconnected.")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
