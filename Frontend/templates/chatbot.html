@@ -25,17 +25,11 @@
                 {% endfor %}
             </ul>
         </div>    
-        <!-- <div class="user-info">
-            <span class="material-symbols-outlined">account_circle</span> 
-            <p id="user">test</p>
-        </div> -->
     </div>
         <!--CHAT CONTAINER-->
         <div class="upper-controls">
             <button id="open-sidebar-btn" onclick="openNav()" class="material-symbols-outlined" title="Open sidebar">left_panel_open</button>
-                <!-- <span class="material-symbols-outlined">account_circle</span> 
-                <p id="username">Username</p> -->
-                <button id="logout-btn" class="material-symbols-outlined" title="Logout"> logout</button>
+            <button id="logout-btn" class="material-symbols-outlined" title="Logout"> logout</button>
         </div>
         <div id="chatbox" class="chat-container"></div>            
         <!--Typing CONTAINER-->
@@ -48,41 +42,11 @@
                 <div class="typing-controls">
                     <span id="delete-btn" class="material-symbols-rounded" title="Delete chat">delete</span>
                     <span id="theme-btn" class="material-symbols-rounded" title="Change theme">light_mode</span>
-                    <label for="upload-btn" id="upload-label" class="material-symbols-outlined" title="Upload file">upload_file</label>
-                    <input id="upload-btn" type="file" accept=".pdf">                    
+                    <!-- <label for="upload-btn" id="upload-label" class="material-symbols-outlined" title="Upload file">upload_file</label>
+                    <input id="upload-btn" type="file" accept=".pdf">                     -->
                 </div>
-                <div class="file-info"></div>
+                <!-- <div class="file-info"></div> -->
                 <p class="info">AI:lean Jun 15 Version. Demo Preview. AI:lean may produce inaccurate information. Your feedback will help us to improve.</p>
-            </div>
-        </div>
-
-        <!--TO-DO: sidebar container-->
-        <div id="rightbox" class="feedback-container">
-            <a href="javascript:void(0)" class="closeFeedbackbtn" onclick="closeFeedback()">&#10005;</a>
-            <div>
-            <form>    
-                <label class="feedback-checkbox">Unprecise answer
-                    <input type="checkbox" checked="checked">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="feedback-checkbox">Wrong answer
-                    <input type="checkbox">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="feedback-checkbox">Wrong sources
-                    <input type="checkbox">
-                    <span class="checkmark"></span>
-                </label>
-                <label class="feedback-checkbox">Not complete
-                    <input type="checkbox">
-                    <span class="checkmark"></span>
-                </label>
-                <textarea id="feedback-text" placeholder="Additional Feedback?"></textarea>
-                <div class="feedback-buttons">
-                    <span id="delete-feedback-btn" class="material-symbols-rounded" title="Delete Feedback" onclick="deleteFeedback(this)">delete</span>
-                    <span id="send-feedback-btn" class="material-symbols-rounded" title="Send Feedback" onclick="negFeedback(this)">send</span>
-                </div>
-            </form>
             </div>
         </div>
 </body>

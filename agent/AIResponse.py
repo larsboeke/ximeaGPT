@@ -101,22 +101,42 @@ class AiResponse:
                     self.sources.append(source)
                 # app used tokens
                 self.embeddings_tokens += tokens
+<<<<<<< agent/AIResponse.py
                 query_counter += 1
+=======
+                print(function_response)
+>>>>>>> agent/AIResponse.py
 
-            elif function_name == "query_product_database":
-                print("Using query_product_database tool...")
-                function_response = Agent_functions.query_product_database( # Eventually add sources!
-                    sqlquery = data["sqlquery"]
+            elif function_name == "get_last_message":
+                pass
+
+            elif function_name == "query_feature_of_product_pdb":
+                print("Using query_feature_of_product_pdb tool...")
+                function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
+                    product = data["product"]
                 )
+<<<<<<< agent/AIResponse.py
             elif function_name == "get_database_schema":
                 print("Using get_database_schema tool...")
                 function_response = Agent_functions.get_database_schema()
 
+=======
+                print(function_response)
+            elif function_name == "query_data_of_feature_of_product_pdb":
+                print("Using query_data_of_feature_of_product_pdb tool...")
+                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                    product=data["product"], feature=data["feature"], category=data["category"]
+                )
+                print(function_response)
+
+
+            print(check_function_call)
+>>>>>>> agent/AIResponse.py
             self.add_function(function_name, str(function_response))
 
             function_call_counter += 1
 
-            #call response with functions if counter is lower than 2
+            #call response with functions if counter is lower than function call limit, otherwise force respose without functions
             if function_call_counter == function_call_limit:
                 message_response_to_function = self.get_openai_response(call_type="none")
             

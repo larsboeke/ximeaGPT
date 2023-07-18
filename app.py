@@ -16,10 +16,12 @@ from datetime import datetime
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
 from flask_cors import CORS
+import shutil
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
 app.config['SECRET_KEY'] = 'secret_key'
+app.config['UPLOAD_DIRECTORY'] = 'temp/'
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -112,8 +114,9 @@ def index():
 
 
 
-@app.route('/upload', methods=['POST'])
+@app.route('/admin/upload', methods=['POST'])
 def upload():
+    print("FILE IS LOADING.....")
     if 'file' not in request.files:
         return "No file part", 400
 
@@ -122,6 +125,14 @@ def upload():
         return "No selected file", 400
 
     file_name = secure_filename(file.filename)
+    print("Following file is uploaded succesfully --->", file_name)
+    temp_path = os.path.join(
+        app.config['UPLOAD_DIRECTORY'],
+        secure_filename(file.filename))
+    file.save(temp_path)
+    Uploader().uploadPDF_local(temp_path)
+    shutil.rmtree(app.config['UPLOAD_DIRECTORY'])
+    os.mkdir(app.config['UPLOAD_DIRECTORY'])
     return f"File '{file_name}' uploaded successfully."
 
 #react to client message
@@ -161,6 +172,7 @@ def start_chat(user_id, user_message):
      
     chat_id, title = usr.create_chat(user_id, user_message)
     print("Socket: shart_chat: CONVERSTION ID FOR NEW CHAT: " + chat_id)
+    print("Socket: shart_chat: generated title: " + title)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
@@ -211,7 +223,7 @@ def upload_text(text):
     print(f"Following text is uploaded: '{text}'")
 
 @socketio.on('upload_url')
-def upload_text(url):
+def upload_url(url):
     Uploader().uploadURL(url)
     print(f"Following url is uploaded {url}")
 
@@ -249,7 +261,7 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001, debug=False, host='0.0.0.0')
+    socketio.run(app, port=5001, debug=True, host='0.0.0.0')
  
 
 

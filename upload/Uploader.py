@@ -121,6 +121,29 @@ class Uploader:
         else:
             print("File already uploaded")
 
+
+    # Upload PDFs from given local path
+    def uploadPDF_local(self, path):
+        """
+        Uploads a pdf to pinecone and mongodb using the admin panel
+        :param path:
+        """
+        file_type = 'manuals'
+        if self.is_file_uploaded(path, file_type) == False:
+            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+            pinecone_connection = PineconeConnectionProvider().initPinecone()
+            pdf = PDF(path=path)
+            plainString = PlainTextProviderPDF().get_text_local(pdf)
+            chunks = Chunker().data_to_chunks(plainString, pdf.get_metadata())
+
+            for chunk in chunks:
+                self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
+
+            print("uploaded " + path)
+        else:
+            print("File already uploaded")
+
+
     # Upload Pagecontent from given URLs
     def uploadURL(self, url):
         """
