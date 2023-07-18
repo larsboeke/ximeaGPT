@@ -170,8 +170,11 @@ def query_data_of_feature_of_product_pdb(product, feature, category):
     else:
         myresult = mycursor.fetchall()
         print(str(myresult))
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
-    return myresult
 
 def query_feature_of_product_pdb(product):
     print(product)
@@ -203,8 +206,10 @@ def query_feature_of_product_pdb(product):
         #     messages=messages,
         # )
         # myresult = response["choices"][0]["message"]
-
-    return myresult
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
     """Returns the number of tokens in a text string."""

@@ -104,25 +104,22 @@ class AiResponse:
                 query_counter += 1
                 print(function_response)
 
-            elif function_name == "get_last_message":
-                pass
-
             elif function_name == "query_feature_of_product_pdb":
                 print("Using query_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
+                function_response, sources = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
                     product = data["product"]
                 )
-            elif function_name == "get_database_schema":
-                print("Using get_database_schema tool...")
-                function_response = Agent_functions.get_database_schema()
-
+                for source in sources:
+                    self.sources.append(source)
                 print(function_response)
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                function_response, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
                     product=data["product"], feature=data["feature"], category=data["category"]
                 )
                 print(function_response)
+                for source in sources:
+                    self.sources.append(source)
 
 
             print(check_function_call)
