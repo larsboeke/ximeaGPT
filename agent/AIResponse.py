@@ -99,21 +99,22 @@ class AiResponse:
                 self.embeddings_tokens += tokens
                 print(function_response)
 
-            elif function_name == "get_last_message":
-                pass
-
             elif function_name == "query_feature_of_product_pdb":
                 print("Using query_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
+                function_response, sources = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
                     product = data["product"]
                 )
+                for source in sources:
+                    self.sources.append(source)
                 print(function_response)
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                function_response, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
                     product=data["product"], feature=data["feature"], category=data["category"]
                 )
                 print(function_response)
+                for source in sources:
+                    self.sources.append(source)
 
 
             print(check_function_call)
