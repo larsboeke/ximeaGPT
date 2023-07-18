@@ -97,7 +97,14 @@ const showSources = (sources) => {
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
-        }      
+        }
+        else if (sources[i].metadata.type == "Product_Database"){
+            html_sources += `<div id="${sources[i].id}" class="content">
+                                <b>From ${sources[i].metadata.type} </b><br>
+                                <br><br>${sources[i].content}
+                                
+                            </div>`;
+        }       
     }
     html_sources += `</div></section>`;
     const sourceChatDiv = createChatElement(html_sources, "backend");
