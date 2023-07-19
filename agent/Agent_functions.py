@@ -49,7 +49,7 @@ query_manuals = {
 
 query_all = {
                 "name": "query_all",
-                "description": "Query past conversations and technical manuals to get context for answering the user question.",
+                "description": "Query past conversations and technical manuals to get context for answering the user question. They store information about camera families and their specifications. This function should be used most often",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -65,7 +65,7 @@ query_all = {
 # Fucntions for the PDB
 query_feature_of_product_pdb = {
                 "name": "query_feature_of_product_pdb",
-                "description": "Query for the features of a specific product in XIMEA'S product database.",
+                "description": "Query for the features of a specific product in XIMEA'S product database (PDB). Use this function if you want to check for features of a product or if you want to list features of a product",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -103,7 +103,7 @@ query_feature_of_product_pdb = {
 
 query_data_of_feature_of_product_pdb = {
                 "name": "query_data_of_feature_of_product_pdb",
-                "description": "Query for data of a specific feature of a product in XIMEA'S product database",
+                "description": "Query for specific information about a feature of a product in XIMEA'S product database (PDB).",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -113,7 +113,7 @@ query_data_of_feature_of_product_pdb = {
                         },
                         "feature" : {
                             "type": "string",
-                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
+                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize.",
                         },
                     },
                     "required": ["product", "feature"],
@@ -124,7 +124,7 @@ get_last_message = {
                 "pass"   
             }
 
-
+#  Each feature has the attributes: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type.
 
 tools = [
     query_all,
@@ -138,6 +138,7 @@ def get_last_message():
 
 def query_data_of_feature_of_product_pdb(product, feature):
     print(product)
+    
     query = f"""
             SELECT *
             FROM [AI:Lean].[dbo].[feature] f 
@@ -155,7 +156,14 @@ def query_data_of_feature_of_product_pdb(product, feature):
         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
     else:
         myresult = mycursor.fetchall()
-
+        
+        if myresult == []:
+            myresult = "No entry is found in the Product Data Base."
+        else:
+            categories = ("id_feature", "name_of_feature", "gentl_name", "api_name", "datatype", "tooltip", "description", "display_name", "access_mode", "visibility_level", "type_of_value", "maximum_values", "minimum_values", "increment_values", "length", "port", "signature", "unit", "namespace", "command_value", "default_value", "gentl_pmax", "gentl_pmin", "streamable", "register", "generate_register", "handler_function", "available_sk", "lock_while_acq", "cal_en", "cal_rtg", "xp_en", "xp_ext_en", "app_def", "polling_time", "string_is_path", "supported_file_format", "web_link", "flags", "p_selected", "value_description", "invalidates_all_params", "web_download_type", "id", "id_product", "id_feature", "id_product", "name_of_product", "description")
+            if len(categories) == len(myresult[0]):
+                myresult = {categories[i]: myresult[0][i] for i, _ in enumerate(myresult[0])}
+        
         print(str(myresult))
 
     return myresult
@@ -228,7 +236,7 @@ def create_connection():
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype4"]
+    col = db["prototype"]
     return col, db
         
 def initPinecone():
@@ -245,7 +253,7 @@ def getText(query, counter):
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype4"]
+    col = db["prototype"]
     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
     used_tokens = query_embedding["usage"]["total_tokens"]
 

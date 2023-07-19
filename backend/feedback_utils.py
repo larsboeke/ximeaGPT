@@ -7,7 +7,7 @@ client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
 db = client['admin']                            
 feedback_mongo = db["feedback"]
 db2 = client['XIMEAGPT']
-chunk_mongo = db2['prototype4']
+chunk_mongo = db2['prototype']
 
 pinecone.init(api_key="YOUR_PINECONE_API_KEY")  # Replace with your Pinecone API key
 index = pinecone.Index(index_name="chunk_index")
