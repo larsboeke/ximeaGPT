@@ -1,16 +1,14 @@
 import pymongo
 from datetime import datetime as dt
 from bson.objectid import ObjectId
-import pinecone
+import data_package.Pinecone_Connection_Provider.PineconeConnectionProvider as PineconeConnectionProvider
+import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 
-client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
-db = client['admin']                            
-feedback_mongo = db["feedback"]
-db2 = client['XIMEAGPT']
-chunk_mongo = db2['prototype4']
+chunk_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
+feedback_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
+pinecone_connection = PineconeConnectionProvider.PineconeConnectionProvider().initPinecone()
 
-pinecone.init(api_key="YOUR_PINECONE_API_KEY")  # Replace with your Pinecone API key
-index = pinecone.Index(index_name="chunk_index")
+
 
 
 # entry = {
@@ -74,7 +72,7 @@ def delete_chunk(chunk_id):
     chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
     feedback_mongo.delete_one({"chunk_id": chunk_id})
     # Delete from Pinecone
-    index.delete(ids=[chunk_id], namespace="pastConversations")
+    pinecone_connection.delete(ids=[chunk_id], namespace="pastConversations")
 
 def clean_chunk(data):
     # Ensure the input is a list and has exactly two elements
