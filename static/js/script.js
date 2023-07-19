@@ -67,10 +67,9 @@ const createChatElement = (html, className) => {
 const rateChunk = (thumbDown) =>{
     thumbDown.style.color = "#b12727";
     var chunk_id = thumbDown.parentElement.id;
-    var userId = localStorage.getItem('username');
     localStorage.setItem('chunk_id', chunk_id);
     console.log('You rated chunk with id', chunk_id);
-    socket.to(userId).emit('rate_chunk', chunk_id);
+    socket.emit('rate_chunk', chunk_id);
 }
 
 const showSources = (sources) => {
@@ -201,7 +200,7 @@ const parseTime = (timestamp) =>{
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
     var userId = localStorage.getItem("username");
-    socket.to(userId).emit('start_chat', userId, userMessage);
+    socket.emit('start_chat', userId, userMessage);
     socket.on('chat_started', (data) =>{
         chat_id = data['chat_id']
         title = data['title']
@@ -231,7 +230,7 @@ const handleUserMessage = () => {
                 'chat_id': localStorage.getItem('chat_id'),
                 'text': userMessage
             }
-            socket.to(userId).emit('send_message', data);
+            socket.emit('send_message', data);
             let timestamp = new Date();
             const html =`<div class="chat-content">
                             <div class="chat-details">
@@ -265,7 +264,7 @@ deleteButton.addEventListener("click", () =>{
     if(confirm("Are you sure that you want to delete the history of this chat?")){
         var userId = localStorage.getItem('username');
         var chatId = localStorage.getItem('chat_id');
-        socket.to(userId).emit('delete_chat', userId, chatId);
+        socket.emit('delete_chat', userId, chatId);
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
@@ -276,7 +275,7 @@ deleteButton.addEventListener("click", () =>{
 logoutButton.addEventListener("click", () =>{
     if(confirm("Are you sure that you want to logout?")){
         userId = localStorage.getItem('username');
-        socket.to(userId).emit('logout');
+        socket.emit('logout');
         localStorage.removeItem('username');
         window.location.href = '/logout'; 
     }
@@ -338,10 +337,9 @@ const loadChat = (messages) => {
 chatList.addEventListener("click", (event) =>{
     var clickedElement = event.target;
     var chatId = clickedElement.id;
-    var userId = localStorage.getItem('username');
     if (clickedElement.tagName === 'LI') {
         console.log('You clicked on chat:', chatId);
-        socket.to(userId).emit('open_chat', chatId);
+        socket.emit('open_chat', chatId);
         socket.on('chat_opened', (messages) =>{
             chatContainer.innerHTML = '';
             console.log(messages);
