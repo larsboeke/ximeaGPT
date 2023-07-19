@@ -157,8 +157,10 @@ def query_data_of_feature_of_product_pdb(product, feature):
         myresult = mycursor.fetchall()
 
         print(str(myresult))
-
-    return myresult
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
 # def query_data_of_category_feature_of_product_pdb(product, feature, category):
     print(product)
@@ -187,6 +189,7 @@ def query_data_of_feature_of_product_pdb(product, feature):
 
 def query_feature_of_product_pdb(product):
     print(product)
+    print("-------------------This is only a feature list--------------------------")
     query = f"""
             SELECT f.name_of_feature
             FROM [AI:Lean].[dbo].[feature] f 
