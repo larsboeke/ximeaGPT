@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 import tiktoken
+from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
+
 
 load_dotenv()
 
@@ -123,11 +125,33 @@ query_data_of_feature_of_product_pdb = {
 get_last_message = {
                 "pass"   
             }
-
+query_product_database = {
+                "name": "query_product_database",
+                "description": """ This function gives you answers back based on the parameters you input!
+                Input: product -> Query for all features of a specific product in XIMEA'S product database. Check if the camera has a certain feature!
+                Input: product and feature -> Query for all data of a specific feature of a product in XIMEA'S product database
+                """,
+                
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "product" : {
+                            "type": "string",
+                            "description": "Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
+                        },
+                        "feature" : {
+                            "type": "string",
+                            "description": "Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
+                        },
+                    },
+                    "required": ["product"],
+                },
+            }
 
 
 tools = [
     query_all,
+    #query_product_database,
     query_feature_of_product_pdb,
     query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
@@ -135,7 +159,41 @@ tools = [
 
 def get_last_message():
     pass
+def query_product_database(product, feature):
+    if feature == None:
+        query = f"""
+            SELECT f.name_of_feature
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}'
+            """
+    else:
+        query = f"""
+            SELECT *
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
+            """
+    connection, mycursor = SQLConnectionProvider().create_connection()
+    try:
+        mycursor.execute(query)
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
 
+        print(str(myresult))
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
+    
 def query_data_of_feature_of_product_pdb(product, feature):
     print(product)
     query = f"""
@@ -148,7 +206,7 @@ def query_data_of_feature_of_product_pdb(product, feature):
             WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
             """
     
-    connection, mycursor = create_connection()
+    connection, mycursor = SQLConnectionProvider().create_connection()
     try:
         mycursor.execute(query)
     except:
@@ -199,7 +257,7 @@ def query_feature_of_product_pdb(product):
             ON pfr.id_product = p.id_product 
             WHERE p.name_of_product = '{product}'
             """
-    connection, mycursor = create_connection()
+    connection, mycursor = SQLConnectionProvider().create_connection()
     try:
         mycursor.execute(query)
     except:
@@ -227,16 +285,6 @@ def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
-
-def create_connection():
-    server = '192.168.11.22'
-    database = 'AI:Lean'
-    username = 'AI:Lean'
-    password = 'NbIxyuc5b!4'
-
-    connection = pymssql.connect(server, username, password, database)
-    cursor = connection.cursor()
-    return connection, cursor
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
