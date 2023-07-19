@@ -18,9 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
       changeMonth: true,
       numberOfMonths: 1,
       firstDay: 1,
+      minDate: "29.06.2023",
       onSelect: (dateText, inst) => {
         console.log("From:", dateText);
-      }
+        // Update the minDate of endDate datepicker to the selected date from startDate datepicker
+        var selectedDate = new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay);
+        console.log(selectedDate);
+        selectedDate.setDate(selectedDate.getDate()); // Add one day to the selected date
+        endDate.datepicker("option", "minDate", selectedDate); // Set the minDate for endDate
+      }    
     });
   
     var endDate = $("#enddate").datepicker({
@@ -103,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   socket.emit('load_chart');
+
   socket.on('loaded_chart', (graphData) =>{
     loadChart(graphData);
     console.log('LOADED A GRAPH FOR TODAY.....');
