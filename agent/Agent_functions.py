@@ -48,8 +48,8 @@ query_manuals = {
             }
 
 query_all = {
-                "name": "query_unstructured_data",
-                "description": "Query unstructed data to get context from past conversations with customers and technical manuals.",
+                "name": "query_all",
+                "description": "Query past conversations and technical manuals to get context for answering the user question.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -65,7 +65,7 @@ query_all = {
 # Fucntions for the PDB
 query_feature_of_product_pdb = {
                 "name": "query_feature_of_product_pdb",
-                "description": "Query for features of a specific product in XIMEA'S product database",
+                "description": "Query for the features of a specific product in XIMEA'S product database.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -103,7 +103,7 @@ query_feature_of_product_pdb = {
 
 query_data_of_feature_of_product_pdb = {
                 "name": "query_data_of_feature_of_product_pdb",
-                "description": "Query for all data of a specific feature of a product in XIMEA'S product database",
+                "description": "Query for data of a specific feature of a product in XIMEA'S product database",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -161,28 +161,28 @@ def query_data_of_feature_of_product_pdb(product, feature):
     return myresult
 
 # def query_data_of_category_feature_of_product_pdb(product, feature, category):
-    print(product)
-    query = f"""
-            SELECT f.[{category}]
-            FROM [AI:Lean].[dbo].[feature] f 
-            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-            ON f.id_feature = pfr.id_feature 
-            INNER JOIN [AI:Lean].[dbo].[product] p 
-            ON pfr.id_product = p.id_product 
-            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
-            """
-    connection, mycursor = create_connection()
-    try:
-        mycursor.execute(query)
-    except:
-        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-    else:
-        myresult = mycursor.fetchall()
-        print(str(myresult))
-    matches_sources = []
-    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-    matches_sources.append(source)
-    return myresult, matches_sources
+#     print(product)
+#     query = f"""
+#             SELECT f.[{category}]
+#             FROM [AI:Lean].[dbo].[feature] f 
+#             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+#             ON f.id_feature = pfr.id_feature 
+#             INNER JOIN [AI:Lean].[dbo].[product] p 
+#             ON pfr.id_product = p.id_product 
+#             WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
+#             """
+#     connection, mycursor = create_connection()
+#     try:
+#         mycursor.execute(query)
+#     except:
+#         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+#     else:
+#         myresult = mycursor.fetchall()
+#         print(str(myresult))
+#     matches_sources = []
+#     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+#     matches_sources.append(source)
+#     return myresult, matches_sources
 
 
 def query_feature_of_product_pdb(product):
@@ -204,16 +204,6 @@ def query_feature_of_product_pdb(product):
     else:
         myresult = mycursor.fetchall()
 
-        # messages=[
-        #     {"role": "user", "content": f"T-SQL query: {query}, Answer: {myresult}"},
-        #     {"role": "system", "content": f"Your are a helpfull assistent who will turn a T-SQL query and it answer into a text."}
-        # ]
-    
-        # response = openai.ChatCompletion.create(
-        #     model="gpt-4",
-        #     messages=messages,
-        # )
-        # myresult = response["choices"][0]["message"]
     matches_sources = []
     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
     matches_sources.append(source)

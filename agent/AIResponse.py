@@ -92,8 +92,8 @@ class AiResponse:
             data = json.loads(json_str)
             function_name = message["function_call"]["name"]
 
-            if function_name == "query_unstructured_data":
-                print("Using query_unstructured_data tool...")
+            if function_name == "query_all":
+                print("Using query_all tool...")
                 function_response, sources, tokens = Agent_functions.getText(
                     query=data["query"],
                     counter = query_counter
@@ -111,9 +111,6 @@ class AiResponse:
                 function_response, sources = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
                     product = data["product"]
                 )
-                for source in sources:
-                    self.sources.append(source)
-                print(function_response)
 
             # elif function_name == "query_data_of_category_feature_of_product_pdb":
             #     print("Using query_data_of_category_feature_of_product_pdb tool...")
@@ -127,9 +124,6 @@ class AiResponse:
                 function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
                     product=data["product"], feature=data["feature"]
                 )
-                print(function_response)
-                for source in sources:
-                    self.sources.append(source)
 
             print(check_function_call)
             self.add_function(function_name, str(function_response))
