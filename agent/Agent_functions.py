@@ -238,7 +238,7 @@ def create_connection():
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype4"]
+    col = db["prototype"]
     return col, db
         
 def initPinecone():
@@ -255,7 +255,7 @@ def getText(query, counter):
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype4"]
+    col = db["prototype"]
     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
     used_tokens = query_embedding["usage"]["total_tokens"]
 
