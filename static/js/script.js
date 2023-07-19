@@ -219,6 +219,7 @@ const startNewChat = (userMessage) => {
 
 const handleUserMessage = () => {
     userMessage = chatInput.value.trim();
+    userId = localStorage.getItem('username');
     if (userMessage !==""){
         if (document.querySelector(".default-text")){
             console.log('It you first message! We start new chat');
@@ -273,6 +274,7 @@ deleteButton.addEventListener("click", () =>{
 
 logoutButton.addEventListener("click", () =>{
     if(confirm("Are you sure that you want to logout?")){
+        userId = localStorage.getItem('username');
         socket.emit('logout');
         localStorage.removeItem('username');
         window.location.href = '/logout'; 
@@ -295,7 +297,7 @@ chatInput.addEventListener("keydown", (e) => {
 });
 
 sendButton.addEventListener("click", handleUserMessage);
-
+//commit test
 const loadChat = (messages) => {
     for (let i = 0; i < messages.length; i++){
         const message = messages[i];

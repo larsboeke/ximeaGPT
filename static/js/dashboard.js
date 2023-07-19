@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Apex Charts initialization code here
     const loadChart = ()=>{
+      
       var options = {
         series: [{
         name: "API calls",
