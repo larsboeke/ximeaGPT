@@ -169,8 +169,11 @@ def handle_message(data):
     chat_id = data['chat_id']
     client_msg = data['text']
     print(f"Socket: send_message: Client message: {client_msg}")
-    assistant_message, sources = generate_backend_message(chat_id, client_msg)
-
+    try:
+        assistant_message, sources = generate_backend_message(chat_id, client_msg)
+    except:
+        assistant_message = "Error occured, try again"
+        sources = []
     data = {'assistant_message': assistant_message, 'sources': sources}
     print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
