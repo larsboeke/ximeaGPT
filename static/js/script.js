@@ -298,7 +298,7 @@ chatInput.addEventListener("keydown", (e) => {
 });
 
 sendButton.addEventListener("click", handleUserMessage);
-
+//commit test
 const loadChat = (messages) => {
     for (let i = 0; i < messages.length; i++){
         const message = messages[i];
