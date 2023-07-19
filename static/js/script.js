@@ -3,6 +3,8 @@ const sendButton = document.querySelector("#send-btn");
 const chatContainer = document.querySelector(".chat-container");
 const themeButton = document.querySelector("#theme-btn");
 const deleteButton = document.querySelector("#delete-btn");
+const uploadButton = document.querySelector("#upload-btn");
+const fileInfo = document.querySelector(".file-info");
 const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
 const socket = io.connect();
@@ -14,6 +16,10 @@ const icons = document.getElementsByClassName("icon");
 const logoutButton = document.querySelector("#logout-btn");
 
 
+// // Emit the user ID to the server when the connection is established
+// socket.on('connect', () => {
+//   socket.emit('user_connected', { user_id: user_id });
+// });
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -63,9 +69,10 @@ const createChatElement = (html, className) => {
 const rateChunk = (thumbDown) =>{
     thumbDown.style.color = "#b12727";
     var chunk_id = thumbDown.parentElement.id;
+    var userId = localStorage.getItem('username');
     localStorage.setItem('chunk_id', chunk_id);
     console.log('You rated chunk with id', chunk_id);
-    socket.emit('rate_chunk', chunk_id);
+    socket.to(userId).emit('rate_chunk', chunk_id);
 }
 
 const showSources = (sources) => {
@@ -85,14 +92,14 @@ const showSources = (sources) => {
                             </div>`;
         }
         else if (sources[i].metadata.type == "ticket"){
-            html_sources += `<div id="${sources[i].id}" class="content">
+            html_sources += `<div "${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
-            html_sources += `<div id="${sources[i].id}" class="content">
+            html_sources += `<div "${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
@@ -189,7 +196,7 @@ const parseTime = (timestamp) =>{
 const startNewChat = (userMessage) => {
     chatContainer.innerHTML = "";
     var userId = localStorage.getItem("username");
-    socket.emit('start_chat', userId, userMessage);
+    socket.to(userId).emit('start_chat', userId, userMessage);
     socket.on('chat_started', (data) =>{
         chat_id = data['chat_id']
         title = data['title']
@@ -199,27 +206,26 @@ const startNewChat = (userMessage) => {
         newChat.id = chat_id;
         newChat.textContent = title;
         console.log('New chat started with ID:', chat_id); 
-        console.log('New chat started with title:', title);
-        handleUserMessage();  
+        console.log('New chat started with title:', title);  
     });
-    
+    handleUserMessage();
 }
 
 
 const handleUserMessage = () => {
     userMessage = chatInput.value.trim();
+    userId = localStorage.getItem('username');
     if (userMessage !==""){
         if (document.querySelector(".default-text")){
             console.log('It you first message! We start new chat');
             startNewChat(userMessage);         
         }
         else{
-            console.log('SENDING MESSAGE......');
             var data = {
                 'chat_id': localStorage.getItem('chat_id'),
                 'text': userMessage
             }
-            socket.emit('send_message', data);
+            socket.to(userId).emit('send_message', data);
             let timestamp = new Date();
             const html =`<div class="chat-content">
                             <div class="chat-details">
@@ -253,21 +259,66 @@ deleteButton.addEventListener("click", () =>{
     if(confirm("Are you sure that you want to delete the history of this chat?")){
         var userId = localStorage.getItem('username');
         var chatId = localStorage.getItem('chat_id');
-        socket.emit('delete_chat', userId, chatId);
+        socket.to(userId).emit('delete_chat', userId, chatId);
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
+        fileInfo.remove();
         loadDefaultWindow(); 
     }
 });
 
 logoutButton.addEventListener("click", () =>{
     if(confirm("Are you sure that you want to logout?")){
-        socket.emit('logout');
+        userId = localStorage.getItem('username');
+        socket.to(userId).emit('logout');
         localStorage.removeItem('username');
         window.location.href = '/logout'; 
     }
 });
+
+uploadButton.addEventListener("change", (event)=> {
+    const file = event.target.files[0]; // Get the selected file
+
+     if (file && file.type === "application/pdf"){//MIME type
+        const formData = new FormData(); // Create a new FormData instance
+        formData.append("file", file); // Append the file to the form data
+
+        uploadFile(file);
+
+        console.log("File selected:", file.name);
+        console.log("File size:", (file.size / 1024).toFixed(1));
+
+        //TO-DO: only one file can be selected.
+
+        const infoElement = document.createElement('p');
+        infoElement.textContent = `${file.name}`;
+        fileInfo.append(infoElement);
+    }
+    else{
+        alert("Please select a PDF file.")
+    }
+})
+
+async function uploadFile(file){
+    try{
+        const response = await fetch('upload',{
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            const infoElement = document.createElement('p');
+            infoElement.textContent = `${file.name}`;
+            fileInfo.append(infoElement)
+            console.log("File was uploaded succesfully")
+        } else{
+            throw new Error(`Error uploading the file: ${response.statusText}`);
+        }
+    } catch(error){
+        console.error('Error', error)
+    }
+}
+
 
 //Adjustig the textarea hight to fit the content
 chatInput.addEventListener("input", () =>{
@@ -284,6 +335,7 @@ chatInput.addEventListener("keydown", (e) => {
     }
 });
 
+sendButton.addEventListener("click", handleUserMessage);
 
 const loadChat = (messages) => {
     for (let i = 0; i < messages.length; i++){
@@ -324,9 +376,10 @@ const loadChat = (messages) => {
 chatList.addEventListener("click", (event) =>{
     var clickedElement = event.target;
     var chatId = clickedElement.id;
+    var userId = localStorage.getItem('username');
     if (clickedElement.tagName === 'LI') {
         console.log('You clicked on chat:', chatId);
-        socket.emit('open_chat', chatId);
+        socket.to(userId).emit('open_chat', chatId);
         socket.on('chat_opened', (messages) =>{
             chatContainer.innerHTML = '';
             console.log(messages);

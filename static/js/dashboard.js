@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const updateChart = (graphData) => {
     console.log("UPDATING GRAPH....", graphData);
-      chart.updateOptions([{ data: graphData.count }]);
+      chart.updateOptions([{ data: graphData.count }]); //updateSeries
       chart.updateOptions({ xaxis: { categories: graphData.timestamp } });
   };
 
