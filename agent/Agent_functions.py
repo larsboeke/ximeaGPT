@@ -238,7 +238,7 @@ def create_connection():
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
-    col = db["prototype4"]
+    col = db["prototype"]
     return col, db
         
 def initPinecone():
