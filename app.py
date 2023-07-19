@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request, make_response, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from flask_login import current_user
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import flask
 import os
 #import old_stuff.uploadData as uploadData
@@ -12,7 +12,7 @@ from agent.AIResponse import AiResponse
 from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
-from datetime import datetime  
+from datetime import datetime, timedelta  
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
 from flask_cors import CORS
@@ -78,6 +78,21 @@ def login():
 
     return render_template('login.html')
 
+# @socketio.on('connect')
+# def on_connect():
+#     # user_id = request.args.get('username')
+#     # print(user_id)
+#     # if user_id:
+#     join_room(current_user.id)
+#     print(f"User {current_user.id} connected.")
+
+
+# @socketio.on('disconnect')
+# def on_disconnect():
+
+#     leave_room(current_user.id)
+#     print(f"User {current_user.id} disconnected.")
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -107,7 +122,7 @@ def index():
     if current_user.is_authenticated:
        conversations = usr.get_chat_ids(current_user.id)
        #print(conversations)
-       print(current_user.id)
+       print(f"Logged in User ID: ", current_user.id)
        return render_template('chatbot.html', chats=conversations[::-1])     
     else:
         return render_template('login.html')
@@ -160,7 +175,7 @@ def handle_message(data):
     print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', data)
+    socketio.emit('receive_response', data, room=current_user.id)
 
 
 
@@ -176,7 +191,7 @@ def start_chat(user_id, user_message):
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
-    socketio.emit('chat_started', data)
+    socketio.emit('chat_started', data, room=current_user.id)
 
 @socketio.on('delete_chat')
 def delete_chat(username, chat_id):
@@ -186,8 +201,9 @@ def delete_chat(username, chat_id):
 @socketio.on('open_chat')
 def open_chat(chat_id):
     #chat_id = data['chat_id']
+    join_room(chat_id)
     messages = usr.get_messages(chat_id)
-    socketio.emit('chat_opened', messages)
+    socketio.emit('chat_opened', messages, room=current_user.id)
     
 
     
@@ -199,7 +215,7 @@ def rate_chunk(chunk_id):
 def generate_stats_data(startdate, enddate):
     start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
     end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
-    print(f"Selected daterange: from {start_time_today} to {end_time_today}")
+    print(f"Selected daterange PY [adapted]: from {start_time_today} to {end_time_today}")
 
     report = activity.generate_report(start_time_today, end_time_today)
     activity_cost = report['activity_cost']
@@ -225,12 +241,16 @@ def load_chart():
 
 @socketio.on('update_stats')
 def update_stats(startdate, enddate):
-    print(f"Selected daterange JS: from {startdate} to {enddate}")
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
-    graph_data = generate_chart_data(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
-    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
+    #received data is one day earlier than expected(fix with timedelta)
+    print(f"Selected daterange JS [one day earlier]: from {startdate} to {enddate}")
+    one_day = timedelta(days=1)     
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(datetime.fromisoformat(startdate)+ one_day, datetime.fromisoformat(enddate)+ one_day)
+    graph_data = generate_chart_data(datetime.fromisoformat(startdate)+ one_day, datetime.fromisoformat(enddate)+ one_day)
     print(f"Socket: update_stats: GRAPHDATA: {graph_data}")
+    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
     socketio.emit('updated_stats', stats)
+
+
 
 @socketio.on('upload_text')
 def upload_text(text):
@@ -270,7 +290,6 @@ def admin_documents():
 @app.route('/admin/upload')
 def admin_upload():
     return render_template('upload.html')
-
 @app.route('/admin/feedback')
 def admin_feedback():
     all_feedback = feedback.get_all_cleaned_rated_chunks()

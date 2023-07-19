@@ -88,6 +88,12 @@ def get_activity_cost(startdate, enddate):
     else:
         return None
 
+def get_cost_per_message(activity_cost, activity_count):
+    if activity_cost is not None and activity_count != 0:
+        cost_per_message = round(activity_cost/activity_count, 3)
+        return cost_per_message
+    else:
+        return None
 
 def get_graph_activity(startdate, enddate):
     #agregation by time when the selected daterange is 24 hours
@@ -154,8 +160,9 @@ def get_graph_activity(startdate, enddate):
          count.append(entry["count"])
 
     #graph_data = [{"timestamp": timestamp, "count": count} for entry in result]
+    graph_data = {"timestamp": timestamp, "count": count}
 
-    return {"timestamp": timestamp, "count": count}
+    return graph_data
     # result = activity_mongo.aggregate(
     #     [
     #         {
@@ -170,7 +177,7 @@ def get_graph_activity(startdate, enddate):
     #             }
     #         },
     #         {
-    #             "$sort": {"_id": 1}
+    #             "$sort": {"_id": 1}ed
     #         }
     #     ]
     # )
@@ -183,7 +190,7 @@ def generate_report(start_timestamp, end_timestamp):
     avg_response_time = get_avg_time_response(start_timestamp, end_timestamp)
     activity_count = get_activity_count(start_timestamp, end_timestamp)
     activity_cost = get_activity_cost(start_timestamp, end_timestamp)
-    cost_per_message = round(activity_cost/activity_count, 2)
+    cost_per_message = get_cost_per_message(activity_cost, activity_count)
     graph_data = get_graph_activity(start_timestamp, end_timestamp)
 
 
@@ -196,9 +203,9 @@ def generate_report(start_timestamp, end_timestamp):
     }
     return report
 
-start_date = dt.datetime(2023, 7, 1)
-end_date = dt.datetime.now()
-print(type(start_date))
-print(type(end_date))
-report = generate_report(start_date, end_date)
-print(report)
+# start_date = dt.datetime(2023, 7, 1)
+# end_date = dt.datetime.now()
+# print(type(start_date))
+# print(type(end_date))
+# report = generate_report(start_date, end_date)
+# print(report)

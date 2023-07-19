@@ -19,13 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
       numberOfMonths: 1,
       firstDay: 1,
       minDate: "29.06.2023",
+      maxDate: new Date(),
       onSelect: (dateText, inst) => {
         console.log("From:", dateText);
-        // Update the minDate of endDate datepicker to the selected date from startDate datepicker
         var selectedDate = new Date(inst.selectedYear, inst.selectedMonth, inst.selectedDay);
         console.log(selectedDate);
-        selectedDate.setDate(selectedDate.getDate()); // Add one day to the selected date
-        endDate.datepicker("option", "minDate", selectedDate); // Set the minDate for endDate
+        selectedDate.setDate(selectedDate.getDate()); 
+        endDate.datepicker("option", "minDate", selectedDate);
       }    
     });
   
@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
       changeMonth: true,
       numberOfMonths: 1,
       firstDay: 1,
+      maxDate: new Date(),
       onSelect: (dateText, inst) => {
         console.log("To:", dateText);
       }
@@ -47,15 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     });
 
-
-  
-  const updateChart = (graphData) => {
-    console.log("UPDATING GRAPH....", graphData);
-      chart.updateOptions([{ data: graphData.count }]); //updateSeries
-      chart.updateOptions({ xaxis: { categories: graphData.timestamp } });
-  };
-
-      // Apex Charts initialization code here
+      // Apex Charts initialization here
       const loadChart = (graphData)=>{
         var options = {
           series: [{
@@ -99,102 +92,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   socket.on('updated_stats', (stats) =>{
-    console.log("Socket: updated_stats emmited");
-    console.log("WHY IS LAST VALUE MISSING???", stats['graph_data']);
-    activityCosts.textContent = stats['activity_cost'];
-    costsPerMessage.textContent = stats['cost_per_message'];
+    console.log("Socket: updated_stats emited");
+    console.log("Socket: updated_stats: graphdata",stats['graph_data']);
+    activityCosts.textContent = stats['activity_cost']+ " $";
+    costsPerMessage.textContent = stats['cost_per_message']+ " $";
     activityCount.textContent = stats['activity_count'];
-    avgResponseTime.textContent = stats['avg_response_time'];
-    updateChart(stats['graph_data']);
+    avgResponseTime.textContent = stats['avg_response_time']+ " sec";
+    chart.destroy();
+    loadChart(stats['graph_data']);
+    console.log('UPDATED GRAPH.....', stats['graph_data']);
   });
 
   socket.emit('load_chart');
 
   socket.on('loaded_chart', (graphData) =>{
     loadChart(graphData);
-    console.log('LOADED A GRAPH FOR TODAY.....');
+    console.log('LOADED A GRAPH FOR TODAY.....', graphData);
 });
 
 
-  
-
-
-    // var options = {
-    //     series: [{
-    //     name: 'Total Costs',
-    //     data: [0, 0, 0, 1.05, 5.07, 12.56, 7.24, 32.76, 48.53]
-    //   }],
-    //     chart: {
-    //     type: 'bar',
-    //     height: 350,
-    //     background:'transparent',
-    //     // Apply dark theme
-    //     toolbar: {
-    //     show: false
-    //   }
-    //   },
-    //   plotOptions: {
-    //     bar: {
-    //       horizontal: false,
-    //       columnWidth: '55%',
-    //       endingShape: 'rounded'
-    //     },
-    //   },
-    //   dataLabels: {
-    //     enabled: false
-    //   },
-    //   stroke: {
-    //     show: true,
-    //     width: 2,
-    //     colors: ['transparent']
-    //   },
-    //   xaxis: {
-    //     categories: ['Jan','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-    //     labels: {
-    //         style: {
-    //           colors: '#fff'
-    //         }}
-    //   },
-    //   yaxis: {
-    //     title: {
-    //       text: 'dollars',
-    //       style: {
-    //         color: '#fff'
-    //       }
-    //     }
-    //   },
-    //   labels: {
-    //     style: {
-    //       colors: '#fff'
-    //     }
-    //   },
-    //   fill: {
-    //     opacity: 1
-    //   },
-    //   tooltip: {
-    //     y: {
-    //       formatter: function (val) {
-    //         return  val  + " $ "
-    //       }
-    //     }
-    //   },
-    //         // Apply dark theme
-    //         theme: {
-    //             mode: 'dark',
-    //             palette: 'palette1',
-    //             monochrome: {
-    //               enabled: true,
-    //               color: '#f18701',
-    //               shadeTo: 'light',
-    //               shadeIntensity: 0.65
-    //             }
-    //           }
-
-    //   };
-
-    //   var chart = new ApexCharts(document.querySelector("#chart"), options);
-    //   chart.render();
-
-
-      
-  });
+});
