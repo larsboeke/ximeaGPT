@@ -124,7 +124,7 @@ class AiResponse:
 
             elif function_name == "query_data_of_feature_of_product_pdb":
                 print("Using query_data_of_feature_of_product_pdb tool...")
-                function_response = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                function_response, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
                     product=data["product"], feature=data["feature"]
                 )
                 print(function_response)
