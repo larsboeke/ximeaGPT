@@ -18,4 +18,4 @@ werkzeug
 flask_login
 flask_cors
 shutil
-gunicorn
+#gunicorn
