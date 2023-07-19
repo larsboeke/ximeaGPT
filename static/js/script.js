@@ -3,8 +3,6 @@ const sendButton = document.querySelector("#send-btn");
 const chatContainer = document.querySelector(".chat-container");
 const themeButton = document.querySelector("#theme-btn");
 const deleteButton = document.querySelector("#delete-btn");
-const uploadButton = document.querySelector("#upload-btn");
-const fileInfo = document.querySelector(".file-info");
 const newChatButton = document.querySelector("#new-chat-btn");
 const history = document.querySelector(".history");
 const socket = io.connect();
@@ -92,19 +90,26 @@ const showSources = (sources) => {
                             </div>`;
         }
         else if (sources[i].metadata.type == "ticket"){
-            html_sources += `<div "${sources[i].id}" class="content">
+            html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
-            html_sources += `<div "${sources[i].id}" class="content">
+            html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
                             </div>`;
-        }      
+        }
+        else if (sources[i].metadata.type == "Product_Database"){
+            html_sources += `<div id="${sources[i].id}" class="content">
+                                <b>From ${sources[i].metadata.type} </b><br>
+                                <br><br>${sources[i].content}
+                                
+                            </div>`;
+        }       
     }
     html_sources += `</div></section>`;
     const sourceChatDiv = createChatElement(html_sources, "backend");
@@ -206,9 +211,10 @@ const startNewChat = (userMessage) => {
         newChat.id = chat_id;
         newChat.textContent = title;
         console.log('New chat started with ID:', chat_id); 
-        console.log('New chat started with title:', title);  
+        console.log('New chat started with title:', title);
+        handleUserMessage();  
     });
-    handleUserMessage();
+    
 }
 
 
@@ -263,8 +269,7 @@ deleteButton.addEventListener("click", () =>{
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
-        fileInfo.remove();
-        loadDefaultWindow(); 
+        window.location.href = '/';
     }
 });
 
@@ -276,49 +281,6 @@ logoutButton.addEventListener("click", () =>{
         window.location.href = '/logout'; 
     }
 });
-
-uploadButton.addEventListener("change", (event)=> {
-    const file = event.target.files[0]; // Get the selected file
-
-     if (file && file.type === "application/pdf"){//MIME type
-        const formData = new FormData(); // Create a new FormData instance
-        formData.append("file", file); // Append the file to the form data
-
-        uploadFile(file);
-
-        console.log("File selected:", file.name);
-        console.log("File size:", (file.size / 1024).toFixed(1));
-
-        //TO-DO: only one file can be selected.
-
-        const infoElement = document.createElement('p');
-        infoElement.textContent = `${file.name}`;
-        fileInfo.append(infoElement)
-    }
-    else{
-        alert("Please select a PDF file.")
-    }
-})
-
-async function uploadFile(file){
-    try{
-        const response = await fetch('upload',{
-            method: 'POST',
-            body: formData
-        });
-        if (response.ok){
-            const infoElement = document.createElement('p');
-            infoElement.textContent = `${file.name}`;
-            fileInfo.append(infoElement)
-            console.log("File was uploaded succesfully")
-        } else{
-            throw new Error(`Error uploading the file: ${response.statusText}`);
-        }
-    } catch(error){
-        console.error('Error', error)
-    }
-}
-
 
 //Adjustig the textarea hight to fit the content
 chatInput.addEventListener("input", () =>{
@@ -389,7 +351,9 @@ chatList.addEventListener("click", (event) =>{
     localStorage.setItem('chat_id', chatId);
 });
 
-newChatButton.addEventListener("click", loadDefaultWindow);
+newChatButton.addEventListener("click", () => {
+    window.location.href = '/';
+});
     
 function openNav() {
     document.getElementById("leftbox").style.width = "250px";

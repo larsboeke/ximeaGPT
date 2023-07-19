@@ -17,44 +17,6 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
-database_schema = """ 
-CREATE TABLE [dbo].[feature](
-	[id_feature] [int] NULL,
-	[name_of_feature] [nvarchar](45) NULL,
-	
-	[description] [nvarchar](245) NULL,
-	[display_name] [nvarchar](245) NULL,
-	
-) ON [PRIMARY]
-
-
-CREATE TABLE [dbo].[product_feature_relationship](
-	[id] [int] NULL,
-	[id_product] [int] NULL,
-	[id_feature] [int] NULL,
-    FOREIGN KEY (id_product) REFERENCES [dbo].[product]([id_product]),
-    FOREIGN KEY (id_feature) REFERENCES [dbo].[feature]([id_feature])
-) ON [PRIMARY]
-
-3 rows from the product_feature_relationship table:
-id	id_product	id_feature
-18	1	8
-407	2	8
-409	4	8
-
-CREATE TABLE [dbo].[product](
-	[id_product] [int] NULL,
-	[name_of_product] [nvarchar](145) NULL,
-	[description] [nvarchar](500) NULL
-) ON [PRIMARY]
-
-3 rows from the product table:
-id_product	name_of_product	description
-1	MR274CU_BH	
-2	MR16000MU	
-3	MR282CC_BH	
-"""
-
 get_context_tool = {
                 "name": "query_past_conversations",
                 "description": "Get Context from past conversations that already happend with real customers to.",
@@ -100,58 +62,168 @@ query_all = {
                 },
             }
 
-get_database_schema = {
-            "name": "get_database_schema",
-            "description": "Get the schema of the transact-SQL database of XIMEA. ",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "empty_string": {
-                        "type": "string",
-                        "description": "empty_string e.g '' ",
+# Fucntions for the PDB
+query_feature_of_product_pdb = {
+                "name": "query_feature_of_product_pdb",
+                "description": "Query for features of a specific product in XIMEA'S product database",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "product" : {
+                            "type": "string",
+                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
+                        },
                     },
+                    "required": ["product"],
                 },
-                "required": [],
-            },
-}
+            }
 
-query_product_database = {
-            "name": "query_product_database",
-            "description": f"Get the result back from a valid transact-SQL query on XIMEAs Product-database. Base your query on this schema {database_schema}",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "sqlquery": {
-                        "type": "string",
-                        "description": "Valid transact-SQL syntax, e.g. SELECT TOP (10) [id_product], [name_of_product], [description] FROM [AI:Lean].[dbo].[product]",
+# query_data_of_category_feature_of_product_pdb = {
+#                 "name": "query_data_of_category_feature_of_product_pdb",
+#                 "description": "Query for the data of a category of a specific feature of a product in XIMEA'S product database",
+#                 "parameters": {
+#                     "type": "object",
+#                     "properties": {
+#                         "product" : {
+#                             "type": "string",
+#                             "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
+#                         },
+#                         "feature" : {
+#                             "type": "string",
+#                             "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
+#                         },
+#                         "category" : {
+#                             "type": "string",
+#                             "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
+#                         },
+#                     },
+#                     "required": ["product", "feature", "category"],
+#                 },
+#             }
+
+query_data_of_feature_of_product_pdb = {
+                "name": "query_data_of_feature_of_product_pdb",
+                "description": "Query for all data of a specific feature of a product in XIMEA'S product database",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "product" : {
+                            "type": "string",
+                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
+                        },
+                        "feature" : {
+                            "type": "string",
+                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
+                        },
                     },
+                    "required": ["product", "feature"],
                 },
-                "required": ["sqlquery"],
-            },
-        }
+            }
 
-get_last_message = "pass"
+get_last_message = {
+                "pass"   
+            }
 
- 
+
 
 tools = [
     query_all,
-    #get_context_tool,
-    #query_manuals,
-    get_database_schema,
-    query_product_database]
-#, get_database_schema]
+    query_feature_of_product_pdb,
+    query_data_of_feature_of_product_pdb,
+    # query_data_of_category_feature_of_product_pdb,
+]
 
+def get_last_message():
+    pass
+
+def query_data_of_feature_of_product_pdb(product, feature):
+    print(product)
+    query = f"""
+            SELECT *
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
+            """
+    
+    connection, mycursor = create_connection()
+    try:
+        mycursor.execute(query)
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
+
+        print(str(myresult))
+
+    return myresult
+
+# def query_data_of_category_feature_of_product_pdb(product, feature, category):
+    print(product)
+    query = f"""
+            SELECT f.[{category}]
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
+            """
+    connection, mycursor = create_connection()
+    try:
+        mycursor.execute(query)
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
+        print(str(myresult))
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
+
+
+def query_feature_of_product_pdb(product):
+    print(product)
+    query = f"""
+            SELECT f.name_of_feature
+            FROM [AI:Lean].[dbo].[feature] f 
+            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
+            ON f.id_feature = pfr.id_feature 
+            INNER JOIN [AI:Lean].[dbo].[product] p 
+            ON pfr.id_product = p.id_product 
+            WHERE p.name_of_product = '{product}'
+            """
+    connection, mycursor = create_connection()
+    try:
+        mycursor.execute(query)
+    except:
+        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+    else:
+        myresult = mycursor.fetchall()
+
+        # messages=[
+        #     {"role": "user", "content": f"T-SQL query: {query}, Answer: {myresult}"},
+        #     {"role": "system", "content": f"Your are a helpfull assistent who will turn a T-SQL query and it answer into a text."}
+        # ]
+    
+        # response = openai.ChatCompletion.create(
+        #     model="gpt-4",
+        #     messages=messages,
+        # )
+        # myresult = response["choices"][0]["message"]
+    matches_sources = []
+    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    matches_sources.append(source)
+    return myresult, matches_sources
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
     """Returns the number of tokens in a text string."""
     encoding = tiktoken.get_encoding(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
-
-def get_database_schema(empty_string = ""):
-    schema = {"database": database_schema}
-    return schema 
 
 def create_connection():
     server = '192.168.11.22'
@@ -162,37 +234,12 @@ def create_connection():
     connection = pymssql.connect(server, username, password, database)
     cursor = connection.cursor()
     return connection, cursor
-def query_product_database(sqlquery):
-    
-    connection, mycursor = create_connection()
-    try:
-        mycursor.execute(sqlquery)      #Excecute Query Check for Errors
-    except:
-        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-    else:
-        myresult = mycursor.fetchall()
-        print(str(myresult))
-    
-        print("Length of tokens from result!")
-        print(str(num_tokens_from_string(str(myresult))))
-        if num_tokens_from_string(str(myresult)) > 1500:
-            myresult = "The query you wrote returned too much data for you to handle. Please LIMIT the amount of data you get returned or rewrite the query!"
-    query_info = {
-        "sqlquery": sqlquery,
-        "database_response": myresult
-    }
-    print(query_info)
-    return query_info#, {"id": "1", "content": "blabla", "metadata": "test123"}
-    
-
 
 def initMongo():
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
     db = client["XIMEAGPT"]                   
     col = db["prototype4"]
     return col, db
-
-
         
 def initPinecone():
     #init pinecone
