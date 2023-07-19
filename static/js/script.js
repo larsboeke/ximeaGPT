@@ -187,8 +187,7 @@ const parseTime = (timestamp) =>{
 };
 
 const startNewChat = (userMessage) => {
-    document.querySelector(".default-text").remove();
-    //chatContainer.innerHTML = "";
+    chatContainer.innerHTML = "";
     var userId = localStorage.getItem("username");
     socket.emit('start_chat', userId, userMessage);
     socket.on('chat_started', (data) =>{
@@ -285,7 +284,6 @@ chatInput.addEventListener("keydown", (e) => {
     }
 });
 
-sendButton.addEventListener("click", handleUserMessage);
 
 const loadChat = (messages) => {
     for (let i = 0; i < messages.length; i++){

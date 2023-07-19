@@ -229,6 +229,7 @@ def update_stats(startdate, enddate):
     activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
     graph_data = generate_chart_data(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
+    print(f"Socket: update_stats: GRAPHDATA: {graph_data}")
     socketio.emit('updated_stats', stats)
 
 @socketio.on('upload_text')
@@ -259,7 +260,7 @@ def handle_delete_chunk(chunk_id):
 @app.route('/admin/dashboard')
 def admin_dashboard():
     now = datetime.now()
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_chart_data(now, now)    
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(now, now)    
     return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
 
 @app.route('/admin/documents')

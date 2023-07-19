@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const costsPerMessage = document.querySelector('#cost_per_message');
   const activityCount = document.querySelector('#activity_count');
   const avgResponseTime = document.querySelector('#avg_response_time');
+  let chart;
 
 
 
@@ -35,15 +36,17 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#startdate").attr("placeholder", currentDate);
     $("#enddate").attr("placeholder", currentDate);
     $("#set-daterange-btn").click(() => {
-         console.log("FROM",  startDate.datepicker("getDate"), "TO",endDate.datepicker("getDate"));
-         socket.emit('update_stats', startDate.datepicker("getDate"), endDate.datepicker("getDate"));
+        console.log("Emitting update_stats: FROM",  startDate.datepicker("getDate"), "TO",endDate.datepicker("getDate"));
+        socket.emit('update_stats', startDate.datepicker("getDate"), endDate.datepicker("getDate"));
+      })
     });
-  });
+
 
   
   const updateChart = (graphData) => {
-    chart.updateSeries([{ data: graphData.count }]);
-    chart.updateOptions({ xaxis: { categories: graphData.timestamp } });
+    console.log("UPDATING GRAPH....", graphData);
+      chart.updateOptions([{ data: graphData.count }]);
+      chart.updateOptions({ xaxis: { categories: graphData.timestamp } });
   };
 
       // Apex Charts initialization code here
@@ -84,12 +87,14 @@ document.addEventListener("DOMContentLoaded", () => {
             shadeIntensity: 0.65
            }}
         };
-        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart = new ApexCharts(document.querySelector("#chart"), options);
         chart.render();
       };
 
 
   socket.on('updated_stats', (stats) =>{
+    console.log("Socket: updated_stats emmited");
+    console.log("WHY IS LAST VALUE MISSING???", stats['graph_data']);
     activityCosts.textContent = stats['activity_cost'];
     costsPerMessage.textContent = stats['cost_per_message'];
     activityCount.textContent = stats['activity_count'];
