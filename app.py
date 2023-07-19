@@ -179,7 +179,7 @@ def start_chat(user_id, user_message):
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
-    socketio.emit('chat_started', data)
+    socketio.emit('chat_started', data, room=current_user.id)
 
 @socketio.on('delete_chat')
 def delete_chat(username, chat_id):
@@ -191,7 +191,7 @@ def open_chat(chat_id):
     #chat_id = data['chat_id']
     join_room(chat_id)
     messages = usr.get_messages(chat_id)
-    socketio.emit('chat_opened', messages, room=chat_id)
+    socketio.emit('chat_opened', messages, room=current_user.id)
     
 
     
@@ -219,7 +219,7 @@ def update_stats(startdate, enddate):
     print(f"Selected daterange JS: from {startdate} to {enddate}")
     activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
-    socketio.emit('updated_stats', stats)
+    socketio.emit('updated_stats', stats, room=current_user.id)
 
 @socketio.on('upload_text')
 def upload_text(text):
