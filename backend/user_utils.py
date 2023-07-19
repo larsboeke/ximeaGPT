@@ -4,6 +4,7 @@ import os
 import json
 from uuid import uuid4
 from datetime import datetime as dt
+from flask import Flask, render_template, jsonify, request, make_response, redirect, url_for
 
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
@@ -43,7 +44,7 @@ def create_chat(user_id, user_prompt):
         #add conversation entry to conversatoin collection
         entry = {
             'conversation_id': conversation_id,
-            'messages': [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers based on Context gathered by the functions but try to use them as little as possible"}] 
+            'messages': [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
             }
         conversations_mongo.insert_one(entry)
 
@@ -74,7 +75,6 @@ def delete_chat(user_id, chat_id):
     conversations_mongo.delete_one({'conversation_id': chat_id})
     user_mongo.update_one({'user_id': user_id},{ '$pull': { 'conversations': { 'conversation_id': chat_id} }})
     print(f"Conversation is deleted with following id", chat_id)
-
         
 def generate_chat_id():
     while True:
