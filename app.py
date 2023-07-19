@@ -175,7 +175,7 @@ def handle_message(data):
     print(f"Socket: send_message: Backend message: {assistant_message}")
     #add sources here
     # Emit the updated chat document back to the client ADD SOURCES
-    socketio.emit('receive_response', data, room=current_user.id)
+    socketio.emit('receive_response', data, broadcast=True, to=current_user.id)
 
 
 
@@ -184,14 +184,14 @@ def handle_message(data):
 def start_chat(user_id, user_message): 
     #print(current_user.is_authenticated)
     print("Socket: shart_chat: started")
-     
+    print("ROOM SEARCH: " + user_id + user_message)
     chat_id, title = usr.create_chat(user_id, user_message)
     print("Socket: shart_chat: CONVERSTION ID FOR NEW CHAT: " + chat_id)
     print("Socket: shart_chat: generated title: " + title)
 
     data = {'chat_id': chat_id, 'title': title}
     # Emit the chat ID back to the client
-    socketio.emit('chat_started', data, room=current_user.id)
+    socketio.emit('chat_started', data, broadcast=True, to=current_user.id)
 
 @socketio.on('delete_chat')
 def delete_chat(username, chat_id):
@@ -203,7 +203,7 @@ def open_chat(chat_id):
     #chat_id = data['chat_id']
     join_room(chat_id)
     messages = usr.get_messages(chat_id)
-    socketio.emit('chat_opened', messages, room=current_user.id)
+    socketio.emit('chat_opened', messages, broadcast=True, to=current_user.id)
     
 
     
@@ -231,7 +231,7 @@ def update_stats(startdate, enddate):
     print(f"Selected daterange JS: from {startdate} to {enddate}")
     activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
-    socketio.emit('updated_stats', stats, room=current_user.id)
+    socketio.emit('updated_stats', stats, broadcast=True, to=current_user.id)
 
 @socketio.on('upload_text')
 def upload_text(text):
@@ -277,7 +277,8 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001, debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')
+    #socketio.run(app, port=5000, debug=True, host='0.0.0.0')
  
 
 
