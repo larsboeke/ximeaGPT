@@ -96,6 +96,8 @@ class AiResponse:
 
                 if function_name == "query_unstructured_data":
                     print("Using query_unstructured_data tool...")
+                    print("this is the query CHatGPT used for Embedding search!")
+                    print(str(data["query"]))
                     function_response, sources, tokens = Agent_functions.getText(
                         query=data["query"],
                         counter = query_counter
