@@ -48,7 +48,7 @@ query_manuals = {
                     "required": ["query"],
                 },
             }
-
+#Checken was Der als Query
 query_all = {
                 "name": "query_unstructured_data",
                 "description": "Query unstructed data to get context from past conversations with customers and technical manuals. The data store information about camera families and their specifications. This function should be used most often",
