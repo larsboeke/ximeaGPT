@@ -14,6 +14,9 @@ def updating_loop(time_interval):
         mongodb_connection = MongoDBConnectionProvider().initMongoDB()
         pinecone_connection = PineconeConnectionProvider().initPinecone()
 
+        # show current time and date and say that update is starting
+        print("Latest update started at: " + time.strftime("%H:%M:%S") + " on " + time.strftime("%d/%m/%Y"))
+
         # Upload new email cases and update existing email cases
         UpdateUploader().upload_new_cases_and_updated_cases()
         print("All Emails uploaded!")

@@ -12,7 +12,7 @@ from agent.AIResponse import AiResponse
 from pymongo import MongoClient
 import backend.user_utils as usr
 import backend.activity_utils as activity
-from datetime import datetime  
+from datetime import datetime, timedelta  
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
 from flask_cors import CORS
@@ -213,26 +213,45 @@ def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
     feedback.add_feedback(chunk_id)
 
-def generate_report(startdate, enddate):
+def generate_stats_data(startdate, enddate):
     start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
     end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
-    print(f"Selected daterange: from {start_time_today} to {end_time_today}")
+    print(f"Selected daterange PY [adapted]: from {start_time_today} to {end_time_today}")
 
     report = activity.generate_report(start_time_today, end_time_today)
     activity_cost = report['activity_cost']
     cost_per_message = report['cost_per_message']
     activity_count = report['activity_count']
     avg_response_time = report['avg_response_time']
-    graph_data = report['graph_data']
-    print(f"GRAPHDATA: {graph_data}")
     return activity_cost, cost_per_message, activity_count, avg_response_time
+
+def generate_chart_data(startdate, enddate):
+    start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time_today = enddate.replace(hour=23, minute=59, second=59, microsecond=999999)
+    report = activity.generate_report(start_time_today, end_time_today)
+    graph_data = report['graph_data']
+    return graph_data
+
+
+@socketio.on('load_chart')
+def load_chart():
+    now = datetime.now()
+    graph_data_today = generate_chart_data(now, now)
+    print(f"Socket: load_chart: GRAPHDATA: {graph_data_today}")
+    socketio.emit('loaded_chart', graph_data_today)
 
 @socketio.on('update_stats')
 def update_stats(startdate, enddate):
-    print(f"Selected daterange JS: from {startdate} to {enddate}")
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
-    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
-    socketio.emit('updated_stats', stats, room=current_user.id)
+    #received data is one day earlier than expected(fix with timedelta)
+    print(f"Selected daterange JS [one day earlier]: from {startdate} to {enddate}")
+    one_day = timedelta(days=1)     
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(datetime.fromisoformat(startdate)+ one_day, datetime.fromisoformat(enddate)+ one_day)
+    graph_data = generate_chart_data(datetime.fromisoformat(startdate)+ one_day, datetime.fromisoformat(enddate)+ one_day)
+    print(f"Socket: update_stats: GRAPHDATA: {graph_data}")
+    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
+    socketio.emit('updated_stats', stats)
+
+
 
 @socketio.on('upload_text')
 def upload_text(text):
@@ -262,7 +281,7 @@ def handle_delete_chunk(chunk_id):
 @app.route('/admin/dashboard')
 def admin_dashboard():
     now = datetime.now()
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(now, now)    
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(now, now)    
     return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
 
 @app.route('/admin/documents')

@@ -75,13 +75,12 @@ class Uploader:
         id_ = col.insert_one(chunk)
         id = str(id_.inserted_id)
 
-        #Emails and Tickets get uploaded to pastConversations Namespace
-
-        if (chunk['metadata']['type'] == 'email' or chunk['metadata']['type'] == 'ticket'):
-            index.upsert([(id, chunkEmbedding)], namespace='pastConversations')
-
+        if (chunk['metadata']['type'] == 'ticket'):
+            index.upsert([(id, chunkEmbedding)], namespace='tickets')
+        elif (chunk['metadata']['type'] == 'email'):
+            index.upsert([(id, chunkEmbedding)], namespace='emails')
             #manuals get uploaded to manuals namespace
-        elif (chunk['metadata']['type'] == 'manuals'):
+        elif (chunk['metadata']['type'] == 'manuals' or chunk['metadata']['type'] == 'text'):
             index.upsert([(id, chunkEmbedding)], namespace='manuals')
 
 
@@ -126,8 +125,7 @@ class Uploader:
         Uploads a pdf to pinecone and mongodb using the admin panel
         :param path:
         """
-        file_type = 'manuals'
-        if self.is_file_uploaded(path, file_type) == False:
+        if self.is_file_uploaded(path) == False:
             mongodb_connection = MongoDBConnectionProvider().initMongoDB()
             pinecone_connection = PineconeConnectionProvider().initPinecone()
             pdf = PDF(path=path)

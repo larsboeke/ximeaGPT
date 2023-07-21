@@ -13,7 +13,9 @@ class DatabaseCleaner:
         # Delete from MongoDB
         self.mongodb_connection.delete_one({"_id": ObjectId(chunk_id)})
         # Delete from Pinecone
-        self.pinecone_connection.delete(ids=[chunk_id], namespace="pastConversations")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="tickets")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="emails")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="manuals")
         print(f"Deleted chunk {chunk_id} from Pinecone and MongoDB")
 
     def delete_short_chunks(self):
@@ -57,7 +59,7 @@ class DatabaseCleaner:
                 }
             }
         ]
-        # Execute the aggregation pipeline
+
         result = list(self.mongodb_connection.aggregate(pipeline))
         print("Deleting number of chunks that are in the DB more than once: ", len(result))
         if len(result) != 0:

@@ -7,6 +7,7 @@ const deleteChunks = document.querySelectorAll(".delete-chunk-btn");
 resetAllFeedback.addEventListener('click', () => {
     console.log('Reset all feedback');
     socket.emit('reset_all_feedback');
+    window.location.href = '/admin/feedback';
 });
 
 resetChunkFeedbacks.forEach((resetChunkFeedback) => {
@@ -15,6 +16,7 @@ resetChunkFeedbacks.forEach((resetChunkFeedback) => {
         localStorage.setItem('chunk_id', chunk_id);
         console.log('You reset feedback for chunk with id', chunk_id);
         socket.emit('reset_feedback', chunk_id);
+        document.getElementById(chunk_id).parentElement.style.display = "none";
     });
 });
 

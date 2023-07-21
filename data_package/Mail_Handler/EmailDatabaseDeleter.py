@@ -23,7 +23,7 @@ class EmailDatabaseDeleter:
                 mongodb_chunk_ids.append(str(mongodb_chunk_id["_id"]))
             #print(mongodb_chunk_ids)
             if mongodb_chunk_ids:
-                self.pinecone_connection.delete(ids = mongodb_chunk_ids, namespace ='pastConversations')
+                self.pinecone_connection.delete(ids = mongodb_chunk_ids, namespace ='emails')
                 self.mongodb_connection.delete_many(mongodb_filter)
 
     def delete_null_activities(self):

@@ -71,8 +71,10 @@ def delete_chunk(chunk_id):
     # Delete from MongoDB
     chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
     feedback_mongo.delete_one({"chunk_id": chunk_id})
-    # Delete from Pinecone
-    pinecone_connection.delete(ids=[chunk_id], namespace="pastConversations")
+    # Delete from Pinecone (test every namespace)
+    pinecone_connection.delete(ids=[chunk_id], namespace="tickets")
+    pinecone_connection.delete(ids=[chunk_id], namespace="emails")
+    pinecone_connection.delete(ids=[chunk_id], namespace="manuals")
 
 def clean_chunk(data):
     # Ensure the input is a list and has exactly two elements
