@@ -78,20 +78,20 @@ def login():
 
     return render_template('login.html')
 
-# @socketio.on('connect')
-# def on_connect():
-#     # user_id = request.args.get('username')
-#     # print(user_id)
-#     # if user_id:
-#     join_room(current_user.id)
-#     print(f"User {current_user.id} connected.")
+@socketio.on('connect')
+def on_connect():
+    # user_id = request.args.get('username')
+    # print(user_id)
+    # if user_id:
+    join_room(current_user.id)
+    print(f"User {current_user.id} connected.")
 
 
-# @socketio.on('disconnect')
-# def on_disconnect():
+@socketio.on('disconnect')
+def on_disconnect():
 
-#     leave_room(current_user.id)
-#     print(f"User {current_user.id} disconnected.")
+    leave_room(current_user.id)
+    print(f"User {current_user.id} disconnected.")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -169,6 +169,7 @@ def handle_message(data):
     chat_id = data['chat_id']
     client_msg = data['text']
     print(f"Socket: send_message: Client message: {client_msg}")
+
     assistant_message, sources = generate_backend_message(chat_id, client_msg)
 
     data = {'assistant_message': assistant_message, 'sources': sources}
@@ -249,6 +250,10 @@ def update_stats(startdate, enddate):
     print(f"Socket: update_stats: GRAPHDATA: {graph_data}")
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
     socketio.emit('updated_stats', stats)
+    print(f"Selected daterange JS: from {startdate} to {enddate}")
+    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
+    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
+    socketio.emit('updated_stats', stats, room=current_user.id)
 
 
 
@@ -296,7 +301,8 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    socketio.run(app, port=5001, debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')
+    #socketio.run(app, port=5000, debug=True, host='0.0.0.0')
  
 
 

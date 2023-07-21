@@ -96,5 +96,52 @@ class DatabaseCleaner:
             teil_strings_c.append(teil_string)
 
         for teil_string in teil_strings_c:
-            DatabaseCleaner(mongodb_connection=self.mongodb_connection,
-                            pinecone_connection=self.pinecone_connection).delete_chunk(teil_string)
+            self.delete_chunk(teil_string)
+
+
+    def remove_table_of_contents_manuals(self):
+        """
+        Deletes table of contents for the manuals from Pinecone and MongoDB since they are redundant
+        """
+        query = {
+                  "metadata.type": "manuals",
+                    "content": {
+                    "$regex": "\\.\\.\\.\\.\\.\\.\\.",
+                    "$options": "i"
+                  }
+                }
+        result = self.mongodb_connection.find(query)
+        chunks = [document for document in result]
+        print("Deleting redundant table of contents of manuals: ", len(chunks))
+
+        for chunk in chunks:
+            self.delete_chunk(str(chunk['_id']))
+
+    def remove_chunks_with_no_spaces(self):
+        """
+        Deletes chunks with no spaces from Pinecone and MongoDB since they are redundant
+        """
+        query = { "content": { "$not": { "$regex": " " } } }
+
+        result = self.mongodb_connection.find(query)
+        chunks = [document for document in result]
+        print("Deleting chunks with no spaces: ", len(chunks))
+
+        for chunk in chunks:
+            self.delete_chunk(str(chunk['_id']))
+
+    def remove_trash_chunks(self):
+        """
+        Deletes chunks with trash content from Pinecone and MongoDB
+        """
+        query = { "content": { "$regex": "^[͟r\n \\>\\\r]+$" } }
+        query_2 = {"content": {"$regex": "=\\?utf-8\\?B\\?[^?]+\\?="}}
+
+        result = self.mongodb_connection.find(query)
+        result_2 = self.mongodb_connection.find(query_2)
+        chunks = [document for document in result]
+        chunks.extend([document for document in result_2])
+        print("Deleting chunks with non-sense content: ", len(chunks))
+
+        for chunk in chunks:
+            self.delete_chunk(str(chunk['_id']))

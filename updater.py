@@ -28,10 +28,13 @@ def updating_loop(time_interval):
         else:
             print("No new Tickets found!")
 
-        # Delete short chunks and remove duplicates from databases
+        # Delete chunks that are too short, duplicates, substrings, table of contents, no spaces, trash
         DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).delete_short_chunks()
         DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_duplicates_from_databases()
         DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_substrings_from_database()
+        DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_table_of_contents_manuals()
+        DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_chunks_with_no_spaces()
+        DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_trash_chunks()
 
         print("Sleeping for " + str(time_interval/60/60) + " hours")
         # Manual are uploaded with Frontend
