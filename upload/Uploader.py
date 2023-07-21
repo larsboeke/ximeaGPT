@@ -23,6 +23,7 @@ from data_package.Ticket_Handler.Ticket import Ticket
 from data_package.Ticket_Handler.PlainTextProviderTicket import PlainTextProviderTicket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from data_package.Text_Handler.Text import Text
+import csv
 
 load_dotenv()
 
@@ -178,24 +179,6 @@ class Uploader:
         print("uploaded text")
 
 
-    def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
-        """
-        Uploads a list of cases (for emails) to pinecone and mongodb using parallel processing
-        :param cases: email cases to upload
-        :param pinecone_connection:
-        :param mongodb_connection:
-        """
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = {executor.submit(self.uploadCase, case, pinecone_connection, mongodb_connection): case for case in cases}
-            for future in as_completed(futures):
-                case = futures[future]
-                try:
-                    future.result()  # This will raise an exception if the uploadCase method failed.
-                    print(f"Case: {case} uploaded successfully!")
-                except Exception as exc:
-                    print(f"Case: {case} generated an exception: {exc}")
-
-
     def uploadCase(self, case, pinecone_connection, mongodb_connection):
         """
         Uploads a case (for emails) to pinecone and mongodb
@@ -216,6 +199,24 @@ class Uploader:
         sql_connection[0].close()
 
 
+    def upload_cases_parallel(self, cases, pinecone_connection, mongodb_connection):
+        """
+        Uploads a list of cases (for emails) to pinecone and mongodb using parallel processing
+        :param cases: email cases to upload
+        :param pinecone_connection:
+        :param mongodb_connection:
+        """
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(self.uploadCase, case, pinecone_connection, mongodb_connection): case for case in cases}
+            for future in as_completed(futures):
+                case = futures[future]
+                try:
+                    future.result()  # This will raise an exception if the uploadCase method failed.
+                    print(f"Case: {case} uploaded successfully!")
+                except Exception as exc:
+                    print(f"Case: {case} generated an exception: {exc}")
+
+
     def initialUploadMail(self):
         """
         Uploads initially all emails from the database to pinecone and mongodb
@@ -228,15 +229,13 @@ class Uploader:
 
 
     # Upload tickets from Deskpro API
-    def uploadTicket(self, TicketID):
+    def uploadTicket(self, TicketID, pinecone_connection, mongodb_connection):
         """
         Uploads a ticket to pinecone and mongodb
         :param TicketID:
         """
         # remove is_file_uploaded after initial upload, not needed anymore then
         if self.is_file_uploaded(str(TicketID)) == False:
-            mongodb_connection = MongoDBConnectionProvider().initMongoDB()
-            pinecone_connection = PineconeConnectionProvider().initPinecone()
 
             ticket = Ticket(TicketID)
             plainTicket = PlainTextProviderTicket().getText(ticket)
@@ -245,8 +244,38 @@ class Uploader:
             for chunk in chunks:
                 self.uploadChunk(chunk, pinecone_connection, mongodb_connection)
 
-            print("uploaded ticket: " + str(TicketID))
+            #print("uploaded ticket: " + str(TicketID))
         else:
             print("File already uploaded")
 
+    def upload_ticket_parallel(self, tickets, pinecone_connection, mongodb_connection):
+        """
+        Uploads a list of tickets to pinecone and mongodb using parallel processing
+        :param tickets: tickets to upload
+        :param pinecone_connection:
+        :param mongodb_connection:
+        """
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = {executor.submit(self.uploadTicket, ticket, pinecone_connection, mongodb_connection): ticket for ticket in tickets}
+            for future in as_completed(futures):
+                ticket = futures[future]
+                try:
+                    future.result()  # This will raise an exception if the uploadCase method failed.
+                    print(f"Ticket: {ticket} uploaded successfully!")
+                except Exception as exc:
+                    print(f"Ticket: {ticket} generated an exception: {exc}")
 
+    def initialUploadTicket(self):
+        """
+        Uploads initially all tickets from the database to pinecone and mongodb
+        """
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
+        ticket_ids = []
+        with open('data_package/Ticket_Handler/old_ids.csv', 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                for value in row:
+                    ticket_ids.append(int(value))
+
+        self.upload_ticket_parallel(ticket_ids, pinecone_connection, mongodb_connection)
