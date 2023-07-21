@@ -76,6 +76,7 @@ class AiResponse:
             self.add_user_message(self.user_prompt)
             
             message = self.get_openai_response("auto")
+            print("chat_completion_request: message: ", message)
         
             check_function_call = message.get("function_call")
             message['timestamp'] = str(dt.now())
@@ -92,7 +93,44 @@ class AiResponse:
     
                 json_str = message["function_call"]["arguments"]
                 data = json.loads(json_str)
+                print("Data aus Function call:",  data)
                 function_name = message["function_call"]["name"]
+
+                response_dictionary = {
+                }
+
+                if function_name == "get_context_for_one_question":
+                    print("Using new superior tool ...")
+
+                    if "query" in data:
+                        print("First getting the Unstructured data!")
+                        function_response, sources, tokens = Agent_functions.getText(
+                            query=data["query"],
+                            counter = query_counter
+                        )
+                        for source in sources:
+                            self.sources.append(source)
+                        # app used tokens
+                        self.embeddings_tokens += tokens
+                        query_counter += 1
+                        print("Unstructured data response: ", function_response)
+                        response_dictionary["unstructured_data_response"] = function_response
+
+                    if "product" in data and "feature" in data:
+                        print("Using query_data_of_feature_of_product_pdb tool...")
+                        function_response_sql, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
+                            product=data["product"], feature=data["feature"]
+                        )
+                        print(function_response)
+                        for source in sources:
+                            self.sources.append(source)
+                        print("Sql_response: ", function_response_sql)
+                        response_dictionary["sql_data_response"] = function_response_sql
+                        
+                    response_dictionary_str = json.dumps(response_dictionary)
+                    print("Response_dictionary: ", response_dictionary_str)
+
+
 
                 if function_name == "query_unstructured_data":
                     print("Using query_unstructured_data tool...")
@@ -106,7 +144,7 @@ class AiResponse:
                     # app used tokens
                     self.embeddings_tokens += tokens
                     query_counter += 1
-                    print(function_response)
+                    print("Function_response unstructured", function_response)
 
                 elif function_name == "query_feature_of_product_pdb":
                     print("Using query_feature_of_product_pdb tool...")
@@ -133,8 +171,9 @@ class AiResponse:
                     for source in sources:
                         self.sources.append(source)
 
-                print(check_function_call)
-                self.add_function(function_name, str(function_response))
+                #Update
+                #self.add_function(function_name, str(function_response))
+                self.add_function(function_name, response_dictionary_str)
 
                 function_call_counter += 1
 
@@ -145,14 +184,14 @@ class AiResponse:
                 elif function_call_counter < function_call_limit:
                     message_response_to_function = self.get_openai_response(call_type="auto")
         
-                
+                print("asdf: ", message_response_to_function)        
                 assistant_message = message_response_to_function['content']
                 self.add_assistant_message(assistant_message, self.sources)
                 
                 print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
                 print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
 
-                conv_his_token = num_tokens_from_string(str(self.conversation_history[1]), "cl100k_base")
+                conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
                 print(f"Token of History {conv_his_token}")
 
                 # if conv_his_token > 4000:

@@ -19,7 +19,30 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
-get_context_tool = {
+get_context_for_one_question = {
+                "name": "get_context_for_one_question",
+                "description": "Get information from the users query in order to peform: 1. Sql-query that fits the information and request form the data. 2. Query maunuals for information concerning this data. 3. Query old E-Mail and Support Ticket histories for that information!",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "This is equal to the whole query of the user!",
+                        },
+                         "product" : {
+                            "type": "string",
+                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP.",
+                        },
+                        "feature" : {
+                            "type": "string",
+                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize.",
+                        },
+                    },
+                    "required": ["query"],
+                },
+            }
+
+"""get_context_tool = {
                 "name": "query_past_conversations",
                 "description": "Get Context from past conversations that already happend with real customers to.",
                 "parameters": {
@@ -120,14 +143,15 @@ query_data_of_feature_of_product_pdb = {
                     },
                     "required": ["product", "feature"],
                 },
-            }
+            }"""
 
 
 tools = [
-    query_all,
+    get_context_for_one_question,
+    #query_all,
     #query_product_database,
-    query_feature_of_product_pdb,
-    query_data_of_feature_of_product_pdb,
+    #query_feature_of_product_pdb,
+    #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
 ]
 
