@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from bson.objectid import ObjectId
 import tiktoken
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
+import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
+
 
 
 load_dotenv()
@@ -295,7 +297,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def getText(query, counter):
+def getText(query):
     index = initPinecone() #
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -310,11 +312,11 @@ def getText(query, counter):
     matches_content = []
     matches_sources = []
     
-    namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
-    for namespace, borders in namespaces:
+    namespaces = [("tickets", 2), ("manuals", 2), ("emails", 2)]
+    for namespace, num_sources in namespaces:
 
-        pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
-        unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
+        pinecone_results = index.query([filtered_query_embedding], top_k=num_sources, include_metadata=True, namespace=namespace)
+        unique_pinecone_results = pinecone_results['matches']
         
         print("")
         print(namespace)
@@ -324,8 +326,6 @@ def getText(query, counter):
 
         
         #get matches from mongoDB for IDs
-
-        print(pinecone_results)
         for id in unique_pinecone_results:
             idToFind = ObjectId(id['id'])
             match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
@@ -338,3 +338,4 @@ def getText(query, counter):
 
 
     return matches_content, matches_sources, used_tokens
+

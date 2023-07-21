@@ -66,17 +66,26 @@ class AiResponse:
                 print("Unable to generate ChatCompletion response")
                 print(f"Exception: {e}")
                 
-        
+    
+    def check_history_length(self):
+        conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+        while conv_his_token > 2000:
+            self.conversation_history.pop(1)
+            self.conversation_history.pop(1)
+            conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+            print("Dropped two")
+
         
 
     def chat_completion_request(self):
         
         try:
-        
+            self.check_history_length()
+
             self.add_user_message(self.user_prompt)
+
             
             message = self.get_openai_response("auto")
-            print("chat_completion_request: message: ", message)
         
             check_function_call = message.get("function_call")
             message['timestamp'] = str(dt.now())
@@ -85,11 +94,8 @@ class AiResponse:
             if not check_function_call:
                 self.add_assistant_message(message['content'], [])
 
-            function_call_counter = 0
-            function_call_limit = 1
-            query_counter = 1
-
-            while function_call_counter < function_call_limit and check_function_call:  
+    
+            if check_function_call:  
     
                 json_str = message["function_call"]["arguments"]
                 data = json.loads(json_str)
@@ -105,15 +111,12 @@ class AiResponse:
                     if "query" in data:
                         print("First getting the Unstructured data!")
                         function_response, sources, tokens = Agent_functions.getText(
-                            query=data["query"],
-                            counter = query_counter
+                            query=data["query"] 
                         )
                         for source in sources:
                             self.sources.append(source)
                         # app used tokens
                         self.embeddings_tokens += tokens
-                        query_counter += 1
-                        print("Unstructured data response: ", function_response)
                         response_dictionary["unstructured_data_response"] = function_response
 
                     if "product" in data and "feature" in data:
@@ -121,83 +124,25 @@ class AiResponse:
                         function_response_sql, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
                             product=data["product"], feature=data["feature"]
                         )
-                        print(function_response)
                         for source in sources:
                             self.sources.append(source)
-                        print("Sql_response: ", function_response_sql)
                         response_dictionary["sql_data_response"] = function_response_sql
                         
                     response_dictionary_str = json.dumps(response_dictionary)
-                    print("Response_dictionary: ", response_dictionary_str)
 
 
-
-                if function_name == "query_unstructured_data":
-                    print("Using query_unstructured_data tool...")
-                    function_response, sources, tokens = Agent_functions.getText(
-                        query=data["query"],
-                        counter = query_counter
-                    )
-                    # append sources to sources attribute
-                    for source in sources:
-                        self.sources.append(source)
-                    # app used tokens
-                    self.embeddings_tokens += tokens
-                    query_counter += 1
-                    print("Function_response unstructured", function_response)
-
-                elif function_name == "query_feature_of_product_pdb":
-                    print("Using query_feature_of_product_pdb tool...")
-                    function_response, sources = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
-                        product = data["product"]
-                    )
-                    for source in sources:
-                        self.sources.append(source)
-                    print(function_response)
-
-                # elif function_name == "query_data_of_category_feature_of_product_pdb":
-                #     print("Using query_data_of_category_feature_of_product_pdb tool...")
-                #     function_response = Agent_functions.query_data_of_category_feature_of_product_pdb( # Eventually add sources!
-                #         product=data["product"], feature=data["feature"], category=data["category"]
-                #     )
-                #     print(function_response)
-
-                elif function_name == "query_data_of_feature_of_product_pdb":
-                    print("Using query_data_of_feature_of_product_pdb tool...")
-                    function_response, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
-                        product=data["product"], feature=data["feature"]
-                    )
-                    print(function_response)
-                    for source in sources:
-                        self.sources.append(source)
-
-                #Update
-                #self.add_function(function_name, str(function_response))
                 self.add_function(function_name, response_dictionary_str)
 
-                function_call_counter += 1
 
-                #call response with functions if counter is lower than function call limit, otherwise force respose without functions
-                if function_call_counter == function_call_limit:
-                    message_response_to_function = self.get_openai_response(call_type="none")
-                
-                elif function_call_counter < function_call_limit:
-                    message_response_to_function = self.get_openai_response(call_type="auto")
-        
-                print("asdf: ", message_response_to_function)        
+                message_response_to_function = self.get_openai_response(call_type="none")
+            
+          
                 assistant_message = message_response_to_function['content']
                 self.add_assistant_message(assistant_message, self.sources)
                 
-                print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
-                print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
+            print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
+            print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
 
-                conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
-                print(f"Token of History {conv_his_token}")
-
-                # if conv_his_token > 4000:
-                #    self.prompt_tokens = self.prompt_tokens - num_tokens_from_string(self.conversation_history[1], "cl100k_base")
-                #    self.conversation_history.pop(1)
-                #    print("Dropped one")
 
             act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
