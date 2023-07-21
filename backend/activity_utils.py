@@ -163,26 +163,7 @@ def get_graph_activity(startdate, enddate):
     graph_data = {"timestamp": timestamp, "count": count}
 
     return graph_data
-    # result = activity_mongo.aggregate(
-    #     [
-    #         {
-    #             "$match": {
-    #                 "timestamp": {"$gte": startdate, "$lte": enddate}
-    #             }
-    #         },
-    #         {
-    #             "$group": {
-    #                 "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
-    #                 "count": {"$sum": 1}
-    #             }
-    #         },
-    #         {
-    #             "$sort": {"_id": 1}ed
-    #         }
-    #     ]
-    # )
-    # graph_data = [{"date": entry["_id"], "count": entry["count"]} for entry in result]
-    #return graph_data
+
 
 
 

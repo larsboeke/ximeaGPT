@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
           data: graphData.count
         }],
           chart: {
-          type: 'area',
+          type: 'bar',
           height: 350,
           background:'transparent',
           zoom: { enabled: false },
