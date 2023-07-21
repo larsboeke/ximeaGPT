@@ -250,10 +250,6 @@ def update_stats(startdate, enddate):
     print(f"Socket: update_stats: GRAPHDATA: {graph_data}")
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
     socketio.emit('updated_stats', stats)
-    print(f"Selected daterange JS: from {startdate} to {enddate}")
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_report(datetime.fromisoformat(startdate), datetime.fromisoformat(enddate))
-    stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time}
-    socketio.emit('updated_stats', stats, room=current_user.id)
 
 
 
