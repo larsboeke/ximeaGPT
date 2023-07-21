@@ -57,7 +57,7 @@ class DatabaseCleaner:
                 }
             }
         ]
-        # Execute the aggregation pipeline
+
         result = list(self.mongodb_connection.aggregate(pipeline))
         print("Deleting number of chunks that are in the DB more than once: ", len(result))
         if len(result) != 0:
