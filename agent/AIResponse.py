@@ -152,7 +152,7 @@ class AiResponse:
                 print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
                 print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
 
-                conv_his_token = num_tokens_from_string(str(self.conversation_history[1]), "cl100k_base")
+                conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
                 print(f"Token of History {conv_his_token}")
 
                 # if conv_his_token > 4000:
