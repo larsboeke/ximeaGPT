@@ -6,48 +6,46 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.min.js"></script>
     <script src="../../static/js/feedback.js?v=123" defer></script>
     <title>Feedback</title>
-    <style>
-        ul {
-            list-style-type: disc;
-        }
-        .indent {
-            margin-left: 20px;
-        }
-        .title-with-buttons {
-            display: flex;
-            align-items: center;
-        }
-        .title-with-buttons button {
-            margin-left: 10px;
-        }
-    </style>
 </head>
 <body>
     {% extends 'admin_panel.html' %}
 
     {% block content %}
     <div class="main-title">
-        <h1>Feedback</h1>
+        <h1 class="feedback-title-components">Feedback</h1>
+        <div class="feedback-title-components">
+            <button id="reset-all-feedback-btn">Reset all Feedback!</button>
+        </div>
     </div>
-        
-    <button id="reset-all-feedback-btn">Reset all Feedback!</button>
 
-    <ul>
+    <ul id="feedback-list-container">
         {% for feedback in all_feedback %}
-            <li>
+            <li class="chunk-information">
                 <div id = "{{feedback.chunk_id}}" class="title-with-buttons">
                     <h2>Chunk ID: {{ feedback.chunk_id }}</h2>
                     <button class="reset-feedback-btn">Reset Feedback</button>
                     <button class="delete-chunk-btn">Delete chunk</button>
                 </div>
                 <div class="indent">
-                    <p>Down Rating: {{ feedback.down_rating }}</p>
+                    <p id="feedback-downrating-p">Down Rating: {{ feedback.down_rating }}</p>
                     <details>
-                        <summary>View details</summary>
-                        <p>Content: {{ feedback.content }}</p>
-                        <p>Type: {{ feedback.metadata.type }}</p>
-                        <p>Source ID: {{ feedback.metadata.source_id }}</p>
-                        <p>Order ID: {{ feedback.metadata.order_id }}</p>
+                        <summary id="feedback-details-dropdown">View details</summary>
+                            <div class="feedback-info-div">
+                                <p class="content-p" id="feedback-content-title">Content:</p>
+                                <p class="content-p" id="feedback-content-p">{{ feedback.content }}</p>
+                            </div>
+                            <div class="feedback-info-div">
+                                <p class="content-p" id="feedback-content-title">Type:</p>
+                                <p class="conten-p" id="feedback-content-p">{{ feedback.metadata.type }}</p>
+                            </div>
+                            <div class="feedback-info-div">
+                                <p class="content-p" id="feedback-content-title">Source ID:</p>
+                                <p class="content-p" id="feedback-content-p">{{ feedback.metadata.source_id }}</p>
+                            </div>
+                            <div class="feedback-info-div">
+                                <p class="content-p" id="feedback-content-title">Order ID: </p>
+                                <p class="content-p" id="feedback-content-p">{{ feedback.metadata.order_id }}</p>
+                            </div>
                     </details>
                 </div>
             </li>
