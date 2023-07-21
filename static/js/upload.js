@@ -10,6 +10,7 @@ textUploadButton.addEventListener("click", () => {
     if (text.value !== ""){
         socket.emit('upload_text', text.value);
         text.value = "";
+        alert("Text was succesfully uploaded!");
     }
     else 
     {
@@ -21,6 +22,7 @@ urlUploadButton.addEventListener("click", () => {
     if (url.value !== ""){
         socket.emit('upload_url', url.value);
         url.value = "";
+        alert("Url was succesfully uploaded!");
     }
     else 
     {
@@ -41,19 +43,22 @@ async function uploadFile(file){
             body: formData
         });
         if (response.ok){
-            console.log("File was uploaded succesfully")
-        } else{
+            console.log("File was uploaded succesfully");
+            alert("File was succesfully uploaded!");
+        } 
+        else{
             throw new Error(`Error uploading the file: ${response.statusText}`);
         }
-    } catch(error){
+    } 
+    catch(error){
         console.error('Error', error)
     }
 }
 
 selectFile.addEventListener("change", (event) =>{
-    const file = event.target.files[0]; // Get the selected file
+    const file = event.target.files[0]; 
 
-     if (file && file.type === "application/pdf"){//MIME type
+    if (file && file.type === "application/pdf"){//MIME type
         uploadFile(file);
         console.log("File selected:", file.name);
         console.log("File size:", (file.size / 1024).toFixed(1));

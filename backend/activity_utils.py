@@ -1,5 +1,6 @@
 import pymongo
 import datetime as dt
+from datetime import datetime
 from pytz import timezone
 
 client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
@@ -88,18 +89,30 @@ def get_activity_cost(startdate, enddate):
     else:
         return None
 
+def get_cost_per_message(activity_cost, activity_count):
+    if activity_cost is not None and activity_count != 0:
+        cost_per_message = round(activity_cost/activity_count, 3)
+        return cost_per_message
+    else:
+        return None
 
 def get_graph_activity(startdate, enddate):
-    result = activity_mongo.aggregate(
-        [
+    #agregation by time when the selected daterange is 24 hours
+    if startdate.date() == enddate.date(): 
+        pipeline = [
             {
                 "$match": {
-                    "timestamp": {"$gte": startdate, "$lte": enddate}
+                    "start_timestamp": {"$gte": startdate, "$lte": enddate}
                 }
             },
             {
                 "$group": {
-                    "_id": {"$dateToString": {"format": "%Y-%m-%d", "date": "$timestamp"}},
+                    "_id": {
+                        "year": {"$year": "$start_timestamp"},
+                        "month": {"$month": "$start_timestamp"},
+                        "day": {"$dayOfMonth": "$start_timestamp"},
+                        "hour": {"$hour": "$start_timestamp"}
+                    },
                     "count": {"$sum": 1}
                 }
             },
@@ -107,9 +120,51 @@ def get_graph_activity(startdate, enddate):
                 "$sort": {"_id": 1}
             }
         ]
-    )
-    graph_data = [{"date": entry["_id"], "count": entry["count"]} for entry in result]
+    #agregation by days when the selected daterange is more than one day
+    else:
+        pipeline = [
+            {
+                "$match": {
+                    "start_timestamp": {"$gte": startdate, "$lte": enddate}
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$start_timestamp"},
+                        "month": {"$month": "$start_timestamp"},
+                        "day": {"$dayOfMonth": "$start_timestamp"}
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$sort": {"_id": 1}
+            }
+        ]
+
+    result = activity_mongo.aggregate(pipeline)
+
+    timestamp = []
+    count = []
+
+    for entry in result:
+         timestamp_dict = entry["_id"]
+         timestamp_obj = datetime(
+            timestamp_dict["year"],
+            timestamp_dict["month"],
+            timestamp_dict["day"],
+            timestamp_dict.get("hour", 0)
+        )
+         #convertion to ISO date format 
+         timestamp.append(timestamp_obj.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
+         count.append(entry["count"])
+
+    #graph_data = [{"timestamp": timestamp, "count": count} for entry in result]
+    graph_data = {"timestamp": timestamp, "count": count}
+
     return graph_data
+
 
 
 
@@ -117,7 +172,7 @@ def generate_report(start_timestamp, end_timestamp):
     avg_response_time = get_avg_time_response(start_timestamp, end_timestamp)
     activity_count = get_activity_count(start_timestamp, end_timestamp)
     activity_cost = get_activity_cost(start_timestamp, end_timestamp)
-    cost_per_message = round(activity_cost/activity_count, 2)
+    cost_per_message = get_cost_per_message(activity_cost, activity_count)
     graph_data = get_graph_activity(start_timestamp, end_timestamp)
 
 
@@ -130,9 +185,9 @@ def generate_report(start_timestamp, end_timestamp):
     }
     return report
 
-start_date = dt.datetime(2023, 7, 1)
-end_date = dt.datetime.now()
-print(type(start_date))
-print(type(end_date))
-report = generate_report(start_date, end_date)
-print(report)
+# start_date = dt.datetime(2023, 7, 1)
+# end_date = dt.datetime.now()
+# print(type(start_date))
+# print(type(end_date))
+# report = generate_report(start_date, end_date)
+# print(report)
