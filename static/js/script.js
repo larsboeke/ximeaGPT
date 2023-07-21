@@ -83,23 +83,23 @@ const showSources = (sources) => {
         if (sources[i].metadata.type == "manuals"){
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type}</b><br>
-                                <a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
-                                <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                                <br><br><a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
+                                <br><br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "ticket"){
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
-                                <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                                <br><br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with CaseID ${sources[i].metadata.source_id}</b><br>
-                                <br><br>${sources[i].content}
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
+                                <br><br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "Product_Database"){

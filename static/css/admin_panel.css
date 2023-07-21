@@ -50,12 +50,11 @@ body{
   
 .sidebar-list {
     padding: 0;
-    margin-top: 15px;
     list-style-type: none;
 }
   
 .sidebar-list-item {
-    padding: 20px 20px 20px 20px;
+    /*padding: 20px 20px 20px 20px;*/
     font-size: 18px;
 }
   
@@ -65,6 +64,10 @@ body{
 }
 /*removing li element styling*/  
 .sidebar-list-item > a {
+    display: block;
+    padding: 25px;
+    width: 100%;
+    height: 80px;
     text-decoration: none;
     color: var(--icon-color);
 }
@@ -374,6 +377,91 @@ select:focus{
 .typing-textarea textarea::placeholder{
   color: var(--placeholder-color);
 }
+
+
+/*Styling for FEEDBACK page-------------------------------------------------------------------------------*/
+
+.main-title {
+  display: flex;
+}
+
+.feedback-title-components {
+  flex: auto;
+}
+
+#reset-all-feedback-btn {
+  float: right;
+  width: 200px;
+}
+
+body button{
+  text-decoration: none;
+  background-color: #7678ed;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+  transition: 0.3s;
+  border-radius: 4px;
+}
+
+body button:hover{
+  text-decoration: none;
+  background-color: #ffffff;
+  color: #7678ed;
+  padding: 10px 20px;
+  border: none;
+  outline: 1px solid #ffffff;
+}
+
+ul {
+  list-style-type: disc;
+}
+.indent {
+  margin-left: 20px;
+}
+.title-with-buttons {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+.title-with-buttons button {
+  margin-left: 10px;
+}
+
+.indent p {
+  margin: 10px;
+}
+
+h2 {
+  margin-left: 20px;
+}
+
+#feedback-details-dropdown:hover {
+  color: var(--activ-color);
+  cursor: pointer;
+}
+
+.feedback-info-div {
+  display: flex;
+  margin: 10px;
+}
+
+#feedback-content-p {
+  width: 93%;
+  align-self: flex-start;
+}
+
+#feedback-content-title {
+  width: 7%;
+  padding-right: 5px;
+}
+
+#feedback-content-title {
+  color:#ffd580;
+}
+
+
 
 
   

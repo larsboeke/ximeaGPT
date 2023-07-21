@@ -172,6 +172,12 @@
     cursor: pointer;
     transform: scale(1.3);
   }*/
+
+  #thumb-down {
+    float: right;
+    margin-right: 50px;
+  }
+
   #thumb-down:hover{
     user-select: none;
     cursor: pointer;
