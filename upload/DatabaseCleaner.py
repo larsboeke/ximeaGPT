@@ -13,7 +13,9 @@ class DatabaseCleaner:
         # Delete from MongoDB
         self.mongodb_connection.delete_one({"_id": ObjectId(chunk_id)})
         # Delete from Pinecone
-        self.pinecone_connection.delete(ids=[chunk_id], namespace="pastConversations")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="tickets")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="emails")
+        self.pinecone_connection.delete(ids=[chunk_id], namespace="manuals")
         print(f"Deleted chunk {chunk_id} from Pinecone and MongoDB")
 
     def delete_short_chunks(self):
