@@ -130,7 +130,7 @@ query_pdb ={
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "SQL Query which can answer the question of the user!",
+                            "description": "SQL Query which can answer the question of the user! Only query what is neccesary!",
                         },
                     },
                     "required": ["query"],
