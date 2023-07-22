@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import pymssql
+import mysql.connector
 
 load_dotenv()  # load environment variables from .env file #sd
 
@@ -17,7 +18,15 @@ class SQLConnectionProvider:
         Create a connection to the SQL Server database
         :return connection, cursor: connection and cursor objects
         """
-        connection = pymssql.connect(self.server, self.username, self.password, self.database)
+        destination_host = '127.0.0.1'
+        destination_database = 'prototype'
+        destination_username = 'root'
+        destination_password = '859760Si.'  
+        connection = mysql.connector.connect(host=destination_host,
+        database=destination_database,
+        user=destination_username,
+        password=destination_password,
+        )
         cursor = connection.cursor()
         return connection, cursor
 

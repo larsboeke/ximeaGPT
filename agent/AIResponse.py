@@ -135,6 +135,25 @@ class AiResponse:
                     for source in sources:
                         self.sources.append(source)
 
+                elif function_name == "query_pdb":
+                    print("Using query_pdb tool...")
+                    
+                    function_response, sources = Agent_functions.query_pdb( # Eventually add sources!
+                        query=data.get("query")
+                    )
+                    print(function_response)
+                    for source in sources:
+                        self.sources.append(source)
+                elif function_name == "get_correct_features":
+                    print("Using get_correct_features tool...")
+                    
+                    function_response, sources = Agent_functions.get_correct_features( # Eventually add sources!
+                        feature_list=data.get("features")
+                    )
+                    print(function_response)
+                    #for source in sources:
+                    #    self.sources.append(source)
+
                 print(check_function_call)
                 self.add_function(function_name, str(function_response))
 

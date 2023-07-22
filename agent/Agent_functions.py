@@ -1,11 +1,12 @@
-import pymongo
-import pinecone
+#import pymongo
+#import pinecone
 import openai
 import pymssql
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
 import tiktoken
+from difflib import SequenceMatcher
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
 
 
@@ -121,52 +122,76 @@ query_data_of_feature_of_product_pdb = {
                     "required": ["product", "feature"],
                 },
             }
+query_pdb ={
+            "name": "query_pdb",
+                "description": "Write an SQL Query and retrieve Informations from XIMEAs Product Database! TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "SQL Query which can answer the question of the user!",
+                        },
+                    },
+                    "required": ["query"],
+                },
+}
 
+get_correct_features ={
+            "name": "get_correct_features",
+                "description": "In order to write an correct SQL Query you need to have the correct name_of_feature. Use this tool to get the correct names for the features you want to query! The second value is the simmilarity score. If this score is lower then 0.6 you have to ask the user for clarification of about that feature!",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "features":{
+                            "type": "array",
+                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX'].",
+                             "items": {
+                                 "type": "string"
+                             }
 
+                        }
+                    },
+                    "required": ["features"],
+                }
+}
+                   
+ 
 tools = [
-    query_all,
-    #query_product_database,
-    query_feature_of_product_pdb,
-    query_data_of_feature_of_product_pdb,
+    #query_all,
+    query_pdb,
+    get_correct_features,
+    #query_feature_of_product_pdb,
+    #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
 ]
 
-
-# def query_product_database(product, feature):
-#     if feature == None:
-#         query = f"""
-#             SELECT f.name_of_feature
-#             FROM [AI:Lean].[dbo].[feature] f 
-#             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-#             ON f.id_feature = pfr.id_feature 
-#             INNER JOIN [AI:Lean].[dbo].[product] p 
-#             ON pfr.id_product = p.id_product 
-#             WHERE p.name_of_product = '{product}'
-#             """
-#     else:
-#         query = f"""
-#             SELECT *
-#             FROM [AI:Lean].[dbo].[feature] f 
-#             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-#             ON f.id_feature = pfr.id_feature 
-#             INNER JOIN [AI:Lean].[dbo].[product] p 
-#             ON pfr.id_product = p.id_product 
-#             WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
-#             """
-#     connection, mycursor = SQLConnectionProvider().create_connection()
-#     try:
-#         mycursor.execute(query)
-#     except:
-#         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-#     else:
-#         myresult = mycursor.fetchall()
-
-#         print(str(myresult))
-#     matches_sources = []
-#     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-#     matches_sources.append(source)
-#     return myresult, matches_sources
+def get_correct_features(feature_list):
+    combined_answers = similar(feature_list)
+    sources = []
+    return combined_answers, sources
     
+def similar(OpenAIs_features):
+    connection, cursor = SQLConnectionProvider().create_connection()
+    cursor.execute("SELECT DISTINCT name_of_feature FROM product_database;")
+    liste_of_all_features = cursor.fetchall()
+    highest_score = 0
+    highest_element = None
+    actual_feautures = []
+    score_list = []
+    for feature in OpenAIs_features:
+        score = 0
+        highest_score= 0
+        for l in liste_of_all_features:
+            score = SequenceMatcher(None, l[0], feature).ratio()
+            if score > highest_score:
+                highest_score = score
+                highest_element = l[0]
+        actual_feautures.append(highest_element)
+        score_list.append(highest_score)
+    
+    return list(zip(actual_feautures, score_list))
+
 def query_data_of_feature_of_product_pdb(product, feature):
     print(product)
     
@@ -225,92 +250,90 @@ def query_data_of_feature_of_product_pdb(product, feature):
     # matches_sources.append(source)
     # return myresult, matches_sources
 
-
-def query_feature_of_product_pdb(product):
-    print(product)
-    query = f"""
-            SELECT f.name_of_feature
-            FROM [AI:Lean].[dbo].[feature] f 
-            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-            ON f.id_feature = pfr.id_feature 
-            INNER JOIN [AI:Lean].[dbo].[product] p 
-            ON pfr.id_product = p.id_product 
-            WHERE p.name_of_product = '{product}'
-            """
+def query_pdb(query):
     connection, mycursor = SQLConnectionProvider().create_connection()
     try:
         mycursor.execute(query)
     except:
-        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
+        myresult = "The query you wrote produced an error message. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!"
     else:
         myresult = mycursor.fetchall()
-
+    if myresult == []:
+        myresult =  "The query you wrote didn't contain data. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!"
+    if num_tokens_from_string(str(myresult))>3000:
+        myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     matches_sources = []
+
     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
     matches_sources.append(source)
-    return myresult, matches_sources
+    endresult = [query] + myresult
+    return endresult, matches_sources
+    
+
+#     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.get_encoding(encoding_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
+     #Returns the number of tokens in a text string.
+     encoding = tiktoken.get_encoding(encoding_name)
+     num_tokens = len(encoding.encode(string))
+     return num_tokens
 
-def initMongo():
-    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   
-    col = db["prototype"]
-    return col, db
+# def initMongo():
+#     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+#     db = client["XIMEAGPT"]                   
+#     col = db["prototype"]
+#     return col, db
         
-def initPinecone():
-    #init pinecone
-    pinecone.init(
-        api_key=PINECONE_API_KEY,
-        environment=PINECONE_ENVIRONMENT
-    )
-    index = pinecone.Index(PINECONE_INDEX_NAME)
-    return index
+# def initPinecone():
+#     #init pinecone
+#     pinecone.init(
+#         api_key=PINECONE_API_KEY,
+#         environment=PINECONE_ENVIRONMENT
+#     )
+#     index = pinecone.Index(PINECONE_INDEX_NAME)
+#     return index
 
-def getText(query, counter):
-    index = initPinecone() #
-    #initialize mongoDB
-    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   
-    col = db["prototype"]
-    query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
-    used_tokens = query_embedding["usage"]["total_tokens"]
+# def getText(query, counter):
+#     index = initPinecone() #
+#     #initialize mongoDB
+#     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+#     db = client["XIMEAGPT"]                   
+#     col = db["prototype"]
+#     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
+#     used_tokens = query_embedding["usage"]["total_tokens"]
 
-    filtered_query_embedding = query_embedding['data'][0]['embedding']
-    #queries pinecone in namespace "manuals"
+#     filtered_query_embedding = query_embedding['data'][0]['embedding']
+#     #queries pinecone in namespace "manuals"
     
-    matches_content = []
-    matches_sources = []
+#     matches_content = []
+#     matches_sources = []
     
-    namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
-    for namespace, borders in namespaces:
+#     namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
+#     for namespace, borders in namespaces:
 
-        pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
-        unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
+#         pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
+#         unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
         
-        print("")
-        print(namespace)
-        print("")
-        print(unique_pinecone_results)
+#         print("")
+#         print(namespace)
+#         print("")
+#         print(unique_pinecone_results)
  
 
         
-        #get matches from mongoDB for IDs
+#         #get matches from mongoDB for IDs
 
-        print(pinecone_results)
-        for id in unique_pinecone_results:
-            idToFind = ObjectId(id['id'])
-            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
-            print(match)
-            # print(match['content'])
-            matches_content.append(match['content'])
+#         print(pinecone_results)
+#         for id in unique_pinecone_results:
+#             idToFind = ObjectId(id['id'])
+#             match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
+#             print(match)
+#             # print(match['content'])
+#             matches_content.append(match['content'])
         
-            source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
-            matches_sources.append(source)
+#             source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
+#             matches_sources.append(source)
 
 
-    return matches_content, matches_sources, used_tokens
+#     return matches_content, matches_sources, used_tokens
