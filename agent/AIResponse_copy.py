@@ -11,7 +11,7 @@ class AiResponse_test:
 
 
     def __init__(self, conversation_id, user_prompt):
-        print("im Konstrukter")
+
         self.conversation_id = conversation_id
         self.conversation_history = [{"role": "system", "content": "You are a helpful assistant to the customer support in the Company XIMEA. Base your Answers as much as possible on information gathered by the functions."}] 
         self.functions = Agent_functions.tools
@@ -22,7 +22,7 @@ class AiResponse_test:
         self.embeddings_tokens = 0
         self.conversation_history_token = 0
         self.start_timestamp = dt.now()
-        print("Ende Konstrukter")
+
     
     def add_user_prompt(self, content):
         self.user_prompt = content
@@ -44,9 +44,9 @@ class AiResponse_test:
 
 
     def get_openai_response(self, call_type):
-        print("conversation history")
-        print(str(self.conversation_history))
-        print("history ende")
+        #print("conversation history")
+        #print(str(self.conversation_history))
+        #print("history ende")
         max_attempts = 5
         x = 0
         while x < max_attempts:
@@ -98,7 +98,16 @@ class AiResponse_test:
                 self.sources.append(source)
             print(function_response)
 
-
+        elif function_name == "use_structured_data":
+            print("Using use_structured_data tool...")
+            function_response, sources = Agent_functions.use_structured_data( 
+                query = data.get("query"),
+                feature_list= data.get("features")
+            )
+            for source in sources:
+                self.sources.append(source)
+            print(function_response)
+        
         elif function_name == "query_data_of_feature_of_product_pdb":
             print("Using query_data_of_feature_of_product_pdb tool...")
             function_response, sources = Agent_functions.query_data_of_feature_of_product_pdb( 
@@ -130,57 +139,57 @@ class AiResponse_test:
         return function_response
 
     def chat_completion_request(self):
-        try:
+        # try:
         
-            self.add_user_message(self.user_prompt)
-            
-            message = self.get_openai_response("auto")
+        self.add_user_message(self.user_prompt)
         
-            check_function_call = message.get("function_call")
-            message['timestamp'] = str(dt.now())
-
-            assistant_message = message['content']
-            if not check_function_call:
-                self.add_assistant_message(message['content'], [])
-
-            function_call_counter = 0
-            function_call_limit = 2
-            query_counter = 1
-
-            while function_call_counter < function_call_limit and check_function_call:  
+        message = self.get_openai_response("auto")
     
-                json_str = message["function_call"]["arguments"]
-                data = json.loads(json_str)
-                function_name = message["function_call"]["name"]
+        check_function_call = message.get("function_call")
+        message['timestamp'] = str(dt.now())
 
-                function_response= self.handlefunctions(data,function_name)
+        assistant_message = message['content']
+        if not check_function_call:
+            self.add_assistant_message(message['content'], [])
 
-                #print(check_function_call)
-                self.add_function(function_name, str(function_response))
+        function_call_counter = 0
+        function_call_limit = 2
+        query_counter = 1
 
-                function_call_counter += 1
+        while function_call_counter < function_call_limit and check_function_call:  
 
-                #call response with functions if counter is lower than function call limit, otherwise force respose without functions
-                if function_call_counter == function_call_limit:
-                    message_response_to_function = self.get_openai_response(call_type="none")
-                
-                elif function_call_counter < function_call_limit:
-                    message_response_to_function = self.get_openai_response(call_type="auto")
-        
-                check_function_call = message_response_to_function.get("function_call")
-                if check_function_call == None:
-                    assistant_message = message_response_to_function['content']
-                    self.add_assistant_message(assistant_message, self.sources)
-                else:
-                    message = message_response_to_function
-                
-                
-               
+            json_str = message["function_call"]["arguments"]
+            data = json.loads(json_str)
+            function_name = message["function_call"]["name"]
 
-            return assistant_message, self.sources
-        except Exception as e:
-            print(e)
-            return "An Error occured, try again", self.sources
+            function_response= self.handlefunctions(data,function_name)
+
+            #print(check_function_call)
+            self.add_function(function_name, str(function_response))
+
+            function_call_counter += 1
+
+            #call response with functions if counter is lower than function call limit, otherwise force respose without functions
+            if function_call_counter == function_call_limit:
+                message_response_to_function = self.get_openai_response(call_type="none")
+            
+            elif function_call_counter < function_call_limit:
+                message_response_to_function = self.get_openai_response(call_type="auto")
+    
+            check_function_call = message_response_to_function.get("function_call")
+            if check_function_call == None:
+                assistant_message = message_response_to_function['content']
+                self.add_assistant_message(assistant_message, self.sources)
+            else:
+                message = message_response_to_function
+            
+            
+            
+
+        return assistant_message, self.sources
+        # except Exception as e:
+        #     print(e)
+        #     return "An Error occured, try again", self.sources
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""

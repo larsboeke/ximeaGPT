@@ -155,17 +155,71 @@ get_correct_features ={
                     "required": ["features"],
                 }
 }
-                   
+use_structured_data ={
+            "name": "use_structured_data",
+                "description": """
+                This function can be used in three ways (1,2,3).
+                1: Input = query -> Write an SQL Query and retrieve Informations from XIMEAs Product Database! TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description
+                2: Input = features -> When you give this function a list of features you will get a list with the most simmilar features back that exists in the product database. The second value is the simmilarity score.
+                3: Input = features + query -> Runs the query only if all the names of features exists in the product database! Otherwise the return will be like the same as just the feature list as input!""",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "features":{
+                            "type": "array",
+                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX'].",
+                             "items": {
+                                 "type": "string"
+                             }
+
+                        },
+                        "query": {
+                            "type": "string",
+                            "description": "SQL Query which can answer the question of the user! Only query what is neccesary!",
+                        },
+                    },
+                    
+                }
+}                   
  
 tools = [
+    use_structured_data,
     #query_all,
-    query_pdb,
-    get_correct_features,
+    #query_pdb,
+    #get_correct_features,
     #query_feature_of_product_pdb,
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
 ]
 
+def use_structured_data(query=None, feature_list=None):
+    print("query")
+    print(str(query))
+    print("feature_list")
+    print(str(feature_list))
+    print("1")
+
+    if query != None and feature_list == None:
+        print("1.1")
+        result, source = query_pdb(query)
+        print("2")
+    elif query is None and feature_list is not None:
+        result, source = get_correct_features(feature_list)
+        print("3")
+    elif query is None and feature_list is None:
+        result, source = None
+        print("4")
+    elif query is not None and feature_list is not None:
+        result, source = get_correct_features(feature_list)
+        print("5")
+        lowest_value_1 = True
+        for tup in result:
+            lowest_value_1 = tup[1] == 1 and lowest_value_1 == True
+            if lowest_value_1:
+                result, source = query_pdb(query)
+
+    return result, source
+    
 def get_correct_features(feature_list):
     combined_answers = similar(feature_list)
     sources = []
@@ -254,8 +308,8 @@ def query_pdb(query):
     connection, mycursor = SQLConnectionProvider().create_connection()
     try:
         mycursor.execute(query)
-    except:
-        myresult = "The query you wrote produced an error message. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!"
+    except Exception as e:
+        myresult = "The query you wrote produced an error message. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!" + str(e)
     else:
         myresult = mycursor.fetchall()
     if myresult == []:
@@ -266,7 +320,7 @@ def query_pdb(query):
 
     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
     matches_sources.append(source)
-    endresult = [query] + myresult
+    endresult = [query, myresult]
     return endresult, matches_sources
     
 

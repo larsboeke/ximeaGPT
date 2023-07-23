@@ -1,14 +1,9 @@
 import agent.AIResponse_copy as a
 import agent.Agent_functions as f
 
-"""
-liste, score =f.similar(["2x2 binning","Resolution"])
-print(str(liste))
-print(str(score))
-"""
 
 
-class_used = a.AiResponse_test(1,"Please run this query for me! Select id_feature From product_database Where id_feature = '8';")
+class_used = a.AiResponse_test(1,"'What is the longest Exposure Time our cameras support? Check out the different kind of values that are inside of the product database!;")
 answer, source = class_used.chat_completion_request()
 print("assistant_message")
 print(answer)
