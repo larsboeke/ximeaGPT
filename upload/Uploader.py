@@ -279,3 +279,40 @@ class Uploader:
                     ticket_ids.append(int(value))
 
         self.upload_ticket_parallel(ticket_ids, pinecone_connection, mongodb_connection)
+    
+    def initialUploadName_of_feature(self):
+        openai.api_key = os.environ.get("OPENAI_API_KEY")
+        PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
+        PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
+        PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
+        EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
+        pinecone.init(
+        api_key=PINECONE_API_KEY,
+        environment=PINECONE_ENVIRONMENT
+        )
+        index = pinecone.Index(PINECONE_INDEX_NAME)
+        #TODO: SQL-Datenbank wird auf Transact-SQL Umgestellt
+        connection, cursor = SQLConnectionProvider().create_connection()
+        cursor.execute("SELECT DISTINCT name_of_feature FROM product_database;")
+        all_feature = cursor.fetchall()
+        for feature in all_feature[1]:
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    embedding_response = openai.Embedding.create(
+                    input=feature,
+                    model="text-embedding-ada-002"
+                    )
+                    # If the function is successful, we end the loop
+                    break
+                except Exception as e:
+                    print(type(e).__name__)
+                    print("Could not create embedding, waiting 5 seconds")
+                    sleep(5)
+                    if attempt == max_attempts - 1:
+                        # If it was the last try, we throw the exception again
+                        raise e
+            
+            embeddings = embedding_response['data'][0]['embedding']
+            index.upsert(vectors=[(feature, embeddings)],
+                    namespace='name_of_sql_features')
