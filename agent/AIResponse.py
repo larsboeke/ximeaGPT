@@ -113,7 +113,8 @@ class AiResponse:
                 elif function_name == "query_feature_of_product_pdb":
                     print("Using query_feature_of_product_pdb tool...")
                     function_response, sources = Agent_functions.query_feature_of_product_pdb( # Eventually add sources!
-                        product = data["product"]
+                        product = data["product"],
+                        his = self.conversation_history
                     )
                     for source in sources:
                         self.sources.append(source)

@@ -29,8 +29,6 @@ except:
 
 create_table_sql = """
 CREATE TABLE IF NOT EXISTS product_database (
-    id_product int(11),
-    id_feature int(11),
     name_of_feature varchar(45) DEFAULT NULL,
     name_of_product varchar(145) DEFAULT NULL,
     value_of_feature text,
