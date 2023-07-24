@@ -4,12 +4,17 @@ from bson.objectid import ObjectId
 import data_package.Pinecone_Connection_Provider.PineconeConnectionProvider as PineconeConnectionProvider
 import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 
-chunk_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
-feedback_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
-pinecone_connection = PineconeConnectionProvider.PineconeConnectionProvider().initPinecone()
 
-
-
+class Feedback_Handler:
+    def __init__(self):
+        """
+        :param pinecone_connection:
+        :param mongodb_chunk:
+        :param sql_connection:
+        """
+        self.pinecone_connection = PineconeConnectionProvider.PineconeConnectionProvider().initPinecone()
+        self.mongodb_chunk = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
+        self.mongodb_feedback = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
 
 # entry = {
 #     chunk_id = xxx,
