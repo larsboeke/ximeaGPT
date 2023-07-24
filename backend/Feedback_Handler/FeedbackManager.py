@@ -36,7 +36,8 @@ class FeedbackManager:
 
 
     def reset_all_down_ratings(self):
-        for chunk_id in FeedbackProvider().get_all_chunk_ids():
+        chunk_ids = FeedbackProvider.FeedbackProvider().get_all_chunk_ids()
+        for chunk_id in chunk_ids:
             self.reset_down_rating(chunk_id)
 
 

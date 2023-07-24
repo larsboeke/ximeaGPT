@@ -266,6 +266,7 @@ def upload_url(url):
 
 @socketio.on('reset_all_feedback')
 def handle_reset_all_feedback():
+    print("You reseted all feedback ratings!")
     FeedbackManager().reset_all_down_ratings()
 
 @socketio.on('reset_feedback')
@@ -298,8 +299,8 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-    #socketio.run(app, port=5001, debug=True, host='0.0.0.0')
+    #app.run(host='0.0.0.0')
+    socketio.run(app, port=5001, debug=True, host='0.0.0.0')
  
 
 
