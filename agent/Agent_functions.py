@@ -21,8 +21,8 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
-get_context_for_one_question = {
-                "name": "get_context_for_one_question",
+query_all_sources = {
+                "name": "query_all_sources",
                 "description": "Use this tool if the user requests multiple infomation that might stand in the old companies' support tickets and emails, the technical maunual or the product database. Use this tool if you are unsure if any of the other tool is sufficient for the user query.",
                 "parameters": {
                     "type": "object",
@@ -44,7 +44,7 @@ get_context_for_one_question = {
                 },
             }
 
-get_context_tool = {
+query_emails_and_tickets = {
                 "name": "query_emails_and_tickets",
                 "description": "Use this tool if the querstion of the user only refers to information that might have been answered in the companies support tickets or past emails to customers. Then this tool gets the information from these two data sources.",
                 "parameters": {
@@ -152,9 +152,9 @@ query_data_of_feature_of_product_pdb = {
 
 
 tools = [
-    get_context_for_one_question,
-    #query_all,
-    #query_product_database,
+    query_all_sources,
+    query_manuals,
+    query_emails_and_tickets,
     #query_feature_of_product_pdb,
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
@@ -300,7 +300,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def getText(query):
+def get__sources(query, namespaces):
     index = initPinecone() #
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -315,7 +315,6 @@ def getText(query):
     matches_content = []
     matches_sources = []
     
-    namespaces = [("tickets", 2), ("manuals", 2), ("emails", 2)]
     for namespace, num_sources in namespaces:
 
         pinecone_results = index.query([filtered_query_embedding], top_k=num_sources, include_metadata=True, namespace=namespace)
