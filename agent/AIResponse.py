@@ -110,7 +110,7 @@ class AiResponse:
 
                     if "query" in data:
                         print("First getting the Unstructured data!")
-                        function_response, sources, tokens = Agent_functions.getText(
+                        function_response, sources, tokens = Agent_functions.get_general_sources(
                             query=data["query"] 
                         )
                         for source in sources:
@@ -128,9 +128,22 @@ class AiResponse:
                             self.sources.append(source)
                         response_dictionary["sql_data_response"] = function_response_sql
                         
-                    response_dictionary_str = json.dumps(response_dictionary)
 
+                if function_name == "query_emails_and_tickets":
+                    if "query" in data:
+                        print("Getting email and ticket sources!")
+                        function_response, sources, tokens = Agent_functions.get_email_ticket_sources(
+                            query=data["query"] 
+                        )
+                        for source in sources:
+                            self.sources.append(source)
+                        # app used tokens
+                        self.embeddings_tokens += tokens
 
+                
+                
+                #Add the Sources to the History
+                response_dictionary_str = json.dumps(response_dictionary)
                 self.add_function(function_name, response_dictionary_str)
 
 

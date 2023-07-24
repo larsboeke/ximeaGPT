@@ -23,7 +23,7 @@ GPT_MODEL = os.environ.get("GPT_MODEL")
 
 get_context_for_one_question = {
                 "name": "get_context_for_one_question",
-                "description": "Get information from the users query in order to peform: 1. Sql-query that fits the information and request form the data. 2. Query maunuals for information concerning this data. 3. Query old E-Mail and Support Ticket histories for that information!",
+                "description": "Use this tool if the user requests multiple infomation that might stand in the old companies' support tickets and emails, the technical maunual or the product database. Use this tool if you are unsure if any of the other tool is sufficient for the user query.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -44,36 +44,39 @@ get_context_for_one_question = {
                 },
             }
 
-"""get_context_tool = {
-                "name": "query_past_conversations",
-                "description": "Get Context from past conversations that already happend with real customers to.",
+get_context_tool = {
+                "name": "query_emails_and_tickets",
+                "description": "Use this tool if the querstion of the user only refers to information that might have been answered in the companies support tickets or past emails to customers. Then this tool gets the information from these two data sources.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to find similar contexts to",
+                            "description": "The query of the user, you want to find similar contexts to. Stay close to the user query and do not shorten much!",
                         },
                     },
                     "required": ["query"],
                 },
             }
+
 
 query_manuals = {
                 "name": "query_manuals",
-                "description": "Query technical manuals to get technical information.",
+                "description": "Use this tool if the question of the user only refers to information that can be found in technical manuals.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to gather technical information about",
+                            "description": "The query of the user, you want to gather technical information about. Stay close to the user query and do not shorten much!",
                         },
                     },
                     "required": ["query"],
                 },
             }
 
+
+"""
 query_all = {
                 "name": "query_unstructured_data",
                 "description": "Query unstructed data to get context from past conversations with customers and technical manuals. The data store information about camera families and their specifications. This function should be used most often",
