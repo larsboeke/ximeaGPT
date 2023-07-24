@@ -92,7 +92,8 @@ class AiResponse_test:
             print("Using use_product_database tool...")
             function_response, sources = Agent_functions.query_product_database_with2function_call( 
                 user_question= data.get("user_question"),
-                feature_list= data.get("features")
+                feature_list= data.get("features"),
+                message_history=self.conversation_history
             )
             for source in sources:
                 self.sources.append(source)
@@ -152,7 +153,7 @@ class AiResponse_test:
         self.add_user_message(self.user_prompt)
         
         message = self.get_openai_response("auto")
-    
+        print(str(message))
         check_function_call = message.get("function_call")
         message['timestamp'] = str(dt.now())
 
@@ -161,7 +162,7 @@ class AiResponse_test:
             self.add_assistant_message(message['content'], [])
 
         function_call_counter = 0
-        function_call_limit = 2
+        function_call_limit = 1
         query_counter = 1
 
         while function_call_counter < function_call_limit and check_function_call:  

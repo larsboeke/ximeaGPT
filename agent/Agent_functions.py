@@ -1,5 +1,5 @@
-#import pymongo
-#import pinecone
+import pymongo
+import pinecone
 import openai
 import pymssql
 import os
@@ -214,38 +214,33 @@ tools = [
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
 ]
-def query_product_database_with2function_call(user_question, feature_list):
+def query_product_database_with2function_call(user_question, feature_list, message_history):
     if feature_list != []:
-        feature_list = similar(feature_list)
-    message = get_openai_response(user_question, feature_list)
-    # json_str = message["function_call"]["arguments"]
-    # data = json.loads(json_str)
-    # function_name = message["function_call"]["name"]
-    # if function_name == "query_pdb":
-    #     print("Using query_pdb tool...")
-            
-    #     function_response, sources = query_pdb( 
-    #         query=data.get("query")
-    #     )
-    #     print(function_response)
+        feature_list = similar_embeddings(feature_list)
+    message = get_openai_sql_response(user_question, feature_list, message_history)
+
     print(str(message.get('content')))
     query = message.get('content')
     function_response, sources = query_pdb( query=query)
     print(str(function_response))
     return function_response, sources
     
-def get_openai_response(user_question, feature_list):
+def get_openai_sql_response(user_question, feature_list, message_history):
     max_attempts = 5
     x = 0
+    database_schema = "TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description "
+    message_history.append(
+        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
     while x < max_attempts:
 
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4",
-                messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"Please write an SQL query to answer this this: {user_question}. Use these feature names for the features mentioned in the question!: {str(feature_list)}. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description . ONLY WRITE THE SQL QUERY NOTHING ELSE!"}],
-                #functions=[query_pdb],
+                messages=message_history,
+        #         [
+        # {"role": "system", "content": "You are a helpful assistant."},
+        # {"role": "user", "content": f"Please write an SQL query to answer this:Start user question {user_question} End user question. Pick only the name_of_feature that are needed to answer the question from the following list!: {str(feature_list)}. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description . ONLY WRITE THE SQL QUERY NOTHING ELSE!"}],
+        #         #functions=[query_pdb],
                 #function_call="None",#"""{"name":\ "query_pdb"}""",
                 temperature = 0,  
 )
@@ -308,6 +303,22 @@ def similar(OpenAIs_features):
         score_list.append(highest_score)
     
     return list(zip(actual_feautures, score_list))
+
+def similar_embeddings(OpenAIs_features):
+    index = initPinecone()
+    multiple_feature_possibility = []
+    for feature in OpenAIs_features:
+        feature_possibility = []
+        score = 0
+        highest_score= 0
+        feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
+        pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
+        feature_possibility.append(pinecone_results[0]['id'])
+        feature_possibility.append(pinecone_results[1]['id'])
+        feature_possibility.append(pinecone_results[2]['id'])
+        multiple_feature_possibility.append(feature_possibility)
+    return multiple_feature_possibility
+        #unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
 
 def query_data_of_feature_of_product_pdb(product, feature):
     print(product)
@@ -372,12 +383,12 @@ def query_pdb(query):
     try:
         mycursor.execute(query)
     except Exception as e:
-        myresult = "The query you wrote produced an error message. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!" + str(e)
+        myresult = "The query you wrote produced an error message." + str(e)
     else:
         myresult = mycursor.fetchall()
     if myresult == []:
-        myresult =  "The query you wrote didn't contain data. First use get_correct_features if you were querying for features! If after checking the features you still get this message then ask the user for clarification!"
-    if num_tokens_from_string(str(myresult))>3000:
+        myresult =  "The query you wrote didn't contain data. Either there is no data for that question or you wrote a bad query!"
+    if num_tokens_from_string(str(myresult))>6000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     matches_sources = []
 
