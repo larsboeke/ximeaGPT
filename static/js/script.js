@@ -19,18 +19,6 @@ const logoutButton = document.querySelector("#logout-btn");
 //   socket.emit('user_connected', { user_id: user_id });
 // });
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-                console.log('Service Worker registered:', registration);
-            })
-            .catch((error) => {
-                console.error('Service Worker registration failed:', error);
-            });
-    });
-}
-
 
 const initialHeight = chatInput.scrollHeight;
 
@@ -55,15 +43,15 @@ const loadDefaultWindow = () => {
 
 loadDefaultWindow();
 
-
+//create new div and apply chat, specified class and set html content of div
 const createChatElement = (html, className) => {
-    //create new div and apply chat, specified class and set html content of div
     const chatDiv = document.createElement("div");
     chatDiv.classList.add("chat", className)
     chatDiv.innerHTML = html;
     return chatDiv;
 }
 
+// Feedback button that pushes chunk to the admin feedback panel. Pushing more often increases the number that indicates how bad the source is
 const rateChunk = (thumbDown) =>{
     thumbDown.style.color = "#b12727";
     var chunk_id = thumbDown.parentElement.id;
@@ -72,6 +60,7 @@ const rateChunk = (thumbDown) =>{
     socket.emit('rate_chunk', chunk_id);
 }
 
+// Adds sources to the AI response depending on the source used for the response
 const showSources = (sources) => {
     let html_sources = `<section id="accordion">`;
     for (let i = 0; i < sources.length; i++){
@@ -154,14 +143,15 @@ const getChatResponse = (aiChatDiv) =>{
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
 }
 
+// Copy the ai response to the clipboard
 const copyResponse = (copyBtn) => {
-    // Copy the ai response to the clipboard
     const responseTextElement = copyBtn.parentElement.previousElementSibling.querySelector("p");
     navigator.clipboard.writeText(responseTextElement.textContent);
     copyBtn.textContent = "done";
     setTimeout(() => copyBtn.textContent = "content_copy", 1000);
 }
 
+// Show moving dots while waiting for response from AI
 const showTypingAnimation = () => {
     chatInput.disabled = true;
     const html =`<div class="chat-content">

@@ -39,27 +39,32 @@
 						Register
 					</span>
 
+					<!-- Register Username field -->
 					<div class="wrap-input100 validate-input" id="divUsername" data-validate ="{{usernameExists}}">
 						<input class="input100" type="username" name="username" placeholder="Username" id="username-register">
 						<span class="focus-input100" data-placeholder="&#xf207;"></span>
 					</div>
 
+					<!-- Register Password field -->
 					<div class="wrap-input100 validate-input"  data-validate="Enter password">
 						<input class="input100" id="password-register" type="password" name="password" placeholder="Password">
 						<span class="focus-input100" data-placeholder="&#xf191;"></span>
 					</div>
 
+					<!-- Register Password Double Check field -->
 					<div class="wrap-input100 validate-input" data-validate="Repeat password">
 						<input class="input100" id="password-repeat-register" type="password" name="pass-repeat" placeholder="Password Repeat">
 						<span class="focus-input100" data-placeholder="&#xf191;"></span>
 					</div>
 
+					<!-- Register Submit button -->
 					<div class="container-login100-form-btn">
 						<button class="login100-form-btn" id="submit-btn" type="submit" value="Submit">
 							Register
 						</button>
 					</div>
 
+					<!-- Link to login page -->
 					<div class="text-center p-t-50">
 						<a class="txt1" href="{{ url_for('login') }}">
 							Already have an account?

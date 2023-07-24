@@ -18,14 +18,17 @@
         </div>
     </div>
 
+    <!-- [Container in that the chunk feedback will be shown] -->
     <ul id="feedback-list-container">
         {% for feedback in all_feedback %}
             <li class="chunk-information">
+                <!-- The chunk itself with the reset and delete button -->
                 <div id = "{{feedback.chunk_id}}" class="title-with-buttons">
                     <h2>Chunk ID: {{ feedback.chunk_id }}</h2>
                     <button class="reset-feedback-btn">Reset Feedback</button>
                     <button class="delete-chunk-btn">Delete chunk</button>
                 </div>
+                <!-- Chunk information (Indicator how bad the chunk is; Chunk content; Chunk type; Chunk source; Chunk Order ID)-->
                 <div class="indent">
                     <p id="feedback-downrating-p">Down Rating: {{ feedback.down_rating }}</p>
                     <details>

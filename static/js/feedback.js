@@ -3,13 +3,16 @@ const resetAllFeedback = document.querySelector("#reset-all-feedback-btn");
 const resetChunkFeedbacks = document.querySelectorAll(".reset-feedback-btn");
 const deleteChunks = document.querySelectorAll(".delete-chunk-btn");
 
-// FEEDBACK SECTION
+/*-- FEEDBACK SECTION -- */
+
+// Remove all Feedback -> no Chunk will be removed from database
 resetAllFeedback.addEventListener('click', () => {
     console.log('Reset all feedback');
     socket.emit('reset_all_feedback');
     window.location.href = '/admin/feedback';
 });
 
+// Remove single Feedback that represent one chunk -> Chunk wont be removed from database
 resetChunkFeedbacks.forEach((resetChunkFeedback) => {
     resetChunkFeedback.addEventListener('click', function() {
         var chunk_id = this.parentElement.id; 
@@ -20,6 +23,7 @@ resetChunkFeedbacks.forEach((resetChunkFeedback) => {
     });
 });
 
+// Delete single chunk from database
 deleteChunks.forEach((btn) => {
     btn.addEventListener('click', function() {
         var chunk_id = this.parentElement.id; 

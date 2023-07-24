@@ -65,7 +65,6 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        print(username, password)
         user = users_collection.find_one({"user_id": username})
     
 

@@ -397,6 +397,7 @@
   color: var(--activ-color);
   cursor: pointer;
  }
+
  /*TO-DO: hangling of a long file name; in the center */
  .file-info p{
   color: var(--activ-color);
@@ -588,7 +589,7 @@
 
 
 
-/* Feedback Sidebar
+/* Feedback Sidebar [From here on not used anymore because feedback sidebar was removed. Stays in here if it should be implemented again
 
       /* The sidebar menu */
       .feedback-container {
