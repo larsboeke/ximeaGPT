@@ -23,7 +23,7 @@ GPT_MODEL = os.environ.get("GPT_MODEL")
 
 query_all_sources = {
                 "name": "query_all_sources",
-                "description": "Use this tool if the user requests multiple infomation that might stand in the old companies' support tickets and emails, the technical maunual or the product database. Use this tool if you are unsure if any of the other tool is sufficient for the user query.",
+                "description": "This tool is the most general tool you can use. It provides infomation form all data sources of the company, namely support tickets and emails, technical manuals and the product database. This tool is best to use if all of these data sources provide good information. Also use this tool if you are unsure which other tool to use!",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -46,7 +46,7 @@ query_all_sources = {
 
 query_emails_and_tickets = {
                 "name": "query_emails_and_tickets",
-                "description": "Use this tool if the querstion of the user only refers to information that might have been answered in the companies support tickets or past emails to customers. Then this tool gets the information from these two data sources.",
+                "description": "This tool answers the users query only with information of from the support eamils and tickets of XIMEA. Therefore use cases for this tool are when the user asks for the email or ticket history for a case. This tool provides infomation about things that typically get negotiated in emails or tickets, like contract datails ... ONLY USE THIS TOOL IF emails and tickest are the best source for answering the user query. Keep in mind that data from technical manuals is not included!",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -62,7 +62,7 @@ query_emails_and_tickets = {
 
 query_manuals = {
                 "name": "query_manuals",
-                "description": "Use this tool if the question of the user only refers to information that can be found in technical manuals.",
+                "description": "This tool answers the users query only with information of the technical manaul. Therefore it is good to use it when there are questions concerning the technical parts of a camera/ camera family of ximea! ONLY use this tool if the technical manual is the best source for answering the user's quer. Keep in mind that information from the support tickets and emails is not included!",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -300,7 +300,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def get__sources(query, namespaces):
+def get_sources(query, namespaces):
     index = initPinecone() #
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
