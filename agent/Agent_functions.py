@@ -21,9 +21,9 @@ PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
 
-get_context_for_one_question = {
-                "name": "get_context_for_one_question",
-                "description": "Get information from the users query in order to peform: 1. Sql-query that fits the information and request form the data. 2. Query maunuals for information concerning this data. 3. Query old E-Mail and Support Ticket histories for that information!",
+query_all_sources = {
+                "name": "query_all_sources",
+                "description": "This tool is the most general tool you can use. It provides infomation form all data sources of the company, namely support tickets and emails, technical manuals and the product database. This tool is best to use if all of these data sources provide good information. Also use this tool if you are unsure which other tool to use!",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -44,36 +44,39 @@ get_context_for_one_question = {
                 },
             }
 
-"""get_context_tool = {
-                "name": "query_past_conversations",
-                "description": "Get Context from past conversations that already happend with real customers to.",
+query_emails_and_tickets = {
+                "name": "query_emails_and_tickets",
+                "description": "This tool answers the users query only with information of from the support eamils and tickets of XIMEA. Therefore use cases for this tool are when the user asks for the email or ticket history for a case. This tool provides infomation about things that typically get negotiated in emails or tickets, like contract datails ... ONLY USE THIS TOOL IF emails and tickest are the best source for answering the user query. Keep in mind that data from technical manuals is not included!",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to find similar contexts to",
+                            "description": "The query of the user, you want to find similar contexts to. Stay close to the user query and do not shorten much!",
                         },
                     },
                     "required": ["query"],
                 },
             }
+
 
 query_manuals = {
                 "name": "query_manuals",
-                "description": "Query technical manuals to get technical information.",
+                "description": "This tool answers the users query only with information of the technical manaul. Therefore it is good to use it when there are questions concerning the technical parts of a camera/ camera family of ximea! ONLY use this tool if the technical manual is the best source for answering the user's quer. Keep in mind that information from the support tickets and emails is not included!",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to gather technical information about",
+                            "description": "The query of the user, you want to gather technical information about. Stay close to the user query and do not shorten much!",
                         },
                     },
                     "required": ["query"],
                 },
             }
 
+
+"""
 query_all = {
                 "name": "query_unstructured_data",
                 "description": "Query unstructed data to get context from past conversations with customers and technical manuals. The data store information about camera families and their specifications. This function should be used most often",
@@ -149,9 +152,9 @@ query_data_of_feature_of_product_pdb = {
 
 
 tools = [
-    get_context_for_one_question,
-    #query_all,
-    #query_product_database,
+    query_all_sources,
+    query_manuals,
+    query_emails_and_tickets,
     #query_feature_of_product_pdb,
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
@@ -297,7 +300,7 @@ def initPinecone():
     index = pinecone.Index(PINECONE_INDEX_NAME)
     return index
 
-def getText(query):
+def get_sources(query, namespaces):
     index = initPinecone() #
     #initialize mongoDB
     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
@@ -312,7 +315,6 @@ def getText(query):
     matches_content = []
     matches_sources = []
     
-    namespaces = [("tickets", 2), ("manuals", 2), ("emails", 2)]
     for namespace, num_sources in namespaces:
 
         pinecone_results = index.query([filtered_query_embedding], top_k=num_sources, include_metadata=True, namespace=namespace)
