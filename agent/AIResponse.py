@@ -105,13 +105,15 @@ class AiResponse:
                 response_dictionary = {
                 }
 
-                if function_name == "get_context_for_one_question":
+                if function_name == "query_all_sources":
                     print("Using new superior tool ...")
 
                     if "query" in data:
                         print("First getting the Unstructured data!")
-                        function_response, sources, tokens = Agent_functions.getText(
-                            query=data["query"] 
+                        namespaces = [("manuals", 2), ("ticktes", 2), ("emails", 2)]
+                        function_response, sources, tokens = Agent_functions.get_sources(
+                            query=data["query"],
+                            namespaces=namespaces 
                         )
                         for source in sources:
                             self.sources.append(source)
@@ -128,9 +130,39 @@ class AiResponse:
                             self.sources.append(source)
                         response_dictionary["sql_data_response"] = function_response_sql
                         
-                    response_dictionary_str = json.dumps(response_dictionary)
 
+                if function_name == "query_emails_and_tickets":
+                    if "query" in data:
+                        print("Getting email and ticket sources!")
+                        namespaces = [("tickets", 3), ("emails", 3)]
+                        function_response, sources, tokens = Agent_functions.get_sources(
+                            query=data["query"],
+                            namespaces=namespaces 
+                        )
+                        for source in sources:
+                            self.sources.append(source)
+                        # app used tokens
+                        self.embeddings_tokens += tokens
+                        response_dictionary["ticket_email_data_response"] = function_response
 
+                if function_name == "query_manuals":
+                    if "query" in data:
+                        print("Getting manual sources!")
+                        namespaces = [("manuals", 4)]
+                        function_response, sources, tokens = Agent_functions.get_sources(
+                            query=data["query"],
+                            namespaces=namespaces 
+                        )
+                        for source in sources:
+                            self.sources.append(source)
+                        # app used tokens
+                        self.embeddings_tokens += tokens
+                        response_dictionary["ticket_email_data_response"] = function_response
+
+                
+                
+                #Add the Sources to the History
+                response_dictionary_str = json.dumps(response_dictionary)
                 self.add_function(function_name, response_dictionary_str)
 
 
