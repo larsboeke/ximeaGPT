@@ -1,38 +1,18 @@
 import pymongo
 from datetime import datetime as dt
 from bson.objectid import ObjectId
-import data_package.Pinecone_Connection_Provider.PineconeConnectionProvider as PineconeConnectionProvider
 import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 
 
-class Feedback_Handler:
+class FeedbackProvider:
     def __init__(self):
         """
-        :param pinecone_connection:
         :param mongodb_chunk:
         :param sql_connection:
         """
-        self.pinecone_connection = PineconeConnectionProvider.PineconeConnectionProvider().initPinecone()
         self.chunk_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
         self.feedback_mongo = MongoDBConnectionProvider.MongoDBConnectionProvider().initFeedbackMongoDB()
 
-# entry = {
-#     chunk_id = xxx,
-#     down_rating = 2
-# }
-
-    def check_chunk_id(self, chunk_id):
-        query = {"chunk_id": chunk_id}
-        result = self.feedback_mongo.find_one(query)
-        return result is not None
-
-
-    def add_feedback(self, chunk_id):
-        if self.check_chunk_id(chunk_id):
-            self.feedback_mongo.update_one({"chunk_id": chunk_id}, {"$inc": {"down_rating": 1}})
-        else:
-            new_entry = {"chunk_id": chunk_id, "down_rating": 1}
-            self.feedback_mongo.insert_one(new_entry)
 
     def get_all_chunk_ids(self):
         results = self.feedback_mongo.find({}, {"_id": 0, "chunk_id": 1})  # Get only the chunk_id field from all documents
@@ -57,29 +37,12 @@ class Feedback_Handler:
         return(rated_chunk)
 
 
-    def reset_down_rating(self, chunk_id):
-        self.feedback_mongo.delete_one({"chunk_id": chunk_id})  #Optionel -> Nicht Deleten sonder auf 0 setzen!
-
-
     def get_all_rated_chunks(self):
         all_ratings = []
         for chunk_id in self.get_all_chunk_ids():
             all_ratings.append(self.get_rated_chunk(chunk_id))
         return all_ratings
 
-    def reset_all_down_ratings(self):
-        for chunk_id in self.get_all_chunk_ids():
-            self.reset_down_rating(chunk_id)
-
-
-    def delete_chunk(self, chunk_id):
-        # Delete from MongoDB
-        self.chunk_mongo.delete_one({"_id": ObjectId(chunk_id)})
-        self.feedback_mongo.delete_one({"chunk_id": chunk_id})
-        # Delete from Pinecone (test every namespace)
-        self.pinecone_connection.delete(ids=[chunk_id], namespace="tickets")
-        self.pinecone_connection.delete(ids=[chunk_id], namespace="emails")
-        self.pinecone_connection.delete(ids=[chunk_id], namespace="manuals")
 
     def clean_chunk(self, data):
         # Ensure the input is a list and has exactly two elements
