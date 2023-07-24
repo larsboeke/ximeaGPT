@@ -88,7 +88,15 @@ class AiResponse_test:
             self.embeddings_tokens += tokens
             #query_counter += 1
             print(function_response)
-                    
+        elif function_name == "use_product_database":
+            print("Using use_product_database tool...")
+            function_response, sources = Agent_functions.query_product_database_with2function_call( 
+                user_question= data.get("user_question"),
+                feature_list= data.get("features")
+            )
+            for source in sources:
+                self.sources.append(source)
+            print(function_response)            
         elif function_name == "query_feature_of_product_pdb":
             print("Using query_feature_of_product_pdb tool...")
             function_response, sources = Agent_functions.query_feature_of_product_pdb( 
@@ -129,7 +137,7 @@ class AiResponse_test:
 
         elif function_name == "get_correct_features":
             print("Using get_correct_features tool...")
-            
+            print(str(data.get("features")))
             function_response, sources = Agent_functions.get_correct_features( 
                 feature_list=data.get("features")
             )

@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 import tiktoken
 from difflib import SequenceMatcher
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
-
+import json
 
 load_dotenv()
 
@@ -124,7 +124,7 @@ query_data_of_feature_of_product_pdb = {
             }
 query_pdb ={
             "name": "query_pdb",
-                "description": "Write an SQL Query and retrieve Informations from XIMEAs Product Database! TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description",
+                "description": "Write an SQL Query and retrieve Informations from XIMEAs Product Database! Watch out! The Column value_of_feature is of Type Text. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -139,7 +139,7 @@ query_pdb ={
 
 get_correct_features ={
             "name": "get_correct_features",
-                "description": "In order to write an correct SQL Query you need to have the correct name_of_feature. Use this tool to get the correct names for the features you want to query! The second value is the simmilarity score. If this score is lower then 0.6 you have to ask the user for clarification of about that feature!",
+                "description": "In order to write an correct SQL Query you need to have the correct name_of_feature. Use this tool to get the correct names for the features you want to query! The second value is the simmilarity score.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -181,37 +181,100 @@ use_structured_data ={
                     
                 }
 }                   
- 
+#TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description
+query_product_database_with2function_call ={
+            "name": "use_product_database",
+                "description": "This function can be used to write a SQL query with the correct feature names on the XIMEA SQL Database.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "features":{
+                            "type": "array",
+                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX'].If you don't want to look for any Features then give an empty list as a parameter e.g [] ",
+                             "items": {
+                                 "type": "string"
+                             }
+
+                        },
+                        "user_question": {
+                            "type": "string",
+                            "description": "Place the question the user asked you right here!",
+                        },
+                    },
+                    "required": ["features","user_question"],
+                }
+}                   
 tools = [
-    use_structured_data,
+    #use_structured_data,
     #query_all,
+    query_product_database_with2function_call,
     #query_pdb,
     #get_correct_features,
     #query_feature_of_product_pdb,
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
 ]
+def query_product_database_with2function_call(user_question, feature_list):
+    if feature_list != []:
+        feature_list = similar(feature_list)
+    message = get_openai_response(user_question, feature_list)
+    # json_str = message["function_call"]["arguments"]
+    # data = json.loads(json_str)
+    # function_name = message["function_call"]["name"]
+    # if function_name == "query_pdb":
+    #     print("Using query_pdb tool...")
+            
+    #     function_response, sources = query_pdb( 
+    #         query=data.get("query")
+    #     )
+    #     print(function_response)
+    print(str(message.get('content')))
+    query = message.get('content')
+    function_response, sources = query_pdb( query=query)
+    print(str(function_response))
+    return function_response, sources
+    
+def get_openai_response(user_question, feature_list):
+    max_attempts = 5
+    x = 0
+    while x < max_attempts:
 
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f"Please write an SQL query to answer this this: {user_question}. Use these feature names for the features mentioned in the question!: {str(feature_list)}. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description . ONLY WRITE THE SQL QUERY NOTHING ELSE!"}],
+                #functions=[query_pdb],
+                #function_call="None",#"""{"name":\ "query_pdb"}""",
+                temperature = 0,  
+)
+            return response["choices"][0]["message"]
+
+        except Exception as e:
+            print("Unable to generate ChatCompletion response")
+            print(f"Exception: {e}")
+    
 def use_structured_data(query=None, feature_list=None):
     print("query")
     print(str(query))
     print("feature_list")
     print(str(feature_list))
-    print("1")
+    #print("1")
 
     if query != None and feature_list == None:
-        print("1.1")
+        #print("1.1")
         result, source = query_pdb(query)
-        print("2")
+        #print("2")
     elif query is None and feature_list is not None:
         result, source = get_correct_features(feature_list)
-        print("3")
+        #print("3")
     elif query is None and feature_list is None:
         result, source = None
-        print("4")
+        #print("4")
     elif query is not None and feature_list is not None:
         result, source = get_correct_features(feature_list)
-        print("5")
+        #print("5")
         lowest_value_1 = True
         for tup in result:
             lowest_value_1 = tup[1] == 1 and lowest_value_1 == True
@@ -333,61 +396,61 @@ def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
      num_tokens = len(encoding.encode(string))
      return num_tokens
 
-# def initMongo():
-#     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-#     db = client["XIMEAGPT"]                   
-#     col = db["prototype"]
-#     return col, db
+def initMongo():
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]                   
+    col = db["prototype"]
+    return col, db
         
-# def initPinecone():
-#     #init pinecone
-#     pinecone.init(
-#         api_key=PINECONE_API_KEY,
-#         environment=PINECONE_ENVIRONMENT
-#     )
-#     index = pinecone.Index(PINECONE_INDEX_NAME)
-#     return index
+def initPinecone():
+    #init pinecone
+    pinecone.init(
+        api_key=PINECONE_API_KEY,
+        environment=PINECONE_ENVIRONMENT
+    )
+    index = pinecone.Index(PINECONE_INDEX_NAME)
+    return index
 
-# def getText(query, counter):
-#     index = initPinecone() #
-#     #initialize mongoDB
-#     client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-#     db = client["XIMEAGPT"]                   
-#     col = db["prototype"]
-#     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
-#     used_tokens = query_embedding["usage"]["total_tokens"]
+def getText(query, counter):
+    index = initPinecone() #
+    #initialize mongoDB
+    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
+    db = client["XIMEAGPT"]                   
+    col = db["prototype"]
+    query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
+    used_tokens = query_embedding["usage"]["total_tokens"]
 
-#     filtered_query_embedding = query_embedding['data'][0]['embedding']
-#     #queries pinecone in namespace "manuals"
+    filtered_query_embedding = query_embedding['data'][0]['embedding']
+    #queries pinecone in namespace "manuals"
     
-#     matches_content = []
-#     matches_sources = []
+    matches_content = []
+    matches_sources = []
     
-#     namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
-#     for namespace, borders in namespaces:
+    namespaces = [("pastConversations", [0, 2, 4, 6]), ("manuals", [0, 1, 2, 3])]
+    for namespace, borders in namespaces:
 
-#         pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
-#         unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
+        pinecone_results = index.query([filtered_query_embedding], top_k=borders[counter], include_metadata=True, namespace=namespace)
+        unique_pinecone_results = pinecone_results['matches'][borders[counter -1]:borders[counter]]
         
-#         print("")
-#         print(namespace)
-#         print("")
-#         print(unique_pinecone_results)
+        print("")
+        print(namespace)
+        print("")
+        print(unique_pinecone_results)
  
 
         
-#         #get matches from mongoDB for IDs
+        #get matches from mongoDB for IDs
 
-#         print(pinecone_results)
-#         for id in unique_pinecone_results:
-#             idToFind = ObjectId(id['id'])
-#             match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
-#             print(match)
-#             # print(match['content'])
-#             matches_content.append(match['content'])
+        print(pinecone_results)
+        for id in unique_pinecone_results:
+            idToFind = ObjectId(id['id'])
+            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
+            print(match)
+            # print(match['content'])
+            matches_content.append(match['content'])
         
-#             source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
-#             matches_sources.append(source)
+            source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
+            matches_sources.append(source)
 
 
-#     return matches_content, matches_sources, used_tokens
+    return matches_content, matches_sources, used_tokens

@@ -1,9 +1,13 @@
 import agent.AIResponse_copy as a
 import agent.Agent_functions as f
 
+similar =f.similar(["Framerate"])
+print(str(similar))
+#answer = f.get_openai_response(user_question="What are different Framerate we have in our product database?", feature_list=['xiapi_FrameRate',])
 
+#print(str(answer))
 
-class_used = a.AiResponse_test(1,"'What is the longest Exposure Time our cameras support? Check out the different kind of values that are inside of the product database!;")
+class_used = a.AiResponse_test(1,"What is the Framerate we have in our product database of MR285MU_BH?")
 answer, source = class_used.chat_completion_request()
 print("assistant_message")
 print(answer)
