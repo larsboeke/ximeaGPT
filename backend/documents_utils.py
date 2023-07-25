@@ -19,11 +19,11 @@ def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=No
     query = {}
 
     try:
-  
         if objectID:
             result = col.find_one(ObjectId(objectID))
             result['_id'] = str(result['_id'])
-            return result
+            list = [result]
+            return list
     except:
         return []
 
