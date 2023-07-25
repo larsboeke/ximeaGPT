@@ -99,7 +99,7 @@ class AiResponse:
     
                 json_str = message["function_call"]["arguments"]
                 data = json.loads(json_str)
-                print("Data aus Function call:",  data)
+                # print("Data aus Function call:",  data)
                 function_name = message["function_call"]["name"]
 
                 response_dictionary = {
@@ -107,16 +107,24 @@ class AiResponse:
 
                 if function_name == "query_all_sources":
                     print("Using new superior tool ...")
-
+                    print("User promt: ", self.user_prompt)
                     if "query" in data:
                         print("First getting the Unstructured data!")
-                        namespaces = [("manuals", 2), ("ticktes", 2), ("emails", 2)]
+                        namespaces = [("manuals", 2), ("tickets", 1), ("emails", 1)]
                         function_response, sources, tokens = Agent_functions.get_sources(
-                            query=data["query"],
+                            # use whole query, not just kw
+                            query=self.user_prompt,
+                            # if u wanna use just kw
+                            #query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
                             self.sources.append(source)
+                            extra_source = Agent_functions.get_extra_sources(source)
+                            if extra_source:
+                                self.sources.append(extra_source)
+
+
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["unstructured_data_response"] = function_response
@@ -134,13 +142,19 @@ class AiResponse:
                 if function_name == "query_emails_and_tickets":
                     if "query" in data:
                         print("Getting email and ticket sources!")
-                        namespaces = [("tickets", 3), ("emails", 3)]
+                        namespaces = [("tickets", 2), ("emails", 2)]
                         function_response, sources, tokens = Agent_functions.get_sources(
-                            query=data["query"],
+                            # use whole query, not just kw
+                            query=self.user_prompt,
+                            # if u wanna use just kw
+                            # query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
                             self.sources.append(source)
+                            extra_source = Agent_functions.get_extra_sources(source)
+                            if extra_source:
+                                self.sources.append(extra_source)
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["ticket_email_data_response"] = function_response
