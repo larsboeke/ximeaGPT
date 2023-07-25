@@ -15,6 +15,7 @@ import backend.activity_utils as activity
 from datetime import datetime, timedelta  
 from upload.Uploader import Uploader
 import backend.feedback_utils as feedback
+import backend.documents_utils as documents
 from flask_cors import CORS
 import shutil
 
@@ -78,20 +79,20 @@ def login():
 
     return render_template('login.html')
 
-@socketio.on('connect')
-def on_connect():
-    # user_id = request.args.get('username')
-    # print(user_id)
-    # if user_id:
-    join_room(current_user.id)
-    print(f"User {current_user.id} connected.")
+# @socketio.on('connect')
+# def on_connect():
+#     user_id = request.args.get('username')
+#     print(user_id)
+#     if user_id:
+#     join_room(current_user.id)
+#     print(f"User {current_user.id} connected.")
 
 
-@socketio.on('disconnect')
-def on_disconnect():
+# @socketio.on('disconnect')
+# def on_disconnect():
 
-    leave_room(current_user.id)
-    print(f"User {current_user.id} disconnected.")
+#     leave_room(current_user.id)
+#     print(f"User {current_user.id} disconnected.")
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -251,8 +252,6 @@ def update_stats(startdate, enddate):
     stats = {'activity_cost': activity_cost, 'cost_per_message': cost_per_message, 'activity_count': activity_count, 'avg_response_time': avg_response_time, 'graph_data': graph_data}
     socketio.emit('updated_stats', stats)
 
-
-
 @socketio.on('upload_text')
 def upload_text(text):
     Uploader().uploadText(text)
@@ -277,6 +276,16 @@ def handle_delete_chunk(chunk_id):
     print(f"You deleted chunk with id", chunk_id)
     feedback.delete_chunk(chunk_id)
     
+@socketio.on('search_doc')
+def search_doc(id, type, source, content, limit):
+    if limit == '':
+        limit = None;
+    else:
+        limit = int(limit)
+    docs = documents.search_mongoDB(objectID=id, type=type, source=source, content=content, limit= limit)
+    print(f"Following doc is found ------>",docs)
+    socketio.emit('searched_doc', docs)
+
 #Routing for the admin panel
 @app.route('/admin/dashboard')
 def admin_dashboard():
@@ -297,7 +306,7 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
     #socketio.run(app, port=5000, debug=True, host='0.0.0.0')
  
 

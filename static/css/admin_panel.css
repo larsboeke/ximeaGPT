@@ -224,9 +224,12 @@ body{
     height: 350px;
   }
   /*Styling for DOCUMENTS page-------------------------------------------------------------------------------*/
+  .seach-container{
+    display:inline-flex;
+    width: 100%;
+  }
   .search-controls{
-    width: auto;
-    max-width: 50%;
+    width: 70%;
     margin: 20px 0;
     padding: 20px;
     display: flex;
@@ -268,6 +271,10 @@ body{
   .search-controls span {
     font-size: 1.5rem; 
     padding: 5px;
+  }
+  .search-type-selection{
+    width: 30%;  
+    padding: 10px; 
   }
 /*Styling for UPLOAD page-------------------------------------------------------------------------------*/
 .upload-container{
