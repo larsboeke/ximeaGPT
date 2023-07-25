@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 import tiktoken
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
 import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
-
+import html
 
 
 load_dotenv()
@@ -82,7 +82,7 @@ query_product_database_with2function_call ={
                     "properties": {
                         "features":{
                             "type": "array",
-                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX'].If you don't want to look for any Features then give an empty list as a parameter e.g [] ",
+                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX']. Only use it when you are given a Feature!",
                              "items": {
                                  "type": "string"
                              }
@@ -93,7 +93,7 @@ query_product_database_with2function_call ={
                             "description": "Place the question the user asked you right here!",
                         },
                     },
-                    "required": ["features","user_question"],
+                     "required": ["user_question"],
                 }
 }                   
 
@@ -183,9 +183,12 @@ tools = [
 ]
 
 
-def query_product_database_with2function_call(user_question, feature_list, message_history):
-    if feature_list != []:
+def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None):
+    print("Test_feature")
+    print(feature_list)
+    if feature_list != None:
         feature_list = similar_embeddings(feature_list)
+    print(feature_list)
     message = get_openai_sql_response(user_question, feature_list, message_history)
 
     print(str(message.get('content')))
@@ -198,9 +201,18 @@ def query_product_database_with2function_call(user_question, feature_list, messa
 def get_openai_sql_response(user_question, feature_list, message_history):
     max_attempts = 5
     x = 0
-    database_schema = "TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description "
-    message_history.append(
+    database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+    if feature_list == None:
+        print("TEestststst")
+        message_history.append(
+        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Do not use a WHERE clause. Use this table {database_schema}"})
+    else:
+        message_history.append(
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
+
+    
+
+    
     while x < max_attempts:
 
         try:
@@ -212,7 +224,7 @@ def get_openai_sql_response(user_question, feature_list, message_history):
         # {"role": "user", "content": f"Please write an SQL query to answer this:Start user question {user_question} End user question. Pick only the name_of_feature that are needed to answer the question from the following list!: {str(feature_list)}. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description . ONLY WRITE THE SQL QUERY NOTHING ELSE!"}],
         #         #functions=[query_pdb],
                 #function_call="None",#"""{"name":\ "query_pdb"}""",
-                temperature = 0,  
+                temperature = 0,
 )
             return response["choices"][0]["message"]
 
@@ -249,7 +261,9 @@ def query_pdb(query):
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     matches_sources = []
 
-    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    #source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {html.escape(myresult[0][0])}", 'metadata': {'type': "Product_Database"}}
+
     matches_sources.append(source)
     endresult = [query, myresult]
     return endresult, matches_sources
@@ -423,8 +437,9 @@ def get_sources(query, namespaces):
         #get matches from mongoDB for IDs
         for id in unique_pinecone_results:
             idToFind = ObjectId(id['id'])
-            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun    
-            print(match)
+            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun
+            #DONT PRINT MATCHES, IT CAUSES ENCODING BUGS
+            #print(match)
             # print(match['content'])
             matches_content.append(match['content'])
         
