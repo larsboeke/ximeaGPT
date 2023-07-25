@@ -229,9 +229,6 @@ body{
     width: 100%;
   }
   .search-controls{
-    width: 70%;
-    margin: 20px 0;
-    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -245,17 +242,29 @@ body{
     margin-left: 20px;
   }
 
-  #searchbar{   
+  .search-controls input{   
     flex-grow:1;
-    background: transparent;
-    outline:none;
-    border:none;
+    background: var(--icon-hover-bg);
     position:relative;
+    border-radius: 60px;
+    outline: none;
+    border:none;
+    margin: 5px;
+    padding: 5px;
     color:var(--text-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
-  #searchbar::placeholder{
+  .search-controls input::placeholder{
     color: var(--placeholder-color);
+  }
+
+  .search-controls input:focus{
+    background-color:#3d348b;
+  }
+
+  .search-controls input:disabled{
+    background-color: transparent;
   }
 
   .search-controls button{
@@ -271,10 +280,6 @@ body{
   .search-controls span {
     font-size: 1.5rem; 
     padding: 5px;
-  }
-  .search-type-selection{
-    width: 30%;  
-    padding: 10px; 
   }
 /*Styling for UPLOAD page-------------------------------------------------------------------------------*/
 .upload-container{
