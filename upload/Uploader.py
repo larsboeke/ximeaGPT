@@ -281,26 +281,18 @@ class Uploader:
         self.upload_ticket_parallel(ticket_ids, pinecone_connection, mongodb_connection)
     
     def initialUploadName_of_feature(self):
-        openai.api_key = os.environ.get("OPENAI_API_KEY")
-        PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
-        PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
-        PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
-        EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
-        pinecone.init(
-        api_key=PINECONE_API_KEY,
-        environment=PINECONE_ENVIRONMENT
-        )
-        index = pinecone.Index(PINECONE_INDEX_NAME)
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+        pinecone_connection.delete(delete_all = True, namespace = "name_of_sql_features")
         #TODO: SQL-Datenbank wird auf Transact-SQL Umgestellt
         connection, cursor = SQLConnectionProvider().create_connection()
-        cursor.execute("SELECT DISTINCT name_of_feature FROM product_database;")
+        cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[product_database];")
         all_feature = cursor.fetchall()
-        for feature in all_feature[1]:
+        for feature in all_feature:
             max_attempts = 5
             for attempt in range(max_attempts):
                 try:
                     embedding_response = openai.Embedding.create(
-                    input=feature,
+                    input=feature[0],
                     model="text-embedding-ada-002"
                     )
                     # If the function is successful, we end the loop
@@ -314,5 +306,5 @@ class Uploader:
                         raise e
             
             embeddings = embedding_response['data'][0]['embedding']
-            index.upsert(vectors=[(feature, embeddings)],
+            pinecone_connection.upsert(vectors=[(feature[0], embeddings)],
                     namespace='name_of_sql_features')
