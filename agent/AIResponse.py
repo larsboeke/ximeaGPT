@@ -158,6 +158,19 @@ class AiResponse:
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["ticket_email_data_response"] = function_response
+                
+
+                if function_name == "use_product_database":
+                    print("Using use_product_database tool...")
+                    function_response, sources = Agent_functions.query_product_database_with2function_call( 
+                        user_question= data.get("user_question"),
+                        feature_list= data.get("features"),
+                        message_history=self.conversation_history
+                    )
+                    for source in sources:
+                        self.sources.append(source)
+                    print(function_response)
+                       
 
                 
                 
