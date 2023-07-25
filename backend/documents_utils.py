@@ -15,14 +15,13 @@ col = db["prototype"]
 def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=None):
 
     query = {}
-    # when the parameter objectID is given, do  this:
+  
     if objectID:
-        #return col.find_one(ObjectId(objectID))
         result = col.find_one(ObjectId(objectID))
         result['_id'] = str(result['_id'])
         return result
 
-    # when the parameter text is given, do  this:
+ 
     if content:
         query["content"] = {"$regex": content}
 
@@ -47,7 +46,7 @@ def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=No
         
     return list
 
-id = "64baa27365c0bca14a31afa6"
+#id = "64baa27365c0bca14a31afa6"
 
 
 # source_id = "https://www.ximea.com/support/projects/allprod/wiki/FAQ_-_Cooled_CCD_cameras"

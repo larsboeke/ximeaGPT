@@ -11,6 +11,9 @@ searchButton.addEventListener("click", () => {
     searchOutput.hasChildNodes() ? searchOutput.innerHTML = "": null;
     console.log("You are searching for ....", searchId.value, searchType.value, searchSource.value, searchContent.value, setLimit.value);
     socket.emit('search_doc', searchId.value, searchType.value, searchSource.value, searchContent.value, setLimit.value);
+    const searchOptions = [searchId, searchType, searchSource, searchContent, setLimit];
+    searchOptions.forEach(input => {input.value = '';
+                                    input.disabled = false;});
 });
 
 socket.on('searched_doc', (docs) =>{
