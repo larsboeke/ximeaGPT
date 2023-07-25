@@ -170,7 +170,7 @@ class AiResponse:
                     for source in sources:
                         self.sources.append(source)
                     print(function_response)
-                       
+                    response_dictionary["sql_data_response"] = function_response   
 
                 
                 

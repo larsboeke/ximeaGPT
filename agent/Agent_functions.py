@@ -171,11 +171,11 @@ query_data_of_feature_of_product_pdb = {
                 },
             }"""
 
-# TODO: uncomment sources 1-3
+
 tools = [
-    #query_all_sources,
-    #query_manuals,
-    #query_emails_and_tickets,
+    query_all_sources,
+    query_manuals,
+    query_emails_and_tickets,
     #query_feature_of_product_pdb,
     #query_data_of_feature_of_product_pdb,
     # query_data_of_category_feature_of_product_pdb,
@@ -200,7 +200,7 @@ def get_openai_sql_response(user_question, feature_list, message_history):
     x = 0
     database_schema = "TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description "
     message_history.append(
-        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
+        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
     while x < max_attempts:
 
         try:
