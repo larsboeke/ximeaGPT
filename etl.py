@@ -31,9 +31,9 @@ except:
 
 create_table_sql = """
 CREATE TABLE [AI:Lean].[dbo].[product_database] (
+    name_of_camera VARCHAR(145) NULL,
     name_of_feature VARCHAR(45) NULL,
-    name_of_product VARCHAR(145) NULL,
-    value_of_feature TEXT,
+    value_of_feature VARCHAR(MAX),
     unit VARCHAR(45) NULL,
     description_of_feature VARCHAR(245) NULL
 );"""
@@ -41,7 +41,7 @@ CREATE TABLE [AI:Lean].[dbo].[product_database] (
 
 # # SQL command to retrieve data from the source server
 source_sql_command = """
-SELECT f.name, p.name, pfr.value_txt, f.gentl_unit, f.gentl_description
+SELECT p.name, f.name, pfr.value_txt, f.gentl_unit, f.gentl_description
 FROM feat f
 INNER JOIN prodfeat pfr
 ON f.id = pfr.id_feat
@@ -59,11 +59,16 @@ try:
     data_to_insert = source_cursor.fetchall()
 
     # Insert the data into the newly created table in the destination server
-    insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_feature, name_of_product, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
+    insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
     print('2')
     destination_cursor.executemany(insert_query, data_to_insert)
     print('3')
     destination_connection.commit()
+    print("4")
+    destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
+SET value_of_feature = 'None'
+WHERE CAST(value_of_feature AS varchar(max)) = 'used';""")
+    destination_cursor.commit()
 
 except Exception as e:
     print("Error occurred:", e)
