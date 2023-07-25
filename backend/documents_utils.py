@@ -22,8 +22,8 @@ def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=No
         if objectID:
             result = col.find_one(ObjectId(objectID))
             result['_id'] = str(result['_id'])
-            list = [result]
-            return list
+            liste = [result]
+            return liste
     except:
         return []
 
