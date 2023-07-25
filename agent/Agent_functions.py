@@ -341,3 +341,20 @@ def get_sources(query, namespaces):
 
     return matches_content, matches_sources, used_tokens
 
+def get_extra_sources(source):
+    result = []
+    if source["metadata"]["type"] == 'email' or source["metadata"]["type"] == 'ticket':
+        mongodb_connection = initMongo()[0]
+        source_id = source["metadata"]["source_id"]
+        order_id = source["metadata"]["order_id"]
+        query = {
+            "metadata.source_id": source_id,
+            "metadata.order_id": order_id + 1
+        }
+        source_extra = mongodb_connection.find(query)
+        result = list(source_extra)
+        if result:
+            result = result[0]
+            result["id"] = result.pop("_id")
+            result["id"] = str(result["id"])
+    return result
