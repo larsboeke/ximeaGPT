@@ -18,16 +18,9 @@ class SQLConnectionProvider:
         Create a connection to the SQL Server database
         :return connection, cursor: connection and cursor objects
         """
-        destination_host = '127.0.0.1'
-        destination_database = 'prototype'
-        destination_username = 'root'
-        destination_password = '859760Si.'  
-        connection = mysql.connector.connect(host=destination_host,
-        database=destination_database,
-        user=destination_username,
-        password=destination_password,
-        )
+        connection = pymssql.connect(self.server, self.username, self.password, self.database)
         cursor = connection.cursor()
         return connection, cursor
+
 
 
