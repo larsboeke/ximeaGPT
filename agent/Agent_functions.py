@@ -184,11 +184,8 @@ tools = [
 
 
 def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None):
-    print("Test_feature")
-    print(feature_list)
     if feature_list != None:
         feature_list = similar_embeddings(feature_list)
-    print(feature_list)
     message = get_openai_sql_response(user_question, feature_list, message_history)
 
     print(str(message.get('content')))
@@ -203,7 +200,6 @@ def get_openai_sql_response(user_question, feature_list, message_history):
     x = 0
     database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
     if feature_list == None:
-        print("TEestststst")
         message_history.append(
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Do not use a WHERE clause. Use this table {database_schema}"})
     else:
@@ -262,6 +258,7 @@ def query_pdb(query):
     matches_sources = []
 
     #source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
+    #TODO: answers not correct
     source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {html.escape(myresult[0][0])}", 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)
