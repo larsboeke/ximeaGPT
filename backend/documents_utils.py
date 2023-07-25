@@ -17,11 +17,15 @@ col = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
 def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=None):
 
     query = {}
+
+    try:
   
-    if objectID:
-        result = col.find_one(ObjectId(objectID))
-        result['_id'] = str(result['_id'])
-        return result
+        if objectID:
+            result = col.find_one(ObjectId(objectID))
+            result['_id'] = str(result['_id'])
+            return result
+    except:
+        return []
 
  
     if content:
