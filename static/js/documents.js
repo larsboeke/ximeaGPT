@@ -38,3 +38,11 @@ socket.on('searched_doc', (docs) =>{
         searchOutput.textContent = "Nothing is found..."
     }
 });
+
+document.addEventListener("input", () => {
+    const extendedSearch = [searchType, searchSource, searchContent, setLimit];
+
+    searchId.value.trim()?extendedSearch.forEach(input => input.disabled = true):extendedSearch.forEach(input => input.disabled = false);
+
+    extendedSearch.some(input => input.value.trim())?searchId.disabled = true:searchId.disabled = false;
+});
