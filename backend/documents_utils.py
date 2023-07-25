@@ -2,13 +2,15 @@ from dotenv import load_dotenv
 import os
 import openai
 import pymongo
-#import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
+import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 from bson import ObjectId,  json_util
 import json
 
-client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
-db = client["XIMEAGPT"]
-col = db["prototype"]
+col = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
+
+# client = pymongo.MongoClient('mongodb://192.168.11.30:27017/')
+# db = client["XIMEAGPT"]
+# col = db["prototype"]
 
 #col = MongoDBConnectionProvider.MongoDBConnectionProvider().initMongoDB()
 
@@ -37,13 +39,12 @@ def search_mongoDB(objectID=None, type=None, source=None, content=None, limit=No
         result = col.find(query)
 
     list = []
-    dict = {}
     for i in result:
-        dict["_id"] = str(i['_id'])
-        dict["content"] = i['content']
-        dict["metadata"] = i['metadata']
-        list.append(dict)
-        
+        list.append(i)
+    
+    for i in list:
+        i['_id'] = str(i['_id'])
+
     return list
 
 #id = "64baa27365c0bca14a31afa6"
