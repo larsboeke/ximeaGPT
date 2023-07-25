@@ -35,7 +35,7 @@ CREATE TABLE [AI:Lean].[dbo].[product_database] (
     name_of_product VARCHAR(145) NULL,
     value_of_feature TEXT,
     unit VARCHAR(45) NULL,
-    description VARCHAR(245) NULL
+    description_of_feature VARCHAR(245) NULL
 );"""
 
 
@@ -59,7 +59,7 @@ try:
     data_to_insert = source_cursor.fetchall()
 
     # Insert the data into the newly created table in the destination server
-    insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_feature, name_of_product, value_of_feature, unit, description) VALUES (%s, %s,%s,%s,%s)"
+    insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_feature, name_of_product, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
     print('2')
     destination_cursor.executemany(insert_query, data_to_insert)
     print('3')
