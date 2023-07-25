@@ -199,7 +199,7 @@ class AiResponse:
                 assistant_message = message_response_to_function['content']
                 self.add_assistant_message(assistant_message, self.sources)
                 
-            print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
+            #print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
             print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
 
 
