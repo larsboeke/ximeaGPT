@@ -245,10 +245,10 @@ class UpdateUploader:
             destination_connection.commit()
             print('data_transfered')
             destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
-            SET value_of_feature = 'None'
+            SET value_of_feature = NULL
             WHERE value_of_feature = 'used';""")
             destination_connection.commit()
-            print("used = None")
+            print("used = NULL")
             destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
             SET name_of_feature = 'Camera Family'
             WHERE name_of_feature = 'Marketing Name';""")

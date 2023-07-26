@@ -124,19 +124,9 @@ class AiResponse:
                             if extra_source:
                                 self.sources.append(extra_source)
 
-
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["unstructured_data_response"] = function_response
-
-                    if "product" in data and "feature" in data:
-                        print("Using query_data_of_feature_of_product_pdb tool...")
-                        function_response_sql, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
-                            product=data["product"], feature=data["feature"]
-                        )
-                        for source in sources:
-                            self.sources.append(source)
-                        response_dictionary["sql_data_response"] = function_response_sql
                         
 
                 if function_name == "query_emails_and_tickets":

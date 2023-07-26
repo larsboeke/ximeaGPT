@@ -1,7 +1,6 @@
 import pymongo
 import pinecone
 import openai
-import pymssql
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
@@ -21,6 +20,7 @@ PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
 PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 GPT_MODEL = os.environ.get("GPT_MODEL")
+
 
 query_all_sources = {
                 "name": "query_all_sources",
@@ -44,6 +44,7 @@ query_all_sources = {
                     "required": ["query"],
                 },
             }
+
 
 query_emails_and_tickets = {
                 "name": "query_emails_and_tickets",
@@ -75,6 +76,9 @@ query_manuals = {
                     "required": ["query"],
                 },
             }
+
+
+# Fucntions for the PDB
 query_product_database_with2function_call ={
             "name": "use_product_database",
                 "description": "This function can be used to write a SQL query with the correct feature names on the XIMEA SQL Database.",
@@ -98,79 +102,7 @@ query_product_database_with2function_call ={
                 }
 }                   
 
-"""
-query_all = {
-                "name": "query_unstructured_data",
-                "description": "Query unstructed data to get context from past conversations with customers and technical manuals. The data store information about camera families and their specifications. This function should be used most often",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The query of the user, you want to find similar contexts to",
-                        },
-                    },
-                    "required": ["query"],
-                },
-            }
 
-# Fucntions for the PDB
-query_feature_of_product_pdb = {
-                "name": "query_feature_of_product_pdb",
-                "description": "Query for the features of a specific product in XIMEA'S product database (PDB). Use this function if you want to check for features of a product or if you want to list features of a product",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "product" : {
-                            "type": "string",
-                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
-                        },
-                    },
-                    "required": ["product"],
-                },
-            }
-
-# query_data_of_category_feature_of_product_pdb = {
-#                 "name": "query_data_of_category_feature_of_product_pdb",
-#                 "description": "Query for the data of a category of a specific feature of a product in XIMEA'S product database",
-#                 "parameters": {
-#                     "type": "object",
-#                     "properties": {
-#                         "product" : {
-#                             "type": "string",
-#                             "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
-#                         },
-#                         "feature" : {
-#                             "type": "string",
-#                             "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize",
-#                         },
-#                         "category" : {
-#                             "type": "string",
-#                             "description": "This is the catergory of information about the feature. The possible categories are: id_feature, name_of_feature, gentl_name, api_name, datatype, tooltip, description, display_name, access_mode, visibility_level, type_of_value, maximum_values, minimum_values, increment_values, length, port, signature, unit, namespace, command_value, default_value, gentl_pmax, gentl_pmin, streamable, register, generate_register, handler_function, available_sk, lock_while_acq, cal_en, cal_rtg, xp_en, xp_ext_en, app_def, polling_time, string_is_path, supported_file_format, web_link, flags, p_selected, value_description, invalidates_all_params, web_download_type",
-#                         },
-#                     },
-#                     "required": ["product", "feature", "category"],
-#                 },
-#             }
-
-query_data_of_feature_of_product_pdb = {
-                "name": "query_data_of_feature_of_product_pdb",
-                "description": "Query for specific information about a feature of a product in XIMEA'S product database (PDB).",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "product" : {
-                            "type": "string",
-                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP",
-                        },
-                        "feature" : {
-                            "type": "string",
-                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize.",
-                        },
-                    },
-                    "required": ["product", "feature"],
-                },
-            }"""
 query_pdb = {
             "name": "query_pdb",
             "description": "Get the current weather in a given location",
@@ -186,53 +118,31 @@ query_pdb = {
                 "required": ["query"],
             },
         }
-local_functions = [ query_pdb,
-        # {
-        #     "name": "query_pdb",
-        #     "description": "Get the current weather in a given location",
-        #     "parameters": {
-        #         "type": "object",
-        #         "properties": {
-        #             "query": {
-        #                 "type": "string",
-        #                 "description": "The city and state, e.g. San Francisco, CA",
-        #             }
-                    
-        #         },
-        #         "required": ["query"],
-        #     },
-        # }, #query_product_database_with2function_call,
-    ]
+local_functions = [ query_pdb,]
 
 tools = [
     query_all_sources,
     query_manuals,
     query_emails_and_tickets,
-    #query_feature_of_product_pdb,
-    #query_data_of_feature_of_product_pdb,
-    # query_data_of_category_feature_of_product_pdb,
     query_product_database_with2function_call,
 ]
 
 
 def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None):
-    print("In function")
+
     if feature_list != None:
         feature_list = similar_embeddings(feature_list)
-    print("past if statement")
+
     message = get_openai_sql_response(user_question, feature_list, message_history)
     print(str(message))
 
-    print("past SQL response")
+
     json_str = message["function_call"]["arguments"]
     data = json.loads(json_str)
 
     function_response, sources = query_pdb(query=data.get("query"))
-                    
-    #print(str(message.get('content')))
-    #query = message.get('content')
-    #function_response, sources = query_pdb( query=query)
     print(str(function_response))
+
     return function_response, sources
 
 
@@ -254,7 +164,6 @@ def get_openai_sql_response(user_question, feature_list, message_history):
         x += 1
 
         try:
-            print(str(x))
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=message_history,
@@ -269,6 +178,7 @@ def get_openai_sql_response(user_question, feature_list, message_history):
             print("Unable to generate ChatCompletion response")
             print(f"Exception: {e}")
 
+#Similarity Search for Featur_names given by LLM!
 def similar_embeddings(OpenAIs_features):
     index = initPinecone()
     multiple_feature_possibility = []
@@ -285,151 +195,42 @@ def similar_embeddings(OpenAIs_features):
     return multiple_feature_possibility
 
 def query_pdb(query):
+
     connection, mycursor = SQLConnectionProvider().create_connection()
+
     try:
         mycursor.execute(query)
     except Exception as e:
         myresult = "The query you wrote produced an error message." + str(e)
     else:
         myresult = mycursor.fetchall()
+    #Catch possible bad queries and tell the model it made a mistake!
     if myresult == []:
         myresult =  "The query you wrote didn't contain data. Either there is no data for that question or you wrote a bad query!"
     if num_tokens_from_string(str(myresult))>6000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
+    
+    #Results from database query for OpenAI
     matches_sources = []
-    print("inside_pdb")
-    #source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-    #TODO: answers not correct
+    #TODO: Check if all possible returns can be handled
+    #Results from database query for OpenAI
     source_answer = []
+
+    #Reformat the answer of the query! Stop HTML bugs
     for result_touple in myresult:
         touple_content = []
+
         for element in result_touple:
             touple_content.append(html.escape(element))
+
         source_answer.append(touple_content)
-    print("past_for_loop")                         
+               
     source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {str(source_answer)}", 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)
     endresult = [query, myresult]
     return endresult, matches_sources
 
-# def query_product_database(product, feature):
-#     if feature == None:
-#         query = f"""
-#             SELECT f.name_of_feature
-#             FROM [AI:Lean].[dbo].[feature] f 
-#             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-#             ON f.id_feature = pfr.id_feature 
-#             INNER JOIN [AI:Lean].[dbo].[product] p 
-#             ON pfr.id_product = p.id_product 
-#             WHERE p.name_of_product = '{product}'
-#             """
-#     else:
-#         query = f"""
-#             SELECT *
-#             FROM [AI:Lean].[dbo].[feature] f 
-#             INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-#             ON f.id_feature = pfr.id_feature 
-#             INNER JOIN [AI:Lean].[dbo].[product] p 
-#             ON pfr.id_product = p.id_product 
-#             WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
-#             """
-#     connection, mycursor = SQLConnectionProvider().create_connection()
-#     try:
-#         mycursor.execute(query)
-#     except:
-#         myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-#     else:
-#         myresult = mycursor.fetchall()
-
-#         print(str(myresult))
-#     matches_sources = []
-#     source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-#     matches_sources.append(source)
-#     return myresult, matches_sources
-    
-def query_data_of_feature_of_product_pdb(product, feature):
-    print(product)
-    
-    query = f"""
-            SELECT *
-            FROM [AI:Lean].[dbo].[feature] f 
-            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-            ON f.id_feature = pfr.id_feature 
-            INNER JOIN [AI:Lean].[dbo].[product] p 
-            ON pfr.id_product = p.id_product 
-            WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
-            """
-    
-    connection, mycursor = SQLConnectionProvider().create_connection()
-    try:
-        mycursor.execute(query)
-    except:
-        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-    else:
-        myresult = mycursor.fetchall()
-        
-        if myresult == []:
-            myresult = "No entry is found in the Product Data Base."
-        else:
-            categories = ("id_feature", "name_of_feature", "gentl_name", "api_name", "datatype", "tooltip", "description", "display_name", "access_mode", "visibility_level", "type_of_value", "maximum_values", "minimum_values", "increment_values", "length", "port", "signature", "unit", "namespace", "command_value", "default_value", "gentl_pmax", "gentl_pmin", "streamable", "register", "generate_register", "handler_function", "available_sk", "lock_while_acq", "cal_en", "cal_rtg", "xp_en", "xp_ext_en", "app_def", "polling_time", "string_is_path", "supported_file_format", "web_link", "flags", "p_selected", "value_description", "invalidates_all_params", "web_download_type", "id", "id_product", "id_feature", "id_product", "name_of_product", "description")
-            if len(categories) == len(myresult[0]):
-                myresult = {categories[i]: myresult[0][i] for i, _ in enumerate(myresult[0])}
-        
-        print(str(myresult))
-    matches_sources = []
-    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-    matches_sources.append(source)
-    return myresult, matches_sources
-
-# def query_data_of_category_feature_of_product_pdb(product, feature, category):
-    # print(product)
-    # query = f"""
-    #         SELECT f.[{category}]
-    #         FROM [AI:Lean].[dbo].[feature] f 
-    #         INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-    #         ON f.id_feature = pfr.id_feature 
-    #         INNER JOIN [AI:Lean].[dbo].[product] p 
-    #         ON pfr.id_product = p.id_product 
-    #         WHERE p.name_of_product = '{product}' AND f.name_of_feature = '{feature}'
-    #         """
-    # connection, mycursor = create_connection()
-    # try:
-    #     mycursor.execute(query)
-    # except:
-    #     myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-    # else:
-    #     myresult = mycursor.fetchall()
-    #     print(str(myresult))
-    # matches_sources = []
-    # source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-    # matches_sources.append(source)
-    # return myresult, matches_sources
-
-
-def query_feature_of_product_pdb(product):
-    print(product)
-    query = f"""
-            SELECT f.name_of_feature
-            FROM [AI:Lean].[dbo].[feature] f 
-            INNER JOIN [AI:Lean].[dbo].[product_feature_relationship] pfr
-            ON f.id_feature = pfr.id_feature 
-            INNER JOIN [AI:Lean].[dbo].[product] p 
-            ON pfr.id_product = p.id_product 
-            WHERE p.name_of_product = '{product}'
-            """
-    connection, mycursor = SQLConnectionProvider().create_connection()
-    try:
-        mycursor.execute(query)
-    except:
-        myresult = "The query you wrote produced an error message. Rewrite the query if possible or fix the mistake in this query!"
-    else:
-        myresult = mycursor.fetchall()
-
-    matches_sources = []
-    source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
-    matches_sources.append(source)
-    return myresult, matches_sources
 
 def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
     """Returns the number of tokens in a text string."""
