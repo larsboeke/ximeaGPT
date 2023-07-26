@@ -105,13 +105,13 @@ query_product_database_with2function_call ={
 
 query_pdb = {
             "name": "query_pdb",
-            "description": "Get the current weather in a given location",
+            "description": "Get the result from a query on the product_database",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "The city and state, e.g. San Francisco, CA",
+                        "description": "A correct Transact-SQL Query!",
                     }
                     
                 },
