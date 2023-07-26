@@ -79,9 +79,11 @@ query_manuals = {
 
 
 # Fucntions for the PDB
+database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+
 query_product_database_with2function_call ={
             "name": "use_product_database",
-                "description": "This function can be used to write a SQL query with the correct feature names on the XIMEA SQL Database.",
+                "description": f"This function can be used to write a SQL on the XIMEA SQL Database.{database_schema}.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -105,19 +107,21 @@ query_product_database_with2function_call ={
 
 query_pdb = {
             "name": "query_pdb",
-            "description": "Get the current weather in a given location",
+            "description": "Get the result from a query on the product_database",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "The city and state, e.g. San Francisco, CA",
+                        "description": "A correct Transact-SQL Query!",
                     }
                     
                 },
                 "required": ["query"],
             },
         }
+
+
 local_functions = [ query_pdb,]
 
 tools = [
@@ -149,7 +153,7 @@ def query_product_database_with2function_call(user_question= None, feature_list 
 def get_openai_sql_response(user_question, feature_list, message_history):
     max_attempts = 5
     x = 0
-    database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+    
     if feature_list == None:
         message_history.append(
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Do not use a WHERE clause. Use this table {database_schema}"})
@@ -210,21 +214,30 @@ def query_pdb(query):
     if num_tokens_from_string(str(myresult))>6000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     
-    #Results from database query for OpenAI
-    matches_sources = []
     #TODO: Check if all possible returns can be handled
-    #Results from database query for OpenAI
     source_answer = []
-
+    matches_sources = []
+   
     #Reformat the answer of the query! Stop HTML bugs
-    for result_touple in myresult:
-        touple_content = []
+    if isinstance(myresult, list) and len(myresult) > 0 and isinstance(myresult[0], tuple):
+        
+        for result_touple in myresult:
+            touple_content = []
 
-        for element in result_touple:
-            touple_content.append(html.escape(element))
+            for element in result_touple:
+                print("element")
+                if element is None:
+                    touple_content.append("None")
+                    
+                else:
+                    touple_content.append(html.escape(str(element)))
 
-        source_answer.append(touple_content)
-               
+                
+            source_answer.append(touple_content)
+    
+    elif isinstance(myresult, str):
+        source_answer.append(myresult)
+      
     source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {str(source_answer)}", 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)

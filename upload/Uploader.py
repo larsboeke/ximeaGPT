@@ -282,11 +282,13 @@ class Uploader:
     
     def initialUploadName_of_feature(self):
         pinecone_connection = PineconeConnectionProvider().initPinecone()
-        pinecone_connection.delete(delete_all = True, namespace = "name_of_sql_features")
-        #TODO: SQL-Datenbank wird auf Transact-SQL Umgestellt
         connection, cursor = SQLConnectionProvider().create_connection()
+
+        pinecone_connection.delete(delete_all = True, namespace = "name_of_sql_features")
+
         cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[product_database];")
         all_feature = cursor.fetchall()
+        
         for feature in all_feature:
             max_attempts = 5
             for attempt in range(max_attempts):
