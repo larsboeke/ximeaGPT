@@ -45,7 +45,7 @@ class AiResponse:
         max_attempts = 5
         x = 0
         while x < max_attempts:
-
+            x += 1
             try:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo-16k",

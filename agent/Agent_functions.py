@@ -9,6 +9,7 @@ import tiktoken
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
 import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 import html
+import json
 
 
 load_dotenv()
@@ -170,7 +171,38 @@ query_data_of_feature_of_product_pdb = {
                     "required": ["product", "feature"],
                 },
             }"""
-
+query_pdb = {
+            "name": "query_pdb",
+            "description": "Get the current weather in a given location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA",
+                    }
+                    
+                },
+                "required": ["query"],
+            },
+        }
+local_functions = [ query_pdb,
+        # {
+        #     "name": "query_pdb",
+        #     "description": "Get the current weather in a given location",
+        #     "parameters": {
+        #         "type": "object",
+        #         "properties": {
+        #             "query": {
+        #                 "type": "string",
+        #                 "description": "The city and state, e.g. San Francisco, CA",
+        #             }
+                    
+        #         },
+        #         "required": ["query"],
+        #     },
+        # }, #query_product_database_with2function_call,
+    ]
 
 tools = [
     query_all_sources,
@@ -184,13 +216,22 @@ tools = [
 
 
 def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None):
+    print("In function")
     if feature_list != None:
         feature_list = similar_embeddings(feature_list)
+    print("past if statement")
     message = get_openai_sql_response(user_question, feature_list, message_history)
+    print(str(message))
 
-    print(str(message.get('content')))
-    query = message.get('content')
-    function_response, sources = query_pdb( query=query)
+    print("past SQL response")
+    json_str = message["function_call"]["arguments"]
+    data = json.loads(json_str)
+
+    function_response, sources = query_pdb(query=data.get("query"))
+                    
+    #print(str(message.get('content')))
+    #query = message.get('content')
+    #function_response, sources = query_pdb( query=query)
     print(str(function_response))
     return function_response, sources
 
@@ -210,18 +251,18 @@ def get_openai_sql_response(user_question, feature_list, message_history):
 
     
     while x < max_attempts:
+        x += 1
 
         try:
+            print(str(x))
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=message_history,
-        #         [
-        # {"role": "system", "content": "You are a helpful assistant."},
-        # {"role": "user", "content": f"Please write an SQL query to answer this:Start user question {user_question} End user question. Pick only the name_of_feature that are needed to answer the question from the following list!: {str(feature_list)}. TABLE product_database COLUMNS id_product | id_feature | name_of_feature | name_of_product | value_of_feature | unit | description . ONLY WRITE THE SQL QUERY NOTHING ELSE!"}],
-        #         #functions=[query_pdb],
-                #function_call="None",#"""{"name":\ "query_pdb"}""",
+                functions= local_functions,
+                function_call={"name": "query_pdb"},
                 temperature = 0,
 )
+            
             return response["choices"][0]["message"]
 
         except Exception as e:
@@ -256,10 +297,17 @@ def query_pdb(query):
     if num_tokens_from_string(str(myresult))>6000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     matches_sources = []
-
+    print("inside_pdb")
     #source = {'id': "1", 'content': query, 'metadata': {'type': "Product_Database"}}
     #TODO: answers not correct
-    source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {html.escape(myresult[0][0])}", 'metadata': {'type': "Product_Database"}}
+    source_answer = []
+    for result_touple in myresult:
+        touple_content = []
+        for element in result_touple:
+            touple_content.append(html.escape(element))
+        source_answer.append(touple_content)
+    print("past_for_loop")                         
+    source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {str(source_answer)}", 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)
     endresult = [query, myresult]
