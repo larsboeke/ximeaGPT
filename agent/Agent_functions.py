@@ -79,9 +79,11 @@ query_manuals = {
 
 
 # Fucntions for the PDB
+database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+
 query_product_database_with2function_call ={
             "name": "use_product_database",
-                "description": "This function can be used to write a SQL query with the correct feature names on the XIMEA SQL Database.",
+                "description": f"This function can be used to write a SQL on the XIMEA SQL Database.{database_schema}.",
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -118,6 +120,8 @@ query_pdb = {
                 "required": ["query"],
             },
         }
+
+
 local_functions = [ query_pdb,]
 
 tools = [
@@ -149,7 +153,7 @@ def query_product_database_with2function_call(user_question= None, feature_list 
 def get_openai_sql_response(user_question, feature_list, message_history):
     max_attempts = 5
     x = 0
-    database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+    
     if feature_list == None:
         message_history.append(
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Do not use a WHERE clause. Use this table {database_schema}"})
