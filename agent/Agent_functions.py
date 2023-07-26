@@ -214,21 +214,30 @@ def query_pdb(query):
     if num_tokens_from_string(str(myresult))>6000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     
-    #Results from database query for OpenAI
-    matches_sources = []
     #TODO: Check if all possible returns can be handled
-    #Results from database query for OpenAI
     source_answer = []
-
+    matches_sources = []
+   
     #Reformat the answer of the query! Stop HTML bugs
-    for result_touple in myresult:
-        touple_content = []
+    if isinstance(myresult, list) and len(myresult) > 0 and isinstance(myresult[0], tuple):
+        
+        for result_touple in myresult:
+            touple_content = []
 
-        for element in result_touple:
-            touple_content.append(html.escape(element))
+            for element in result_touple:
+                print("element")
+                if element is None:
+                    touple_content.append("None")
+                    
+                else:
+                    touple_content.append(html.escape(str(element)))
 
-        source_answer.append(touple_content)
-               
+                
+            source_answer.append(touple_content)
+    
+    elif isinstance(myresult, str):
+        source_answer.append(myresult)
+      
     source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {str(source_answer)}", 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)
