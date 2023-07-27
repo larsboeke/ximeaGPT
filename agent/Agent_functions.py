@@ -24,21 +24,13 @@ GPT_MODEL = os.environ.get("GPT_MODEL")
 
 query_all_sources = {
                 "name": "query_all_sources",
-                "description": "This tool is the most general tool you can use. It provides infomation form all data sources of the company, namely support tickets and emails, technical manuals and the product database. This tool is best to use if all of these data sources provide good information. Also use this tool if you are unsure which other tool to use!",
+                "description": "This function provides infomation form support tickets, emails and technical manuals. This tool is best to use if all of these data sources provide could provide the neccesary information. Also use this tool if you are unsure which other tool to use!",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "This is equal to the whole query of the user!",
-                        },
-                         "product" : {
-                            "type": "string",
-                            "description": "This is the product of which we want to know more about a specific feature. Product in the database are for example: MR282CC_BH, MC050MG-SY-FLEX, ADPT-MX-X4G2-IPASSHOST-FL, XCX-2P-X4G3-MTP.",
-                        },
-                        "feature" : {
-                            "type": "string",
-                            "description": "This is the feature of which we want to know specific information. Features in the database are for example: TriggerMode, LUTValue, xiAPI Loopback Trigger Support, xiapi_UsedFFSSize.",
+                            "description": "The question the User wants you to answer! e.g. 'What is the XIX camera Family?'",
                         },
                     },
                     "required": ["query"],
@@ -48,13 +40,13 @@ query_all_sources = {
 
 query_emails_and_tickets = {
                 "name": "query_emails_and_tickets",
-                "description": "This tool answers the users query only with information of from the support eamils and tickets of XIMEA. Therefore use cases for this tool are when the user asks for the email or ticket history for a case. This tool provides infomation about things that typically get negotiated in emails or tickets, like contract datails ... ONLY USE THIS TOOL IF emails and tickest are the best source for answering the user query. Keep in mind that data from technical manuals is not included!",
+                "description": "This function answers the users query only with information of from the support eamils and tickets of XIMEA. Therefore use cases for this tool are when the user asks for the email or ticket history for a case. This tool provides infomation about things that typically get negotiated in emails or tickets, like contract datails ... Keep in mind that data from technical manuals is not included!",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to find similar contexts to. Stay close to the user query and do not shorten much!",
+                            "description": "The question the User wants you to answer! e.g. 'What is the XIX camera Family?'",
                         },
                     },
                     "required": ["query"],
@@ -64,13 +56,13 @@ query_emails_and_tickets = {
 
 query_manuals = {
                 "name": "query_manuals",
-                "description": "This tool answers the users query only with information of the technical manaul. Therefore it is good to use it when there are questions concerning the technical parts of a camera/ camera family of ximea! ONLY use this tool if the technical manual is the best source for answering the user's quer. Keep in mind that information from the support tickets and emails is not included!",
+                "description": "This function will give you informations from XIMEA's technical manuals. The manuals contain information about camera/camera families including hardware specification, system requirements, instalation of related software drivers.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The query of the user, you want to gather technical information about. Stay close to the user query and do not shorten much!",
+                            "description": "The question the User want you to answer! e.g. 'What is the XIX camera Family?' ",
                         },
                     },
                     "required": ["query"],
@@ -83,7 +75,7 @@ database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_came
 
 query_product_database_with2function_call ={
             "name": "use_product_database",
-                "description": f"This function can be used to write a SQL on the XIMEA SQL Database.{database_schema}.",
+                "description": f"This function can be used to write an SQL Query on the XIMEA SQL Product Database(pdb). It is useful when you are asked for certain features of cameras.{database_schema}.",
                 "parameters": {
                     "type": "object",
                     "properties": {
