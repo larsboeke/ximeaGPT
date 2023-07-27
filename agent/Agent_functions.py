@@ -124,12 +124,12 @@ tools = [
 ]
 
 
-def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None):
+def query_product_database_with2function_call(user_question= None, feature_list = None, message_history = None, prompt_tokens = 0, completion_tokens= 0):
 
     if feature_list != None:
         feature_list = similar_embeddings(feature_list)
 
-    message = get_openai_sql_response(user_question, feature_list, message_history)
+    message, prompt_tokens, completion_tokens = get_openai_sql_response(user_question, feature_list, message_history, prompt_tokens, completion_tokens)
     print(str(message))
 
 
@@ -139,10 +139,10 @@ def query_product_database_with2function_call(user_question= None, feature_list 
     function_response, sources = query_pdb(query=data.get("query"))
     print(str(function_response))
 
-    return function_response, sources
+    return function_response, sources, prompt_tokens, completion_tokens
 
 
-def get_openai_sql_response(user_question, feature_list, message_history):
+def get_openai_sql_response(user_question, feature_list, message_history, prompt_tokens, completion_tokens):
     max_attempts = 5
     x = 0
     
@@ -167,8 +167,15 @@ def get_openai_sql_response(user_question, feature_list, message_history):
                 function_call={"name": "query_pdb"},
                 temperature = 0,
 )
-            
-            return response["choices"][0]["message"]
+            promt_tokens_gpt4 = response["usage"]["prompt_tokens"]
+            completion_tokensgpt4 = response["usage"]["completion_tokens"]
+
+            preisunterschied_faktor_prompt_tokens = 10
+            preisunterschied_faktor_completion_tokens = 15
+
+            prompt_tokens += promt_tokens_gpt4 * preisunterschied_faktor_prompt_tokens
+            completion_tokens += completion_tokensgpt4 * preisunterschied_faktor_completion_tokens
+            return response["choices"][0]["message"], prompt_tokens, completion_tokens
 
         except Exception as e:
             print("Unable to generate ChatCompletion response")
