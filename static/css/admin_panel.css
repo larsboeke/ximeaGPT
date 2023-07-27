@@ -30,7 +30,18 @@ body{
     overflow-x: hidden; /* Hide horizontal scrollbar */
 
 }
-/*TO-DO : custom scrollbar*/
+/*custom scrollbar*/
+*::-webkit-scrollbar{
+    width: 6px;
+  }
+*::-webkit-scrollbar-track{
+    background: var(--backend-chat-bg);
+    border-radius: 25px;
+  }
+*::-webkit-scrollbar-thumb{
+    background: var(--icon-color);
+    border-radius: 25px;
+  }
 
 #sidebar-container {
     height: 100vh;
@@ -227,11 +238,11 @@ body{
     height: 350px;
   }
   /*Styling for DOCUMENTS page-------------------------------------------------------------------------------*/
+  .seach-container{
+    display:inline-flex;
+    width: 100%;
+  }
   .search-controls{
-    width: auto;
-    max-width: 50%;
-    margin: 20px 0;
-    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -245,17 +256,29 @@ body{
     margin-left: 20px;
   }
 
-  #searchbar{   
+  .search-controls input{   
     flex-grow:1;
-    background: transparent;
-    outline:none;
-    border:none;
+    background: var(--icon-hover-bg);
     position:relative;
+    border-radius: 60px;
+    outline: none;
+    border:none;
+    margin: 5px;
+    padding: 5px;
     color:var(--text-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
-  #searchbar::placeholder{
+  .search-controls input::placeholder{
     color: var(--placeholder-color);
+  }
+
+  .search-controls input:focus{
+    background-color:#3d348b;
+  }
+
+  .search-controls input:disabled{
+    background-color: transparent;
   }
 
   .search-controls button{
@@ -267,11 +290,20 @@ body{
     background: #3d348b;
     cursor: pointer;
     margin-left: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
   }
   .search-controls span {
-    font-size: 1.5rem; 
-    padding: 5px;
+    font-size: 1.5rem;
+    position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+
 /*Styling for UPLOAD page-------------------------------------------------------------------------------*/
 .upload-container{
   display: grid;
