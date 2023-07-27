@@ -5,6 +5,7 @@ const searchSource = document.querySelector("#searchbar-source");
 const searchContent = document.querySelector("#searchbar-content");
 const setLimit = document.querySelector("#searchbar-limit");
 const searchOutput = document.querySelector(".search-output");
+const deleteChunkButton = document.querySelector(".delete-chunk-btn");
 const socket = io.connect();
 
 searchButton.addEventListener("click", () => {
@@ -24,7 +25,7 @@ socket.on('searched_doc', (docs) =>{
             const liElement = document.createElement("li");
             liElement.innerHTML = `<div id = "${docs[i]._id}" class="title-with-buttons">
                                         <h2>Chunk ID: ${docs[i]._id}</h2>
-                                        <button class="delete-chunk-btn">Delete chunk</button>
+                                        <button class="delete-chunk-btn" onclick=deleteChunk(this)>Delete chunk</button>
                                     </div>
                                     <details>
                                         <summary>View details</summary>
@@ -49,3 +50,12 @@ document.addEventListener("input", () => {
     searchId.value.trim()?extendedSearch.forEach(input => input.disabled = true):extendedSearch.forEach(input => input.disabled = false);
     extendedSearch.some(input => input.value.trim())?searchId.disabled = true:searchId.disabled = false;
 });
+
+
+const deleteChunk = (deleteChunkButton) =>{
+    var chunk_id = deleteChunkButton.parentElement.id; 
+    console.log('You deleted chunk with id', chunk_id);
+    const deletedChunk = document.getElementById(chunk_id);
+    deletedChunk.parentElement.remove();
+    socket.emit('delete_chunk', chunk_id);
+}
