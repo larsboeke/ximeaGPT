@@ -311,7 +311,7 @@ def admin_feedback():
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
     #socketio.run(app, port=5001, debug=True, host='0.0.0.0')
  
 

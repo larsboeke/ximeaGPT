@@ -279,10 +279,13 @@ body{
     background: #3d348b;
     cursor: pointer;
     margin-left: 20px;
+    display: flex;
+   justify-content: center;
+   align-items: center;
   }
   .search-controls span {
-    font-size: 1.5rem; 
-    padding: 5px;
+    font-size: 1.5rem;
+    position: absolute;
   }
 
 /*Styling for UPLOAD page-------------------------------------------------------------------------------*/
