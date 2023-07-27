@@ -99,7 +99,7 @@ class AiResponse:
     
                 json_str = message["function_call"]["arguments"]
                 data = json.loads(json_str)
-                # print("Data aus Function call:",  data)
+                print("Data aus Function call:",  data)
                 function_name = message["function_call"]["name"]
 
                 response_dictionary = {
@@ -113,9 +113,9 @@ class AiResponse:
                         namespaces = [("manuals", 2), ("tickets", 1), ("emails", 1)]
                         function_response, sources, tokens = Agent_functions.get_sources(
                             # use whole query, not just kw
-                            query=self.user_prompt,
+                            #query=self.user_prompt,
                             # if u wanna use just kw
-                            #query=data["query"],
+                            query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
@@ -135,9 +135,9 @@ class AiResponse:
                         namespaces = [("tickets", 2), ("emails", 2)]
                         function_response, sources, tokens = Agent_functions.get_sources(
                             # use whole query, not just kw
-                            query=self.user_prompt,
+                            # query=self.user_prompt,
                             # if u wanna use just kw
-                            # query=data["query"],
+                            query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
@@ -161,7 +161,7 @@ class AiResponse:
                             self.sources.append(source)
                         # app used tokens
                         self.embeddings_tokens += tokens
-                        response_dictionary["ticket_email_data_response"] = function_response
+                        response_dictionary["manual_data_response"] = function_response
                 
 
                 if function_name == "use_product_database":
