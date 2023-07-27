@@ -74,7 +74,6 @@ class AiResponse:
             conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
             print("Dropped two")
 
-        
 
     def chat_completion_request(self):
         
@@ -91,7 +90,6 @@ class AiResponse:
             assistant_message = message['content']
             if not check_function_call:
                 self.add_assistant_message(message['content'], [])
-
     
             if check_function_call:  
     
@@ -114,7 +112,7 @@ class AiResponse:
                             namespaces=namespaces,
                         )
                         print("Then the Structured data!")
-                        function_response_sql, sources_sql = Agent_functions.query_product_database_with2function_call(
+                        function_response_sql, sources_sql, prompt_tokens, completion_tokens = Agent_functions.query_product_database_with2function_call(
                             feature_list= data.get("features"),
                             message_history=self.conversation_history
                         )
@@ -133,7 +131,6 @@ class AiResponse:
                         self.embeddings_tokens += tokens # + tokens_sql
 
                         response_dictionary["unstructured_data_response"] = function_response
-                        
 
                 if function_name == "query_emails_and_tickets":
                     if "query" in data:
@@ -168,7 +165,6 @@ class AiResponse:
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["manual_data_response"] = function_response
-                
 
                 if function_name == "use_product_database":
                     print("Using use_product_database tool...")
