@@ -53,11 +53,10 @@ class AiResponse:
                     function_call=call_type,
                     temperature = 0
                 )
-                promt_tokens = response["usage"]["prompt_tokens"]
-
+                prompt_tokens = response["usage"]["prompt_tokens"]
                 completion_tokens = response["usage"]["completion_tokens"]
 
-                self.prompt_tokens += promt_tokens
+                self.prompt_tokens += prompt_tokens
                 self.completion_tokens += completion_tokens
 
                 return response["choices"][0]["message"]
@@ -173,12 +172,18 @@ class AiResponse:
 
                 if function_name == "use_product_database":
                     print("Using use_product_database tool...")
-                    function_response, sources = Agent_functions.query_product_database_with2function_call( 
+                    function_response, sources, prompt_tokens, completion_tokens = Agent_functions.query_product_database_with2function_call( 
+                        user_question= data.get("user_question"),
                         feature_list= data.get("features"),
-                        message_history=self.conversation_history
+                        message_history=self.conversation_history,
+                        prompt_tokens = self.prompt_tokens,
+                        completion_tokens = self.completion_tokens
                     )
-                    
-                    self.sources.append(source[0])
+                    self.prompt_tokens += prompt_tokens
+                    self.completion_tokens += completion_tokens
+                    print("added prompt_tokens" + str(prompt_tokens))
+                    for source in sources:
+                        self.sources.append(source)
                     print(function_response)
                     response_dictionary["sql_data_response"] = function_response   
 
