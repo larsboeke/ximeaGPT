@@ -310,3 +310,32 @@ class Uploader:
             embeddings = embedding_response['data'][0]['embedding']
             pinecone_connection.upsert(vectors=[(feature[0], embeddings)],
                     namespace='name_of_sql_features')
+
+    def initialUploadName_of_feature_modified_sql_db(self):
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+        pinecone_connection.delete(delete_all=True, namespace="name_of_sql_features_modified_sql_db")
+        # TODO: SQL-Datenbank wird auf Transact-SQL Umgestellt
+        connection, cursor = SQLConnectionProvider().create_connection()
+        cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[chris_test_product_database];")
+        all_feature = cursor.fetchall()
+        for feature in all_feature:
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    embedding_response = openai.Embedding.create(
+                        input=feature[0],
+                        model="text-embedding-ada-002"
+                    )
+                    # If the function is successful, we end the loop
+                    break
+                except Exception as e:
+                    print(type(e).__name__)
+                    print("Could not create embedding, waiting 5 seconds")
+                    sleep(5)
+                    if attempt == max_attempts - 1:
+                        # If it was the last try, we throw the exception again
+                        raise e
+
+            embeddings = embedding_response['data'][0]['embedding']
+            pinecone_connection.upsert(vectors=[(feature[0], embeddings)],
+                                       namespace='name_of_sql_features_modified_sql_db')

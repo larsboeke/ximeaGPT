@@ -79,7 +79,7 @@ query_manuals = {
 
 
 # Fucntions for the PDB
-database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+database_schema = "TABLE chris_test_product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
 
 use_product_database = {
             "name": "use_product_database",
@@ -101,7 +101,7 @@ use_product_database = {
 
 query_pdb = {
             "name": "query_pdb",
-            "description": "Get the result from a query on the product_database",
+            "description": "Get the result from a query on the chris_test_product_database",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -184,7 +184,7 @@ def similar_embeddings(OpenAIs_features):
     feature_possibility = []
     for feature in OpenAIs_features:
         feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
-        pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
+        pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features_modified_sql_db')["matches"]
         feature_possibility.append(pinecone_results[0]['id'])
         feature_possibility.append(pinecone_results[1]['id'])
         feature_possibility.append(pinecone_results[2]['id'])
