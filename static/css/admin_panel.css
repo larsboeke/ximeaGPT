@@ -245,29 +245,31 @@ body{
     margin-left: 20px;
   }
 
-  #searchbar{   
+  .search-controls input{   
     flex-grow:1;
-    background: transparent;
-    outline:none;
-    border:none;
+    background: var(--icon-hover-bg);
     position:relative;
+    border-radius: 60px;
+    outline: none;
+    border:none;
+    margin: 5px;
+    padding: 5px;
     color:var(--text-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
-  #searchbar::placeholder{
+  .search-controls input::placeholder{
     color: var(--placeholder-color);
   }
 
-  .search-controls button{
-    width: 40px;
-    height: 40px;
-    color: var(--placeholder-color);
-    border: none;
-    border-radius: 50%;
-    background: #3d348b;
-    cursor: pointer;
-    margin-left: 20px;
+  .search-controls input:focus{
+    background-color:#3d348b;
   }
+
+  .search-controls input:disabled{
+    background-color: transparent;
+  }
+
   .search-controls span {
     font-size: 1.5rem; 
     padding: 5px;
