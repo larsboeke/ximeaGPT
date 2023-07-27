@@ -279,7 +279,7 @@ def handle_delete_chunk(chunk_id):
 @socketio.on('search_doc')
 def search_doc(id, type, source, content, limit):
     if limit == '':
-        limit = None;
+        limit = None
     else:
         limit = int(limit)
     docs = documents.search_mongoDB(objectID=id, type=type, source=source, content=content, limit= limit)
