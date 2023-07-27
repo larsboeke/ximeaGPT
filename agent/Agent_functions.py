@@ -32,6 +32,14 @@ query_all_sources = {
                             "type": "string",
                             "description": "The question the User wants you to answer! e.g. 'What is the XIX camera Family?'",
                         },
+                        "features":{
+                            "type": "array",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
+                             "items": {
+                                 "type": "string"
+                             }
+
+                        },
                     },
                     "required": ["query"],
                 },
@@ -75,13 +83,13 @@ database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_came
 
 query_product_database_with2function_call ={
             "name": "use_product_database",
-                "description": f"This function can be used to write an SQL Query on the XIMEA SQL Product Database(pdb). It is useful when you are asked for certain features of cameras.{database_schema}.",
+                "description": f"This function can be used to query the SQL Product Database (pdb) of XIMEA. It is useful when you are asked for certain features of cameras.{database_schema}.",
                 "parameters": {
                     "type": "object",
                     "properties": {
                         "features":{
                             "type": "array",
-                             "description": "An array of strings to pass to the function for getting the corresponding Feature names back, e.g. ['Resolution', 'OffsetX']. Only use it when you are given a Feature!",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
                              "items": {
                                  "type": "string"
                              }
@@ -137,7 +145,6 @@ def query_product_database_with2function_call(user_question= None, feature_list 
     data = json.loads(json_str)
 
     function_response, sources = query_pdb(query=data.get("query"))
-    print(str(function_response))
 
     return function_response, sources, prompt_tokens, completion_tokens
 
@@ -153,17 +160,13 @@ def get_openai_sql_response(user_question, feature_list, message_history, prompt
         message_history.append(
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
 
-    
-
-    
     while x < max_attempts:
         x += 1
-
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=message_history,
-                functions= local_functions,
+                functions=local_functions,
                 function_call={"name": "query_pdb"},
                 temperature = 0,
 )
@@ -181,21 +184,19 @@ def get_openai_sql_response(user_question, feature_list, message_history, prompt
             print("Unable to generate ChatCompletion response")
             print(f"Exception: {e}")
 
+
 #Similarity Search for Featur_names given by LLM!
 def similar_embeddings(OpenAIs_features):
     index = initPinecone()
-    multiple_feature_possibility = []
+    feature_possibility = []
     for feature in OpenAIs_features:
-        feature_possibility = []
-        score = 0
-        highest_score= 0
         feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
         pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
         feature_possibility.append(pinecone_results[0]['id'])
         feature_possibility.append(pinecone_results[1]['id'])
         feature_possibility.append(pinecone_results[2]['id'])
-        multiple_feature_possibility.append(feature_possibility)
-    return multiple_feature_possibility
+    return feature_possibility
+
 
 def query_pdb(query):
 
@@ -210,13 +211,13 @@ def query_pdb(query):
     #Catch possible bad queries and tell the model it made a mistake!
     if myresult == []:
         myresult =  "The query you wrote didn't contain data. Either there is no data for that question or you wrote a bad query!"
-    if num_tokens_from_string(str(myresult))>6000:
+    if num_tokens_from_string(str(myresult))>5000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     
     #TODO: Check if all possible returns can be handled
     source_answer = []
     matches_sources = []
-   
+    print("Geschaft3")
     #Reformat the answer of the query! Stop HTML bugs
     if isinstance(myresult, list) and len(myresult) > 0 and isinstance(myresult[0], tuple):
         
@@ -224,16 +225,13 @@ def query_pdb(query):
             touple_content = []
 
             for element in result_touple:
-                print("element")
                 if element is None:
                     touple_content.append("None")
-                    
                 else:
                     touple_content.append(html.escape(str(element)))
 
-                
             source_answer.append(touple_content)
-    
+
     elif isinstance(myresult, str):
         source_answer.append(myresult)
       
@@ -285,27 +283,16 @@ def get_sources(query, namespaces):
         pinecone_results = index.query([filtered_query_embedding], top_k=num_sources, include_metadata=True, namespace=namespace)
         unique_pinecone_results = pinecone_results['matches']
         
-        print("")
-        print(namespace)
-        print("")
-        print(unique_pinecone_results)
- 
-
-        
         #get matches from mongoDB for IDs
         for id in unique_pinecone_results:
             idToFind = ObjectId(id['id'])
-            match = col.find_one({'_id' : idToFind}) #['content'] #Anpassen!!! und source retrun
-            #DONT PRINT MATCHES, IT CAUSES ENCODING BUGS
-            #print(match)
-            # print(match['content'])
+            match = col.find_one({'_id' : idToFind})
             matches_content.append(match['content'])
-        
             source = {'id': str(match['_id']), 'content': match['content'], 'metadata': match['metadata']}
             matches_sources.append(source)
 
-
     return matches_content, matches_sources, used_tokens
+
 
 def get_extra_sources(source):
     result = []

@@ -20,7 +20,6 @@ class AiResponse:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
-        self.conversation_history_token = 0
         self.start_timestamp = dt.now()
     
 
@@ -69,7 +68,7 @@ class AiResponse:
     
     def check_history_length(self):
         conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
-        while conv_his_token > 2000:
+        while conv_his_token > 6000:
             self.conversation_history.pop(1)
             self.conversation_history.pop(1)
             conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
@@ -83,7 +82,6 @@ class AiResponse:
             self.check_history_length()
 
             self.add_user_message(self.user_prompt)
-
             
             message = self.get_openai_response("auto")
         
@@ -112,20 +110,28 @@ class AiResponse:
                         print("First getting the Unstructured data!")
                         namespaces = [("manuals", 2), ("tickets", 1), ("emails", 1)]
                         function_response, sources, tokens = Agent_functions.get_sources(
-                            # use whole query, not just kw
-                            #query=self.user_prompt,
-                            # if u wanna use just kw
                             query=data["query"],
-                            namespaces=namespaces 
+                            namespaces=namespaces,
                         )
+                        print("Then the Structured data!")
+                        function_response_sql, sources_sql = Agent_functions.query_product_database_with2function_call(
+                            feature_list= data.get("features"),
+                            message_history=self.conversation_history
+                        )
+
+                        function_response.append(function_response_sql)
+
                         for source in sources:
                             self.sources.append(source)
                             extra_source = Agent_functions.get_extra_sources(source)
                             if extra_source:
                                 self.sources.append(extra_source)
+                        
+                        self.sources.append(sources_sql[0])
 
                         # app used tokens
-                        self.embeddings_tokens += tokens
+                        self.embeddings_tokens += tokens # + tokens_sql
+
                         response_dictionary["unstructured_data_response"] = function_response
                         
 
@@ -194,7 +200,7 @@ class AiResponse:
                 assistant_message = message_response_to_function['content']
                 self.add_assistant_message(assistant_message, self.sources)
                 
-            #print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
+            print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
             print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")
 
 
