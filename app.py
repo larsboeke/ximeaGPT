@@ -18,6 +18,7 @@ from flask_cors import CORS
 import shutil
 from backend.Feedback_Handler.FeedbackProvider import FeedbackProvider
 from backend.Feedback_Handler.FeedbackManager import FeedbackManager
+import backend.documents_utils as documents
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -278,6 +279,17 @@ def handle_reset_feedback(chunk_id):
 def handle_delete_chunk(chunk_id):
     print(f"You deleted chunk with id", chunk_id)
     FeedbackManager().delete_chunk(chunk_id)
+
+@socketio.on('search_doc')
+def search_doc(id, type, source, content, limit):
+    if limit == '':
+        limit = None
+    else:
+        limit = int(limit)
+    docs = documents.search_mongoDB(objectID=id, type=type, source=source, content=content, limit= limit)
+    print(f"Following doc is found ------>",docs)
+    socketio.emit('searched_doc', docs)
+
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
