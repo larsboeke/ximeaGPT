@@ -30,7 +30,18 @@ body{
     overflow-x: hidden; /* Hide horizontal scrollbar */
 
 }
-/*TO-DO : custom scrollbar*/
+/*custom scrollbar*/
+*::-webkit-scrollbar{
+    width: 6px;
+  }
+*::-webkit-scrollbar-track{
+    background: var(--backend-chat-bg);
+    border-radius: 25px;
+  }
+*::-webkit-scrollbar-thumb{
+    background: var(--icon-color);
+    border-radius: 25px;
+  }
 
 #sidebar-container {
     height: 100vh;
@@ -280,12 +291,17 @@ body{
     cursor: pointer;
     margin-left: 20px;
     display: flex;
-   justify-content: center;
-   align-items: center;
+    justify-content: center;
+    align-items: center;
+    position: relative;
   }
   .search-controls span {
     font-size: 1.5rem;
     position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
 /*Styling for UPLOAD page-------------------------------------------------------------------------------*/
