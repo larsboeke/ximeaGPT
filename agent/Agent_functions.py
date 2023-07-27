@@ -238,7 +238,7 @@ def query_pdb(query):
     elif isinstance(myresult, str):
         source_answer.append(myresult)
       
-    source = {'id': "1", 'content': f"Query: {query}, Result from PDB: {str(source_answer)}", 'metadata': {'type': "Product_Database"}}
+    source = {'id': "1", 'content': {'query': query, 'result': str(source_answer)}, 'metadata': {'type': "Product_Database"}}
 
     matches_sources.append(source)
     endresult = [query, myresult]

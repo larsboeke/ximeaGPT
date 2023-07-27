@@ -84,7 +84,7 @@ const showSources = (sources) => {
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type}</b><br>
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
-                                <br><br><a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
+                                <br><a href="${sources[i].metadata.source_id}">${sources[i].metadata.source_id}</a>
                                 <br><br>${sources[i].content}
                             </div>`;
         }
@@ -92,20 +92,21 @@ const showSources = (sources) => {
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with TicketID ${sources[i].metadata.source_id}</b><br>
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
-                                <br><br>${sources[i].content}
+                                <br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "email"){
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} with CaseID ${sources[i].metadata.source_id}</b><br>
                                 <span onclick="rateChunk(this)" id="thumb-down" class="material-symbols-outlined">thumb_down</span>
-                                <br><br>${sources[i].content}
+                                <br>${sources[i].content}
                             </div>`;
         }
         else if (sources[i].metadata.type == "Product_Database"){
             html_sources += `<div id="${sources[i].id}" class="content">
                                 <b>From ${sources[i].metadata.type} </b><br>
-                                <br><br>${sources[i].content}
+                                <br><b>Query:</b> ${sources[i].content.query}
+                                <br><b>Result from PDB:</b> ${sources[i].content.result}
                                 
                             </div>`;
         }       
