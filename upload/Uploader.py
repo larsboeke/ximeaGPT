@@ -313,10 +313,10 @@ class Uploader:
 
     def initialUploadName_of_feature_modified_sql_db(self):
         pinecone_connection = PineconeConnectionProvider().initPinecone()
-        pinecone_connection.delete(delete_all=True, namespace="name_of_sql_features_modified_sql_db")
+        pinecone_connection.delete(delete_all=True, namespace="name_of_sql_features")
         # TODO: SQL-Datenbank wird auf Transact-SQL Umgestellt
         connection, cursor = SQLConnectionProvider().create_connection()
-        cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[chris_test_product_database];")
+        cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[product_database];")
         all_feature = cursor.fetchall()
         for feature in all_feature:
             max_attempts = 5
@@ -338,4 +338,4 @@ class Uploader:
 
             embeddings = embedding_response['data'][0]['embedding']
             pinecone_connection.upsert(vectors=[(feature[0], embeddings)],
-                                       namespace='name_of_sql_features_modified_sql_db')
+                                       namespace='name_of_sql_features')
