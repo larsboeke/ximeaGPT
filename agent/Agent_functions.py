@@ -79,7 +79,7 @@ query_manuals = {
 
 
 # Fucntions for the PDB
-database_schema = "TABLE chris_test_product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
+database_schema = "TABLE product_database COLUMNS name_of_feature | name_of_camera | value_of_feature | unit | description_of_feature "
 
 use_product_database = {
             "name": "use_product_database",
@@ -101,7 +101,7 @@ use_product_database = {
 
 query_pdb = {
             "name": "query_pdb",
-            "description": "Get the result from a query on the chris_test_product_database",
+            "description": "Get the result from a query on the product_database",
             "parameters": {
                 "type": "object",
                 "properties": {
