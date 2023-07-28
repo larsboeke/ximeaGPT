@@ -23,11 +23,11 @@ print("Data 1")
 # Daten aus der bestehenden Tabelle abrufen
 cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature FROM [AI:Lean].[dbo].[product_database] WHERE value_of_feature "
                "LIKE '<min>%%</min><max>%%</max><def>%%</def>'")
-data = cursor.fetchall()
+data1 = cursor.fetchall()
 
 
 # Neue Daten in die Tabelle einfügen
-for camera_name, feature_name, value in data:
+for camera_name, feature_name, value in data1:
     numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
     if len(numbers) == 3:
         min_val, max_val, def_val = numbers
@@ -48,7 +48,7 @@ for camera_name, feature_name, value in data:
 conn.commit()
 
 # Die abgerufenen Einträge löschen
-for camera_name, feature_name, value in data:
+for camera_name, feature_name, value in data1:
     cursor.execute("""
     DELETE FROM [AI:Lean].[dbo].[chris_test_product_database]
     WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -105,12 +105,11 @@ data3 = cursor.fetchall()
 
 for camera_name, feature_name, value in data3:
     #numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
-    wid_val = re.search(r'<wid>(.*?)</wid>', value)
-    hei_val = re.search(r'<hei>(.*?)</hei>', value)
-    dep_val = re.search(r'<dep>(.*?)</dep>', value)
-    mas_val = re.search(r'<mas>(.*?)</mas>', value)
+    wid_val = re.search(r'<wid>(.*?)</wid>', value).group(1)
+    hei_val = re.search(r'<hei>(.*?)</hei>', value).group(1)
+    dep_val = re.search(r'<dep>(.*?)</dep>', value).group(1)
+    mas_val = re.search(r'<mas>(.*?)</mas>', value).group(1)
     if len(numbers) == 4:
-        wid_val, hei_val, dep_val, mas_val = numbers
         cursor.execute("""
         INSERT INTO [AI:Lean].[dbo].[chris_test_product_database] (name_of_camera, name_of_feature, value_of_feature)
         VALUES (%s, %s, %s)
@@ -277,7 +276,7 @@ for camera_name, feature_name, value in data8:
         cursor.execute("""
         INSERT INTO [AI:Lean].[dbo].[chris_test_product_database] (name_of_camera, name_of_feature, value_of_feature)
         VALUES (%s, %s, %s)
-        """, (camera_name, feature_name + "Def", def_val))
+        """, (camera_name, feature_name + "Default", def_val))
     else:
         print("Error: ", camera_name, feature_name, value)
 conn.commit()
@@ -380,7 +379,7 @@ for camera_name, feature_name, value in data12:
         cursor.execute("""
         INSERT INTO [AI:Lean].[dbo].[chris_test_product_database] (name_of_camera, name_of_feature, value_of_feature)
         VALUES (%s, %s, %s)
-        """, (camera_name, feature_name + "Def", def_val))
+        """, (camera_name, feature_name + "Default", def_val))
         cursor.execute("""
         INSERT INTO [AI:Lean].[dbo].[chris_test_product_database] (name_of_camera, name_of_feature, value_of_feature)
         VALUES (%s, %s, 'used')
@@ -419,6 +418,21 @@ for feature in features:
         print("Feature ", feature, " checked")
 conn.commit()
 
+print("---------------------------------------------------------------------------------------------------------------")
+print("Clearing empty data")
+
+cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+               "FROM chris_test_product_database"
+               "WHERE value_of_feature = 'None'")
+empty_data = cursor.fetchall()
+
+# Die abgerufenen Einträge löschen
+for camera_name, feature_name, value in empty_data:
+    cursor.execute("""
+    DELETE FROM [AI:Lean].[dbo].[chris_test_product_database]
+    WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
+    """, (camera_name, feature_name, value))
+conn.commit()
 
 
 
@@ -428,7 +442,7 @@ conn.close()
 from data_package.Pinecone_Connection_Provider.PineconeConnectionProvider import PineconeConnectionProvider
 print("---------------------------------------------------------------------------------------------------------------")
 print("Uploading new features to Pinecone")
-ghh
+
 #Uploader.Uploader().initialUploadName_of_feature_modified_sql_db()
 #pinecone_connection = PineconeConnectionProvider().initPinecone()
 #pinecone_connection.delete(delete_all = True, namespace = "name_of_sql_features_modified_sql_db")
