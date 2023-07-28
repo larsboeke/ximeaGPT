@@ -20,7 +20,6 @@ class AiResponse:
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
-        self.conversation_history_token = 0
         self.start_timestamp = dt.now()
     
 
@@ -45,7 +44,7 @@ class AiResponse:
         max_attempts = 5
         x = 0
         while x < max_attempts:
-
+            x += 1
             try:
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo-16k",
@@ -54,10 +53,10 @@ class AiResponse:
                     function_call=call_type,
                     temperature = 0
                 )
-                promt_tokens = response["usage"]["prompt_tokens"]
+                prompt_tokens = response["usage"]["prompt_tokens"]
                 completion_tokens = response["usage"]["completion_tokens"]
 
-                self.prompt_tokens += promt_tokens
+                self.prompt_tokens += prompt_tokens
                 self.completion_tokens += completion_tokens
 
                 return response["choices"][0]["message"]
@@ -69,13 +68,12 @@ class AiResponse:
     
     def check_history_length(self):
         conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
-        while conv_his_token > 2000:
+        while conv_his_token > 6000:
             self.conversation_history.pop(1)
             self.conversation_history.pop(1)
             conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
             print("Dropped two")
 
-        
 
     def chat_completion_request(self):
         
@@ -83,7 +81,6 @@ class AiResponse:
             self.check_history_length()
 
             self.add_user_message(self.user_prompt)
-
             
             message = self.get_openai_response("auto")
         
@@ -93,7 +90,6 @@ class AiResponse:
             assistant_message = message['content']
             if not check_function_call:
                 self.add_assistant_message(message['content'], [])
-
     
             if check_function_call:  
     
@@ -107,40 +103,50 @@ class AiResponse:
 
                 if function_name == "query_all_sources":
                     print("Using new superior tool ...")
-
+                    print("User promt: ", self.user_prompt)
                     if "query" in data:
                         print("First getting the Unstructured data!")
-                        namespaces = [("manuals", 2), ("ticktes", 2), ("emails", 2)]
+                        namespaces = [("manuals", 2), ("tickets", 1), ("emails", 1)]
                         function_response, sources, tokens = Agent_functions.get_sources(
                             query=data["query"],
-                            namespaces=namespaces 
+                            namespaces=namespaces,
                         )
+                        print("Then the Structured data!")
+                        function_response_sql, sources_sql, prompt_tokens, completion_tokens = Agent_functions.use_product_database(
+                            feature_list= data.get("features"),
+                            message_history=self.conversation_history
+                        )
+
+                        function_response.append(function_response_sql)
+
                         for source in sources:
                             self.sources.append(source)
+                            extra_source = Agent_functions.get_extra_sources(source)
+                            if extra_source:
+                                self.sources.append(extra_source)
+                        
+                        self.sources.append(sources_sql[0])
+
                         # app used tokens
                         self.embeddings_tokens += tokens
-                        response_dictionary["unstructured_data_response"] = function_response
+                        self.prompt_tokens += prompt_tokens
+                        self.completion_tokens += completion_tokens
 
-                    if "product" in data and "feature" in data:
-                        print("Using query_data_of_feature_of_product_pdb tool...")
-                        function_response_sql, sources = Agent_functions.query_data_of_feature_of_product_pdb( # Eventually add sources!
-                            product=data["product"], feature=data["feature"]
-                        )
-                        for source in sources:
-                            self.sources.append(source)
-                        response_dictionary["sql_data_response"] = function_response_sql
-                        
+                        response_dictionary["unstructured_data_response"] = function_response
 
                 if function_name == "query_emails_and_tickets":
                     if "query" in data:
                         print("Getting email and ticket sources!")
-                        namespaces = [("tickets", 3), ("emails", 3)]
+                        namespaces = [("tickets", 2), ("emails", 2)]
                         function_response, sources, tokens = Agent_functions.get_sources(
                             query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
                             self.sources.append(source)
+                            extra_source = Agent_functions.get_extra_sources(source)
+                            if extra_source:
+                                self.sources.append(extra_source)
                         # app used tokens
                         self.embeddings_tokens += tokens
                         response_dictionary["ticket_email_data_response"] = function_response
@@ -157,9 +163,23 @@ class AiResponse:
                             self.sources.append(source)
                         # app used tokens
                         self.embeddings_tokens += tokens
-                        response_dictionary["ticket_email_data_response"] = function_response
+                        response_dictionary["manual_data_response"] = function_response
 
-                
+                if function_name == "use_product_database":
+                    print("Using use_product_database tool...")
+                    function_response, sources, prompt_tokens, completion_tokens = Agent_functions.use_product_database(
+                        feature_list= data.get("features"),
+                        message_history=self.conversation_history,
+                        prompt_tokens = self.prompt_tokens,
+                        completion_tokens = self.completion_tokens
+                    )
+                    self.prompt_tokens += prompt_tokens
+                    self.completion_tokens += completion_tokens
+                    for source in sources:
+                        self.sources.append(source)
+
+                    response_dictionary["sql_data_response"] = function_response   
+
                 
                 #Add the Sources to the History
                 response_dictionary_str = json.dumps(response_dictionary)
@@ -179,9 +199,11 @@ class AiResponse:
             act.add_activity(self.embeddings_tokens, self.prompt_tokens, self.completion_tokens, self.start_timestamp, end_timestamp = dt.now())
 
             return assistant_message, self.sources
+        
         except Exception as e:
             print(e)
             return "An Error occured, try again", self.sources
+
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     """Returns the number of tokens in a text string."""

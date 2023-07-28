@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../static/js/documents.js" defer></script>
     <title>Documents</title>
 </head>
 <body>
@@ -12,8 +13,17 @@
     <h2>DOCUMENT MANAGEMENT</h2>
 </div> 
 <div class="search-controls">
-    <input id="searchbar" type="text" placeholder="Search for the documents...">
-    <button type="submit"><span class="material-symbols-outlined">search</span></button>
+    <input id="searchbar-id" type="text" placeholder="Search by id">
+    <input id="searchbar-type" type="text" placeholder="Search by type">
+    <input id="searchbar-source" type="text" placeholder="Search by source">
+    <input id="searchbar-content" type="text" placeholder="Search by content">
+    <input id="searchbar-limit" type="text" placeholder="Set limit">
+    <button id="search-btn" type="submit"><span class="material-symbols-outlined">search</span></button>                        
+</div>
+<div class="search-output">
+    <ul id="feedback-list-container">
+        <!--Here print the searched docs-->
+    </ul>   
 </div>
 {% endblock %}    
 </body>

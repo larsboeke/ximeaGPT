@@ -279,3 +279,34 @@ class Uploader:
                     ticket_ids.append(int(value))
 
         self.upload_ticket_parallel(ticket_ids, pinecone_connection, mongodb_connection)
+    
+    def initialUploadName_of_feature(self):
+        pinecone_connection = PineconeConnectionProvider().initPinecone()
+        connection, cursor = SQLConnectionProvider().create_connection()
+
+        pinecone_connection.delete(delete_all = True, namespace = "name_of_sql_features")
+
+        cursor.execute("SELECT DISTINCT name_of_feature FROM [AI:Lean].[dbo].[product_database];")
+        all_feature = cursor.fetchall()
+        
+        for feature in all_feature:
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    embedding_response = openai.Embedding.create(
+                    input=feature[0],
+                    model="text-embedding-ada-002"
+                    )
+                    # If the function is successful, we end the loop
+                    break
+                except Exception as e:
+                    print(type(e).__name__)
+                    print("Could not create embedding, waiting 5 seconds")
+                    sleep(5)
+                    if attempt == max_attempts - 1:
+                        # If it was the last try, we throw the exception again
+                        raise e
+            
+            embeddings = embedding_response['data'][0]['embedding']
+            pinecone_connection.upsert(vectors=[(feature[0], embeddings)],
+                    namespace='name_of_sql_features')

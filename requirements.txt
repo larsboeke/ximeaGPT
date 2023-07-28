@@ -19,3 +19,4 @@ flask_login
 flask_cors
 gunicorn
 pytz
+mysql-connector-python

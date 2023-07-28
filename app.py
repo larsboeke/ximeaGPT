@@ -14,9 +14,11 @@ import backend.user_utils as usr
 import backend.activity_utils as activity
 from datetime import datetime, timedelta  
 from upload.Uploader import Uploader
-import backend.feedback_utils as feedback
 from flask_cors import CORS
 import shutil
+from backend.Feedback_Handler.FeedbackProvider import FeedbackProvider
+from backend.Feedback_Handler.FeedbackManager import FeedbackManager
+import backend.documents_utils as documents
 
 
 app = Flask(__name__, template_folder='Frontend/templates')
@@ -210,7 +212,7 @@ def open_chat(chat_id):
 @socketio.on('rate_chunk')
 def rate_chunk(chunk_id):
     print(f"You rated a chunk with id", chunk_id)
-    feedback.add_feedback(chunk_id)
+    FeedbackManager().add_feedback(chunk_id)
 
 def generate_stats_data(startdate, enddate):
     start_time_today = startdate.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -264,17 +266,29 @@ def upload_url(url):
 
 @socketio.on('reset_all_feedback')
 def handle_reset_all_feedback():
-    feedback.reset_all_down_ratings()
+    print("You reseted all feedback ratings!")
+    FeedbackManager().reset_all_down_ratings()
 
 @socketio.on('reset_feedback')
 def handle_reset_feedback(chunk_id):
     print(f"You reseted feedback of chunk with id", chunk_id)
-    feedback.reset_down_rating(chunk_id)
+    FeedbackManager().reset_down_rating(chunk_id)
 
 @socketio.on('delete_chunk')
 def handle_delete_chunk(chunk_id):
     print(f"You deleted chunk with id", chunk_id)
-    feedback.delete_chunk(chunk_id)
+    FeedbackManager().delete_chunk(chunk_id)
+
+@socketio.on('search_doc')
+def search_doc(id, type, source, content, limit):
+    if limit == '':
+        limit = None
+    else:
+        limit = int(limit)
+    docs = documents.search_mongoDB(objectID=id, type=type, source=source, content=content, limit= limit)
+    print(f"Following doc is found ------>",docs)
+    socketio.emit('searched_doc', docs)
+
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
@@ -292,11 +306,11 @@ def admin_upload():
     return render_template('upload.html')
 @app.route('/admin/feedback')
 def admin_feedback():
-    all_feedback = feedback.get_all_cleaned_rated_chunks()
+    all_feedback = FeedbackProvider().get_all_cleaned_rated_chunks()
     return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
     #socketio.run(app, port=5001, debug=True, host='0.0.0.0')
  
 

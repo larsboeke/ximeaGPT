@@ -2,6 +2,7 @@ import pymongo
 import pinecone
 import os
 import openai
+import mysql.connector
 from dotenv import load_dotenv
 from time import sleep
 from data_package.SQL_Connection_Provider import SQLConnectionProvider
@@ -193,3 +194,74 @@ class UpdateUploader:
 
 
 
+    def uploadPDB(self):
+        config = {
+        'host':'ximeapdbdev.mysql.database.azure.com',
+        'user':'ai_lean_dev',
+        'password':'8CXhkZqU5FxyKT',
+        'database':'products',
+        'client_flags': [mysql.connector.ClientFlag.SSL],
+        'ssl_ca': 'DigiCertGlobalRootG2.crt.pem'
+        }
+
+        try:
+            source_connection = mysql.connector.connect(**config)
+            source_cursor = source_connection.cursor()
+            destination_connection, destination_cursor = SQLConnectionProvider().create_connection()
+        except:
+            print("connection error")
+
+
+        create_table_sql = """
+        CREATE TABLE [AI:Lean].[dbo].[product_database] (
+            name_of_camera VARCHAR(145) NULL,
+            name_of_feature VARCHAR(45) NULL,
+            value_of_feature VARCHAR(MAX),
+            unit VARCHAR(45) NULL,
+            description_of_feature VARCHAR(245) NULL
+        );"""
+        source_sql_command = """
+        SELECT p.name, f.name, pfr.value_txt, f.gentl_unit, f.gentl_description
+        FROM feat f
+        INNER JOIN prodfeat pfr
+        ON f.id = pfr.id_feat
+        INNER JOIN prod p
+        ON pfr.id_product = p.id;
+        ;"""
+
+        drop_table_command = """DROP TABLE [AI:Lean].[dbo].[product_database];"""
+        try:
+            destination_cursor.execute(drop_table_command)
+            destination_connection.commit()
+            print('Delete old table')
+            destination_cursor.execute(create_table_sql)
+            print('Create new table')
+            source_cursor.execute(source_sql_command)
+            data_to_insert = source_cursor.fetchall()
+            print("data_fetched")
+            insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
+            destination_cursor.executemany(insert_query, data_to_insert)
+            
+            destination_connection.commit()
+            print('data_transfered')
+            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
+            SET value_of_feature = NULL
+            WHERE value_of_feature = 'used';""")
+            destination_connection.commit()
+            print("used = NULL")
+            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
+            SET name_of_feature = 'Camera Family'
+            WHERE name_of_feature = 'Marketing Name';""")
+            destination_connection.commit()
+
+
+            print("Product Database Push finished")
+
+        except Exception as e:
+            print("Error occurred:", e)
+
+        finally:
+            # Close the connections
+            source_cursor.close()
+            source_connection.close()
+        
