@@ -1,26 +1,28 @@
-from agent import Agent_functions
+from agent.Agent_functions import AgentFunctions
 import openai
-import os
 import json
 import backend.user_utils as usr
 from datetime import datetime as dt
 from backend import activity_utils as act
-import tiktoken
+from data_package.Token_Counter.TokenCounter import TokenCounter
+
 
 class AiResponse:
 
 
     def __init__(self, conversation_id, user_prompt):
         
+        self.AgentFunction = AgentFunctions()
         self.conversation_id = conversation_id
         self.conversation_history = usr.retrieve_conversation(conversation_id)
-        self.functions = Agent_functions.tools
+        self.functions = self.AgentFunction.get_tools()
         self.user_prompt = user_prompt
         self.sources = []
         self.prompt_tokens = 0
         self.completion_tokens = 0
         self.embeddings_tokens = 0
         self.start_timestamp = dt.now()
+
     
 
 
@@ -67,16 +69,16 @@ class AiResponse:
                 
     
     def check_history_length(self):
-        conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+        conv_his_token = TokenCounter().num_tokens_from_string(str(self.conversation_history), "cl100k_base")
         while conv_his_token > 6000:
             self.conversation_history.pop(1)
             self.conversation_history.pop(1)
-            conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+            conv_his_token = TokenCounter().num_tokens_from_string(str(self.conversation_history), "cl100k_base")
             print("Dropped two")
 
 
     def chat_completion_request(self):
-        
+
         try:
             self.check_history_length()
 
@@ -107,12 +109,12 @@ class AiResponse:
                     if "query" in data:
                         print("First getting the Unstructured data!")
                         namespaces = [("manuals", 2), ("tickets", 1), ("emails", 1)]
-                        function_response, sources, tokens = Agent_functions.get_sources(
+                        function_response, sources, tokens = self.AgentFunction.get_sources(
                             query=data["query"],
                             namespaces=namespaces,
                         )
                         print("Then the Structured data!")
-                        function_response_sql, sources_sql, prompt_tokens, completion_tokens = Agent_functions.use_product_database(
+                        function_response_sql, sources_sql, prompt_tokens, completion_tokens = self.AgentFunction.use_product_database(
                             feature_list= data.get("features"),
                             message_history=self.conversation_history
                         )
@@ -121,7 +123,7 @@ class AiResponse:
 
                         for source in sources:
                             self.sources.append(source)
-                            extra_source = Agent_functions.get_extra_sources(source)
+                            extra_source = self.AgentFunction.get_extra_sources(source)
                             if extra_source:
                                 self.sources.append(extra_source)
                         
@@ -138,13 +140,13 @@ class AiResponse:
                     if "query" in data:
                         print("Getting email and ticket sources!")
                         namespaces = [("tickets", 2), ("emails", 2)]
-                        function_response, sources, tokens = Agent_functions.get_sources(
+                        function_response, sources, tokens = self.AgentFunction.get_sources(
                             query=data["query"],
                             namespaces=namespaces 
                         )
                         for source in sources:
                             self.sources.append(source)
-                            extra_source = Agent_functions.get_extra_sources(source)
+                            extra_source = self.AgentFunction.get_extra_sources(source)
                             if extra_source:
                                 self.sources.append(extra_source)
                         # app used tokens
@@ -155,7 +157,7 @@ class AiResponse:
                     if "query" in data:
                         print("Getting manual sources!")
                         namespaces = [("manuals", 4)]
-                        function_response, sources, tokens = Agent_functions.get_sources(
+                        function_response, sources, tokens = self.AgentFunction.get_sources(
                             query=data["query"],
                             namespaces=namespaces 
                         )
@@ -167,7 +169,7 @@ class AiResponse:
 
                 if function_name == "use_product_database":
                     print("Using use_product_database tool...")
-                    function_response, sources, prompt_tokens, completion_tokens = Agent_functions.use_product_database(
+                    function_response, sources, prompt_tokens, completion_tokens = self.AgentFunction.use_product_database(
                         feature_list= data.get("features"),
                         message_history=self.conversation_history,
                         prompt_tokens = self.prompt_tokens,
@@ -204,9 +206,3 @@ class AiResponse:
             print(e)
             return "An Error occured, try again", self.sources
 
-
-def num_tokens_from_string(string: str, encoding_name: str) -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.get_encoding(encoding_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
