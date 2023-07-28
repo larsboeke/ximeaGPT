@@ -438,7 +438,7 @@ class PDBSetup:
 
         self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
                     "FROM product_database "
-                    "WHERE value_of_feature = 'None' OR value_of_feature is NULL")
+                    "WHERE value_of_feature = 'None'")
         empty_data = self.cursor.fetchall()
 
         for camera_name, feature_name, value in empty_data:
@@ -447,6 +447,21 @@ class PDBSetup:
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
             """, (camera_name, feature_name, value))
         self.conn.commit()
+
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+                            "FROM product_database "
+                            "WHERE value_of_feature is NULL")
+        empty_data = self.cursor.fetchall()
+
+        for camera_name, feature_name, value in empty_data:
+            self.cursor.execute("""
+                    DELETE FROM [AI:Lean].[dbo].[product_database]
+                    WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature is NULL
+                    """, (camera_name, feature_name))
+        self.conn.commit()
+
+
+
 
         self.conn.close()
 
