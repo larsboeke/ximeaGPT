@@ -150,7 +150,7 @@ def get_sql_query_openai(feature_list, message_history, prompt_tokens, completio
         {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Do not use a WHERE clause. Use this table {database_schema}"})
     else:
         message_history.append(
-        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
+        {"role": "function", "name": "use_product_database", "content": f"NOW ONLY WRITE ONE TRANSACT-SQL QUERY to answer the user question. Use Cast to float if you think that the values are numbers. Pick the matching name_of_feature from this List of features from our database: {feature_list} . Use this table {database_schema}"})
 
     while x < max_attempts:
         x += 1
