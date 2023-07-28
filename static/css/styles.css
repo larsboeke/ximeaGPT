@@ -548,16 +548,24 @@
       .upper-controls{
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         width: 100%;
       }
 
+      .upper-controls-rightDiv {
+        display: flex;
+        /*align-items: center;
+        justify-content: space-between;*/
+        
+        width: auto;
+      }
+
       /* The button used to open the sidebar */
-      #open-sidebar-btn, #logout-btn{
+      #open-sidebar-btn, #logout-btn, #admin-login-btn{
         height: 50px;
         width: 50px;
         padding: 10px;
-        margin: 20px;
+        margin: 20px 10px 20px 10px;
         border-radius: 4px;
         cursor: pointer;
         display: flex;
@@ -566,12 +574,9 @@
         color: var(--icon-color);
         border: 1px solid var(--client-chat-border);
         background: var(--client-chat-bg);
-      }
-      #logout-btn{
-        margin-left: auto;
-      }
+      }    
 
-      #open-sidebar-btn:hover, #logout-btn:hover {
+      #open-sidebar-btn:hover, #logout-btn:hover, #admin-login-btn:hover {
         color: var(--activ-color);
       }
 
