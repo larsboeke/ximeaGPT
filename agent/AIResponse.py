@@ -37,7 +37,7 @@ class AiResponse:
     def add_function(self, function_name, content):
         message = {"role": "function", "name": function_name, "content": content}
         self.conversation_history.append(message)
-        usr.add_function(self.conversation_id, function_name, content)
+        #usr.add_function(self.conversation_id, function_name, content)
 
 
     def get_openai_response(self, call_type):
@@ -91,7 +91,7 @@ class AiResponse:
             if not check_function_call:
                 self.add_assistant_message(message['content'], [])
     
-            if check_function_call:  
+            while check_function_call:  
     
                 json_str = message["function_call"]["arguments"]
                 data = json.loads(json_str)
@@ -186,11 +186,13 @@ class AiResponse:
                 self.add_function(function_name, response_dictionary_str)
 
 
-                message_response_to_function = self.get_openai_response(call_type="none")
+                message_response_to_function = self.get_openai_response(call_type="auto")
             
-          
-                assistant_message = message_response_to_function['content']
-                self.add_assistant_message(assistant_message, self.sources)
+                check_function_call = message_response_to_function.get("function_call")
+
+                if not check_function_call:
+                    assistant_message = message_response_to_function['content']
+                    self.add_assistant_message(assistant_message, self.sources)
                 
             print(f"Conversation History ------------------------------------------------ \n {self.conversation_history}")
             print(f"prompt_tokens {self.prompt_tokens} , completion_tokens {self.completion_tokens} , embeddings_tokens {self.embeddings_tokens}")

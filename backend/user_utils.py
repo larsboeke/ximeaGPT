@@ -99,7 +99,7 @@ def add_function(conversation_id, function_name, content):
     message = {"role": 'function','function_name': function_name, "content": content}
     conversation = conversations_mongo.find_one({'conversation_id': conversation_id})['messages']
     updated_messages = conversation.append(message)
-    conversations_mongo.update_one({'convesation_id': conversation_id}, {'$set': {'messages': updated_messages }})
+    conversations_mongo.update_one({'convesation_id': conversation_id}, {'$push': {'messages': updated_messages }})
 
 def retrieve_conversation(conversation_id):
     print(conversation_id)
