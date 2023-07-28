@@ -213,7 +213,7 @@ class UpdateUploader:
 
 
         create_table_sql = """
-        CREATE TABLE [AI:Lean].[dbo].[product_database] (
+        CREATE TABLE [AI:Lean].[dbo].[product_database_staging] (
             name_of_camera VARCHAR(145) NULL,
             name_of_feature VARCHAR(45) NULL,
             value_of_feature VARCHAR(MAX),
@@ -229,7 +229,7 @@ class UpdateUploader:
         ON pfr.id_product = p.id;
         ;"""
 
-        drop_table_command = """DROP TABLE [AI:Lean].[dbo].[product_database];"""
+        drop_table_command = """DROP TABLE [AI:Lean].[dbo].[product_database_staging];"""
         try:
             destination_cursor.execute(drop_table_command)
             destination_connection.commit()
@@ -239,17 +239,17 @@ class UpdateUploader:
             source_cursor.execute(source_sql_command)
             data_to_insert = source_cursor.fetchall()
             print("data_fetched")
-            insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
+            insert_query = "INSERT INTO [AI:Lean].[dbo].[product_database_staging] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature) VALUES (%s, %s,%s,%s,%s)"
             destination_cursor.executemany(insert_query, data_to_insert)
             
             destination_connection.commit()
             print('data_transfered')
-            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
+            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database_staging]
             SET value_of_feature = NULL
             WHERE value_of_feature = 'used';""")
             destination_connection.commit()
             print("used = NULL")
-            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database]
+            destination_cursor.execute("""UPDATE [AI:Lean].[dbo].[product_database_staging]
             SET name_of_feature = 'Camera Family'
             WHERE name_of_feature = 'Marketing Name';""")
             destination_connection.commit()
