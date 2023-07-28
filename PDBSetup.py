@@ -56,6 +56,27 @@ def pdb_setup():
         """, (camera_name, feature_name, value))
     conn.commit()
 
+    print("Adjusting 1 buggy entry MQ022MG-CM-SR2 Gain <min>0-1.5</min><max>6</max><def>0</def>")
+    cursor.execute("""
+    INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+    VALUES (%s, %s, %s)
+    """, ("MQ022MG-CM-SR2", "GainMin", "1.5"))
+    cursor.execute("""
+        INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+        VALUES (%s, %s, %s)
+        """, ("MQ022MG-CM-SR2", "GainMax", "6"))
+    cursor.execute("""
+        INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+        VALUES (%s, %s, %s)
+        """, ("MQ022MG-CM-SR2", "GainDefault", "0"))
+    conn.commit()
+    # Delete the initial buggy entry
+    cursor.execute("""
+    DELETE FROM [AI:Lean].[dbo].[product_database]
+    WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
+    """, ("MQ022MG-CM-SR2", "Gain", "<min>0-1.5</min><max>6</max><def>0</def>"))
+    conn.commit()
+
     print("---------------------------------------------------------------------------------------------------------------")
     print("Data 2")
 
@@ -423,7 +444,7 @@ def pdb_setup():
     print("Clearing empty data")
 
     cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
-                "FROM product_database"
+                "FROM product_database "
                 "WHERE value_of_feature = 'None'")
     empty_data = cursor.fetchall()
 
