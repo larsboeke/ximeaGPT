@@ -438,7 +438,7 @@ class PDBSetup:
 
         self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
                     "FROM product_database "
-                    "WHERE value_of_feature = 'None'")
+                    "WHERE value_of_feature = 'None' OR value_of_feature is NULL")
         empty_data = self.cursor.fetchall()
 
         for camera_name, feature_name, value in empty_data:
