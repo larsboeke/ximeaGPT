@@ -184,7 +184,7 @@ def similar_embeddings(OpenAIs_features):
     feature_possibility = []
     for feature in OpenAIs_features:
         feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
-        pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features_modified_sql_db')["matches"]
+        pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
         feature_possibility.append(pinecone_results[0]['id'])
         feature_possibility.append(pinecone_results[1]['id'])
         feature_possibility.append(pinecone_results[2]['id'])
