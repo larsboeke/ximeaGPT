@@ -36,7 +36,7 @@ query_all_sources = {
 
                         },
                     },
-                    "required": ["query"],
+                    "required": ["query", "features"],
                 },
             }
 
