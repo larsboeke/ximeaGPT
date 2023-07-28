@@ -43,11 +43,12 @@ def updating_loop(time_interval):
         DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_chunks_with_no_spaces()
         DatabaseCleaner(mongodb_connection=mongodb_connection, pinecone_connection=pinecone_connection).remove_trash_chunks()
 
-        print("Sleeping for " + str(time_interval/60/60) + " hours")
 
         UpdateUploader().fetchingStagingPDB()
         PDBSetup(sql_connection=sql_connection).settingUpPDB()
         PDBSetup(sql_connection=sql_connection).pushingNewFeaturesToPinecone()
+
+        print("Sleeping for " + str(time_interval/60/60) + " hours")
 
         # Manual are uploaded with Frontend
         time.sleep(time_interval)
