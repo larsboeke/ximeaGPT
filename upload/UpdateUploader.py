@@ -194,7 +194,10 @@ class UpdateUploader:
 
 
 
-    def uploadPDB(self):
+    def fetchingStagingPDB(self):
+        """
+        Fetches the staging product database from the staging server and pushes it our server (SQL Database)
+        """
         config = {
         'host':'ximeapdbdev.mysql.database.azure.com',
         'user':'ai_lean_dev',
