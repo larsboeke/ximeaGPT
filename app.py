@@ -37,16 +37,17 @@ users_collection = db['users']
 chats_collection = db['chats']
 
 class User(UserMixin):
-    def __init__(self, username, password):
+    def __init__(self, username, password, roles):
         self.id = username
         self.password = password
+        self.roles = roles
 
 @login_manager.user_loader
 def load_user(user_id):
     u = users_collection.find_one({"user_id": user_id})
     if not u:
         return None
-    return User(u['user_id'], u['password_hash'])
+    return User(u['user_id'], u['password_hash'], u['admin_role'])
 
 @login_manager.request_loader
 def request_loader(request):
@@ -70,7 +71,7 @@ def login():
 
         if user and check_password_hash(user['password_hash'], password):
             print("username and pw match")
-            user_obj = User(user['user_id'], user['password_hash'])
+            user_obj = User(user['user_id'], user['password_hash'], user['admin_role'])
             login_user(user_obj)
             print(current_user.is_authenticated)
             return redirect(url_for('index'))
@@ -129,6 +130,7 @@ def index():
 
 
 @app.route('/admin/upload', methods=['POST'])
+@login_required
 def upload():
     print("FILE IS LOADING.....")
     if 'file' not in request.files:
@@ -278,25 +280,46 @@ def handle_delete_chunk(chunk_id):
     
 #Routing for the admin panel
 @app.route('/admin/dashboard')
+@login_required
 def admin_dashboard():
-    now = datetime.now()
-    activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(now, now)    
-    return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
+    username = current_user.id
+    if not users_collection.find_one({'user_id': username, 'admin_role': 'admin'}):
+        return redirect(url_for('index'))
+    else:
+        now = datetime.now()
+        activity_cost, cost_per_message, activity_count, avg_response_time = generate_stats_data(now, now)    
+        return render_template('dashboard.html', activity_cost=activity_cost, cost_per_message=cost_per_message, activity_count=activity_count, avg_response_time=avg_response_time)
 
 @app.route('/admin/documents')
+@login_required
 def admin_documents():
-    return render_template('documents.html')
+    username = current_user.id
+    if not users_collection.find_one({'user_id': username, 'admin_role': 'admin'}):
+        return redirect(url_for('index'))
+    else:
+        return render_template('documents.html')
 
 @app.route('/admin/upload')
+@login_required
 def admin_upload():
-    return render_template('upload.html')
+    username = current_user.id
+    if not users_collection.find_one({'user_id': username, 'admin_role': 'admin'}):
+        return redirect(url_for('index'))
+    else:
+        return render_template('upload.html')
+    
 @app.route('/admin/feedback')
+@login_required
 def admin_feedback():
-    all_feedback = feedback.get_all_cleaned_rated_chunks()
-    return render_template('feedback.html', all_feedback = all_feedback)
+    username = current_user.id
+    if not users_collection.find_one({'user_id': username, 'admin_role': 'admin'}):
+        return redirect(url_for('index'))
+    else:
+        all_feedback = feedback.get_all_cleaned_rated_chunks()
+        return render_template('feedback.html', all_feedback = all_feedback)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
     #socketio.run(app, port=5001, debug=True, host='0.0.0.0')
  
 

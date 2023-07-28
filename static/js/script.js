@@ -12,6 +12,7 @@ const sourcesHeaders = document.getElementsByClassName("header");
 const sourcesContents = document.getElementsByClassName("content");
 const icons = document.getElementsByClassName("icon");
 const logoutButton = document.querySelector("#logout-btn");
+const adminLoginButton = document.querySelector("#admin-login-btn");
 
 
 // // Emit the user ID to the server when the connection is established
@@ -269,6 +270,10 @@ logoutButton.addEventListener("click", () =>{
         localStorage.removeItem('username');
         window.location.href = '/logout'; 
     }
+});
+
+adminLoginButton.addEventListener("click", () =>{
+    window.location.href = '/admin/dashboard'; 
 });
 
 //Adjustig the textarea hight to fit the content

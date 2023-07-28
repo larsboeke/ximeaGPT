@@ -19,7 +19,8 @@ def add_user(username, password_hash):
     entry = {
         'user_id': username,
         'password_hash': password_hash,
-        'conversations': []
+        'conversations': [],
+        'admin_role': 'user'
         }
     user_mongo.insert_one(entry)
 
