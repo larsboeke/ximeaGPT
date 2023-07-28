@@ -1,25 +1,20 @@
-import pymongo
-import pinecone
 import openai
 import os
 from dotenv import load_dotenv
 from bson.objectid import ObjectId
-import tiktoken
 from data_package.SQL_Connection_Provider.SQLConnectionProvider import SQLConnectionProvider
 import data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider as MongoDBConnectionProvider
 import html
 import json
-
-
+from data_package.MongoDB_Connection_Provider.MongoDBConnectionProvider import MongoDBConnectionProvider
+from data_package.Pinecone_Connection_Provider.PineconeConnectionProvider import PineconeConnectionProvider
+from data_package.Token_Counter.TokenCounter import TokenCounter
 load_dotenv()
 
 
 openai.api_key = os.environ.get("OPENAI_API_KEY")
-PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
-PINECONE_ENVIRONMENT = os.environ.get("PINECONE_ENVIRONMENT")
-PINECONE_INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
-GPT_MODEL = os.environ.get("GPT_MODEL")
+
 
 
 query_all_sources = {
@@ -180,7 +175,7 @@ def get_sql_query_openai(feature_list, message_history, prompt_tokens, completio
 
 #Similarity Search for Featur_names given by LLM!
 def similar_embeddings(OpenAIs_features):
-    index = initPinecone()
+    index = PineconeConnectionProvider().initPinecone()
     feature_possibility = []
     for feature in OpenAIs_features:
         feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
@@ -205,7 +200,7 @@ def query_pdb(query):
     #Catch possible bad queries and tell the model it made a mistake!
     if myresult == []:
         myresult =  "The query you wrote didn't contain data. Either there is no data for that question or you wrote a bad query!"
-    if num_tokens_from_string(str(myresult))>5000:
+    if TokenCounter().num_tokens_from_string(str(myresult))>5000:
         myresult =  "The query you wrote contains too much data for you to handle. Rewrite the SQL Query so that less data is returned!"
     
     #TODO: Check if all possible returns can be handled
@@ -235,36 +230,10 @@ def query_pdb(query):
     return endresult, matches_sources
 
 
-def num_tokens_from_string(string: str, encoding_name = "cl100k_base") -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.get_encoding(encoding_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
-
-
-def initMongo():
-    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   
-    col = db["prototype"]
-    return col, db
-
-        
-def initPinecone():
-    #init pinecone
-    pinecone.init(
-        api_key=PINECONE_API_KEY,
-        environment=PINECONE_ENVIRONMENT
-    )
-    index = pinecone.Index(PINECONE_INDEX_NAME)
-    return index
-
-
 def get_sources(query, namespaces):
-    index = initPinecone() #
-    #initialize mongoDB
-    client = pymongo.MongoClient("mongodb://192.168.11.30:27017/")
-    db = client["XIMEAGPT"]                   
-    col = db["prototype"]
+    index = PineconeConnectionProvider().initPinecone() #
+    #initialize mongoDB                 
+    col = MongoDBConnectionProvider().initMongoDB()
     query_embedding = openai.Embedding.create(input=query, engine="text-embedding-ada-002")
     used_tokens = query_embedding["usage"]["total_tokens"]
 
@@ -293,7 +262,7 @@ def get_sources(query, namespaces):
 def get_extra_sources(source):
     result = []
     if source["metadata"]["type"] == 'email' or source["metadata"]["type"] == 'ticket':
-        mongodb_connection = initMongo()[0]
+        mongodb_connection = MongoDBConnectionProvider().initMongoDB()
         source_id = source["metadata"]["source_id"]
         order_id = source["metadata"]["order_id"]
         query = {

@@ -1,11 +1,11 @@
 from agent import Agent_functions
 import openai
-import os
 import json
 import backend.user_utils as usr
 from datetime import datetime as dt
 from backend import activity_utils as act
-import tiktoken
+from data_package.Token_Counter.TokenCounter import TokenCounter
+
 
 class AiResponse:
 
@@ -67,11 +67,11 @@ class AiResponse:
                 
     
     def check_history_length(self):
-        conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+        conv_his_token = TokenCounter().num_tokens_from_string(str(self.conversation_history), "cl100k_base")
         while conv_his_token > 6000:
             self.conversation_history.pop(1)
             self.conversation_history.pop(1)
-            conv_his_token = num_tokens_from_string(str(self.conversation_history), "cl100k_base")
+            conv_his_token = TokenCounter().num_tokens_from_string(str(self.conversation_history), "cl100k_base")
             print("Dropped two")
 
 
@@ -204,9 +204,3 @@ class AiResponse:
             print(e)
             return "An Error occured, try again", self.sources
 
-
-def num_tokens_from_string(string: str, encoding_name: str) -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.get_encoding(encoding_name)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
