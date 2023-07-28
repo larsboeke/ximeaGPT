@@ -4,6 +4,7 @@ import data_package.SQL_Connection_Provider.SQLConnectionProvider as SQLConnecti
 
 sql_connection = SQLConnectionProvider.SQLConnectionProvider().create_connection()
 
+# init PDB push
 UpdateUploader().fetchingStagingPDB()
 PDBSetup(sql_connection).settingUpPDB()
 PDBSetup(sql_connection).pushingNewFeaturesToPinecone()
