@@ -87,7 +87,8 @@ class AgentFunctions:
                                  "type": "string"
                                 }
                             }
-                        } 
+                        } ,
+                        "required": ["features"],
                 }
             }
         
@@ -126,7 +127,7 @@ class AgentFunctions:
 
         if feature_list != None:
             feature_list = self.similar_embeddings(feature_list)
-
+        print(str(feature_list))
         message, prompt_tokens, completion_tokens = self.get_sql_query_openai(feature_list, message_history, prompt_tokens, completion_tokens)
 
         json_str = message["function_call"]["arguments"]
@@ -156,7 +157,7 @@ class AgentFunctions:
                     messages=message_history,
                     functions=self.local_functions,
                     function_call={"name": "query_pdb"},
-                    temperature = 0,
+                    temperature = 0.5,
     )
                 promt_tokens_gpt4 = response["usage"]["prompt_tokens"]
                 completion_tokensgpt4 = response["usage"]["completion_tokens"]
@@ -180,10 +181,9 @@ class AgentFunctions:
         feature_possibility = []
         for feature in OpenAIs_features:
             feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
-            pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
-            feature_possibility.append(pinecone_results[0]['id'])
-            feature_possibility.append(pinecone_results[1]['id'])
-            feature_possibility.append(pinecone_results[2]['id'])
+            pinecone_results = index.query([feature_embedding], top_k=6, include_metadata=True, namespace='name_of_sql_features')["matches"]
+            for position in range(6):
+                feature_possibility.append(pinecone_results[position]['id'])
 
         return feature_possibility
 
