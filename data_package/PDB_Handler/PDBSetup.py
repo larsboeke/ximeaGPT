@@ -27,33 +27,33 @@ class PDBSetup:
 
         print("Adjusting Data 1")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<min>%%</min><max>%%</max><def>%%</def>'")
         data1 = self.cursor.fetchall()
 
 
-        for camera_name, feature_name, value in data1:
+        for camera_name, feature_name, value, unit, description_of_feature in data1:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 3:
                 min_val, max_val, def_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Min", min_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Min", min_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Default", def_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Default", def_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data1:
+        for camera_name, feature_name, value, unit, description_of_feature in data1:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -83,36 +83,36 @@ class PDBSetup:
 
         print("Adjusting Data 2")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<min>%%</min><max>%%</max><def>%%</def><inc>%%</inc>'")
         data2 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data2:
+        for camera_name, feature_name, value, unit, description_of_feature in data2:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 4:
                 min_val, max_val, def_val, inc_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
                 VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Min", min_val))
+                """, (camera_name, feature_name + "Min", min_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
                 VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
                 VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Default", def_val))
+                """, (camera_name, feature_name + "Default", def_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
                 VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Inc", inc_val))
+                """, (camera_name, feature_name + "Inc", inc_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data2:
+        for camera_name, feature_name, value, unit, description_of_feature in data2:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -122,38 +122,38 @@ class PDBSetup:
 
         print("Adjusting Data 3")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<wid>%%</wid>%<hei>%%</hei>%<dep>%%</dep>%<mas>%%</mas>'")
         data3 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data3:
+        for camera_name, feature_name, value, unit, description_of_feature in data3:
             wid_val = re.search(r'<wid>(.*?)</wid>', value).group(1)
             hei_val = re.search(r'<hei>(.*?)</hei>', value).group(1)
             dep_val = re.search(r'<dep>(.*?)</dep>', value).group(1)
             mas_val = re.search(r'<mas>(.*?)</mas>', value).group(1)
             if len(numbers) == 4:
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Width", wid_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Width", wid_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Height", hei_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Height", hei_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Depth", dep_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Depth", dep_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Mass", mas_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Mass", mas_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data3:
+        for camera_name, feature_name, value, unit, description_of_feature in data3:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -163,32 +163,32 @@ class PDBSetup:
 
         print("Adjusting Data 4")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<wid>%%</wid><hei>%%</hei><dep>%%</dep>'")
         data4 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data4:
+        for camera_name, feature_name, value, unit, description_of_feature in data4:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 3:
                 wid_val, hei_val, dep_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Width", wid_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Width", wid_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Height", hei_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Height", hei_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Depth", dep_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Depth", dep_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data4:
+        for camera_name, feature_name, value, unit, description_of_feature in data4:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -198,24 +198,24 @@ class PDBSetup:
 
         print("Adjusting Data 5")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<db>%%</db>'")
         data5 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data5:
+        for camera_name, feature_name, value, unit, description_of_feature in data5:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 1:
                 db_val = numbers[0]
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name, db_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name, db_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data5:
+        for camera_name, feature_name, value, unit, description_of_feature in data5:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -225,24 +225,24 @@ class PDBSetup:
 
         print("Adjusting Data 6")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<global>%%</global>'")
         data6 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data6:
+        for camera_name, feature_name, value, unit, description_of_feature in data6:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 1:
                 db_val = numbers[0]
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name, db_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name, db_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data6:
+        for camera_name, feature_name, value, unit, description_of_feature in data6:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -252,24 +252,24 @@ class PDBSetup:
 
         print("Adjusting Data 7")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<pub>%%</pub>'")
         data7 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data7:
+        for camera_name, feature_name, value, unit, description_of_feature in data7:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 1:
                 db_val = numbers[0]
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
                 VALUES (%s, %s, %s)
-                """, (camera_name, feature_name, db_val))
+                """, (camera_name, feature_name, db_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data7:
+        for camera_name, feature_name, value, unit, description_of_feature in data7:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -279,28 +279,28 @@ class PDBSetup:
 
         print("Adjusting Data 8")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<max>%%</max><def>%%</def>'")
         data8 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data8:
+        for camera_name, feature_name, value, unit, description_of_feature in data8:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 2:
                 max_val, def_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Default", def_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s %s, %s)
+                """, (camera_name, feature_name + "Default", def_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data8:
+        for camera_name, feature_name, value, unit, description_of_feature in data8:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -310,32 +310,32 @@ class PDBSetup:
 
         print("Adjusting Data 9")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<min>%%</min><max>%%</max><bands>%%</bands>'")
         data9 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data9:
+        for camera_name, feature_name, value, unit, description_of_feature in data9:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 3:
                 min_val, max_val, bands_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Min", min_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Min", min_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Bands", bands_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Bands", bands_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data9:
+        for camera_name, feature_name, value, unit, description_of_feature in data9:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -345,28 +345,28 @@ class PDBSetup:
 
         print("Adjusting Data 10")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<min>%%</min><max>%%</max>'")
         data10 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data10:
+        for camera_name, feature_name, value, unit, description_of_feature in data10:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 2:
                 min_val, max_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Min", min_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Min", min_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data10:
+        for camera_name, feature_name, value, unit, description_of_feature in data10:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
@@ -376,36 +376,36 @@ class PDBSetup:
 
         print("Adjusting Data 11")
 
-        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature "
+        self.cursor.execute("SELECT DISTINCT name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature "
                             "FROM [AI:Lean].[dbo].[product_database_staging] WHERE value_of_feature "
                             "LIKE '<min>%%</min><max>%%</max><def>%%</def>used'")
         data11 = self.cursor.fetchall()
 
-        for camera_name, feature_name, value in data11:
+        for camera_name, feature_name, value, unit, description_of_feature in data11:
             numbers = re.findall(r'[-+]?\d*\.\d+|\d+', value)
             if len(numbers) == 3:
                 min_val, max_val, def_val = numbers
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Min", min_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Min", min_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Max", max_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Max", max_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, %s)
-                """, (camera_name, feature_name + "Default", def_val))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, %s, %s, %s)
+                """, (camera_name, feature_name + "Default", def_val, unit, description_of_feature))
                 self.cursor.execute("""
-                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature)
-                VALUES (%s, %s, 'used')
-                """, (camera_name, feature_name + "Used"))
+                INSERT INTO [AI:Lean].[dbo].[product_database] (name_of_camera, name_of_feature, value_of_feature, unit, description_of_feature)
+                VALUES (%s, %s, 'used', %s, %s)
+                """, (camera_name, feature_name + "Used", unit, description_of_feature))
             else:
                 print("Error: ", camera_name, feature_name, value)
         self.conn.commit()
 
-        for camera_name, feature_name, value in data11:
+        for camera_name, feature_name, value, unit, description_of_feature in data11:
             self.cursor.execute("""
             DELETE FROM [AI:Lean].[dbo].[product_database]
             WHERE name_of_camera = %s AND name_of_feature = %s AND value_of_feature = %s
