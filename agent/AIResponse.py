@@ -50,7 +50,7 @@ class AiResponse:
                     messages=self.conversation_history,
                     functions=self.functions,
                     function_call=call_type,
-                    temperature=0,
+                    temperature=0.3,
                 )
                 prompt_tokens = response["usage"]["prompt_tokens"]
                 completion_tokens = response["usage"]["completion_tokens"]
