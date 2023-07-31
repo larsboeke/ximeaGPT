@@ -30,7 +30,7 @@ class AgentFunctions:
                         },
                         "features":{
                             "type": "array",
-                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset'].",
                              "items": {
                                  "type": "string"
                              }
@@ -82,12 +82,13 @@ class AgentFunctions:
                     "properties": {
                         "features":{
                             "type": "array",
-                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset']. If you can't identify a single Attribute place an empty array here!",
                              "items": {
                                  "type": "string"
                                 }
                             }
-                        } 
+                        } ,
+                        "required": ["features"],
                 }
             }
         
@@ -99,7 +100,7 @@ class AgentFunctions:
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "A correct Transact-SQL Query!",
+                        "description": "A correct Transact-SQL Query! e.g. SELECT TOP (10) [name_of_camera] FROM [AI:Lean].[dbo].[product_database];",
                     }
                     
                 },
@@ -123,10 +124,10 @@ class AgentFunctions:
         return self.tools
     
     def use_product_database(self, feature_list = None, message_history = None, prompt_tokens = 0, completion_tokens= 0):
-
+        print(str(feature_list))
         if feature_list != None:
             feature_list = self.similar_embeddings(feature_list)
-
+        print(str(feature_list))
         message, prompt_tokens, completion_tokens = self.get_sql_query_openai(feature_list, message_history, prompt_tokens, completion_tokens)
 
         json_str = message["function_call"]["arguments"]
@@ -156,7 +157,7 @@ class AgentFunctions:
                     messages=message_history,
                     functions=self.local_functions,
                     function_call={"name": "query_pdb"},
-                    temperature = 0,
+                    temperature = 0.5,
     )
                 promt_tokens_gpt4 = response["usage"]["prompt_tokens"]
                 completion_tokensgpt4 = response["usage"]["completion_tokens"]
@@ -180,10 +181,9 @@ class AgentFunctions:
         feature_possibility = []
         for feature in OpenAIs_features:
             feature_embedding = openai.Embedding.create(input=feature, engine="text-embedding-ada-002")['data'][0]['embedding']
-            pinecone_results = index.query([feature_embedding], top_k=3, include_metadata=True, namespace='name_of_sql_features')["matches"]
-            feature_possibility.append(pinecone_results[0]['id'])
-            feature_possibility.append(pinecone_results[1]['id'])
-            feature_possibility.append(pinecone_results[2]['id'])
+            pinecone_results = index.query([feature_embedding], top_k=6, include_metadata=True, namespace='name_of_sql_features')["matches"]
+            for position in range(6):
+                feature_possibility.append(pinecone_results[position]['id'])
 
         return feature_possibility
 
