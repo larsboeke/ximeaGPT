@@ -82,7 +82,7 @@ class AgentFunctions:
                     "properties": {
                         "features":{
                             "type": "array",
-                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset'].",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset']. If you can't identify a single Attribute place an empty array here!",
                              "items": {
                                  "type": "string"
                                 }
@@ -124,7 +124,7 @@ class AgentFunctions:
         return self.tools
     
     def use_product_database(self, feature_list = None, message_history = None, prompt_tokens = 0, completion_tokens= 0):
-
+        print(str(feature_list))
         if feature_list != None:
             feature_list = self.similar_embeddings(feature_list)
         print(str(feature_list))
