@@ -30,7 +30,7 @@ class AgentFunctions:
                         },
                         "features":{
                             "type": "array",
-                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset'].",
                              "items": {
                                  "type": "string"
                              }
@@ -82,7 +82,7 @@ class AgentFunctions:
                     "properties": {
                         "features":{
                             "type": "array",
-                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Device Rest xiapi' , 'xiapi_DeviceLocPath' ,'OffsetX']. Only use it when you are given a Feature!",
+                             "description": "An array of all feature names that you can identify within the user prompt, e.g. ['Resolution', 'Size' , 'Linux Support' ,'Offset'].",
                              "items": {
                                  "type": "string"
                                 }
@@ -100,7 +100,7 @@ class AgentFunctions:
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "A correct Transact-SQL Query!",
+                        "description": "A correct Transact-SQL Query! e.g. SELECT TOP (10) [name_of_camera] FROM [AI:Lean].[dbo].[product_database];",
                     }
                     
                 },
