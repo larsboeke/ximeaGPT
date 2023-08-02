@@ -52,13 +52,16 @@
     function validate (input) {
         // [Checks if the input is empty]
         if($(input).val().trim() == ''){
-            document.getElementById("divUsername").setAttribute("data-validate", "Enter username")
+            if($(input).attr('id') == 'username-register') {
+                document.getElementById("divUsername").setAttribute("data-validate", "Enter username")
+            } else if ($(input).attr('id') == 'username') {
+            document.getElementById("divUsernameLogin").setAttribute("data-validate", "Enter username")
+            }
             return false;
         } else {
 
-            // [Function that checks if username is a mail] -> possible to require that username is a XIMEA mail adress
+            // [Function that checks if username is a XIMEA mail]
             if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
-                //if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
                 if($(input).val().trim().match(/@ximea\.com$/i) == null) {
                     document.getElementById("divUsername").setAttribute("data-validate", "Enter a XIMEA mail adress")
                     return false;
@@ -75,10 +78,15 @@
         }
         
     }
-    // [Checks if username already exists]
+    
     document.addEventListener('DOMContentLoaded', function() {
+        // [Shows error if username already exists]
         if (document.getElementById("divUsername").getAttribute("data-validate") == "Username already exists") {
             showValidate(document.getElementById("username-register"));
+        }
+        // [Shows error if username and password dont match]
+        if (document.getElementById("divUsernameLogin").getAttribute("data-validate") == "Username and password dont match") {
+            showValidate(document.getElementById("username"));
         }
     }, false);
 

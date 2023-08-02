@@ -78,7 +78,7 @@ def login():
             print(current_user.is_authenticated)
             return redirect(url_for('index'))
 
-    return render_template('login.html')
+    return render_template('login.html', dontMatch= "Username and password dont match")
 
 @socketio.on('connect')
 def on_connect():
