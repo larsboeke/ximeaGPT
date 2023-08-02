@@ -50,25 +50,30 @@
     });
 
     function validate (input) {
-        /* [Function that checks if username is a mail] -> possible to require that username is a XIMEA mail adress
-        if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
-            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
-                return false;
+        // [Checks if the input is empty]
+        if($(input).val().trim() == ''){
+            document.getElementById("divUsername").setAttribute("data-validate", "Enter username")
+            return false;
+        } else {
+
+            // [Function that checks if username is a mail] -> possible to require that username is a XIMEA mail adress
+            if($(input).attr('type') == 'username' || $(input).attr('name') == 'username') {
+                //if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+                if($(input).val().trim().match(/@ximea\.com$/i) == null) {
+                    document.getElementById("divUsername").setAttribute("data-validate", "Enter a XIMEA mail adress")
+                    return false;
+                }
             }
-        }
-        else {*/
-            // [Checks if the repeat password is the same]
+            
+                // [Checks if the repeat password is the same]
             if($(input).attr('name') == 'pass-repeat') {
                 if(document.getElementById("password-repeat-register").value != document.getElementById("password-register").value) {
                     return false;
                 }
             }
-            // [Checks if the input is empty]
-            if($(input).val().trim() == ''){
-                document.getElementById("divUsername").setAttribute("data-validate", "Enter username")
-                return false;
-            }
-        //}
+
+        }
+        
     }
     // [Checks if username already exists]
     document.addEventListener('DOMContentLoaded', function() {

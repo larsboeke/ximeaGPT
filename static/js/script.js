@@ -260,7 +260,6 @@ deleteButton.addEventListener("click", () =>{
         chatList.removeChild(document.getElementById(chatId));
         localStorage.removeItem('chat-history');
         localStorage.removeItem('chat_id');
-        window.location.href = '/';
     }
 });
 
