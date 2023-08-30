@@ -18,6 +18,25 @@ class AgentFunctions:
         openai.api_key = os.environ.get("OPENAI_API_KEY")
         self.EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL")
 
+        self.question_separation = {
+                "name": "question_separation",
+                "description": "This function extracts relavent content out of the user query to create an array with all important content.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "context":{
+                            "type": "array",
+                             "description": "An array of all important content of the user query.",
+                             "items": {
+                                 "type": "string"
+                             }
+
+                        },
+                    },
+                    "required": ["context"],
+                },
+            }
+
         self.query_all_sources_description = {
                 "name": "query_all_sources",
                 "description": "This function provides infomation form support tickets, emails and technical manuals and the product database. This tool is best to use if all of these data sources provide could provide the neccesary information. Also use this tool if you are unsure which other tool to use!",
@@ -109,10 +128,11 @@ class AgentFunctions:
         }
 
         self.tools = [
-            self.query_all_sources_description,
-            self.query_manual_description,
-            self.query_emails_and_tickets_description,
-            self.use_product_database_description,
+            self.question_separation
+            # self.query_all_sources_description,
+            # self.query_manual_description,
+            # self.query_emails_and_tickets_description,
+            # self.use_product_database_description,
         ]
 
         self.local_functions = [ 
