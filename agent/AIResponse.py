@@ -100,6 +100,9 @@ class AiResponse:
 
                 response_dictionary = {}
 
+                if function_name == "seperate_question":
+                    print(data)
+
                 if function_name == "query_all_sources":
                     print("Using new superior tool ...")
                     print("User promt: ", self.user_prompt)
